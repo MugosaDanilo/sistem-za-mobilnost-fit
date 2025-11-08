@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MobilityController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +29,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware('adminAuth')->prefix('admin')->group(function(){
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('adminDashboardShow');
 
+    Route::get('/mobilnost', [MobilityController::class, 'index'])->name('admin.mobility');
+    Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('admin.mobility.upload');
+
     Route::get('/users/', [UserController::class, 'index'])->name('users.index');
     Route::post('/users/', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
@@ -36,6 +40,9 @@ Route::middleware('adminAuth')->prefix('admin')->group(function(){
 
 Route::middleware('profesorAuth')->prefix('profesor')->group(function(){
     Route::get('/dashboard', [DashboardController::class, 'profesorDashboard'])->name('profesorDashboardShow');
+
+    Route::get('/mobilnost', [MobilityController::class, 'index'])->name('profesor.mobility');
+    Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('profesor.mobility.upload');
 });
 
 require __DIR__.'/auth.php';

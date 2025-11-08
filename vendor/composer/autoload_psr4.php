@@ -55,6 +55,8 @@ return array(
     'Psr\\Clock\\' => array($vendorDir . '/psr/clock/src'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'PhpOption\\' => array($vendorDir . '/phpoption/phpoption/src/PhpOption'),
+    'PhpOffice\\PhpWord\\' => array($vendorDir . '/phpoffice/phpword/src/PhpWord'),
+    'PhpOffice\\Math\\' => array($vendorDir . '/phpoffice/math/src/Math'),
     'Pest\\Plugin\\' => array($vendorDir . '/pestphp/pest-plugin/src'),
     'Pest\\Mutate\\' => array($vendorDir . '/pestphp/pest-plugin-mutate/src'),
     'Pest\\Laravel\\' => array($vendorDir . '/pestphp/pest-plugin-laravel/src'),

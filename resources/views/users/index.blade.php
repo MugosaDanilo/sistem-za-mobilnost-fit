@@ -18,7 +18,6 @@
         </div>
     @endif
 
-
     <div class="py-10 max-w-6xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800">User Management</h1>
