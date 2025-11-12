@@ -3,8 +3,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "cross-env LARAVEL_BYPASS_ENV_CHECK=1 vite",
-        "dev": "vite build"
+        "build": "vite build",
+        "dev": "vite"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",

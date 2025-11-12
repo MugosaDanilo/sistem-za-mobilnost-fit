@@ -31,6 +31,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function(){
 
     Route::get('/mobilnost', [MobilityController::class, 'index'])->name('admin.mobility');
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('admin.mobility.upload');
+    Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('admin.mobility.export');
 
     Route::get('/users/', [UserController::class, 'index'])->name('users.index');
     Route::post('/users/', [UserController::class, 'store'])->name('users.store');
@@ -43,6 +44,7 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function(){
 
     Route::get('/mobilnost', [MobilityController::class, 'index'])->name('profesor.mobility');
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('profesor.mobility.upload');
+    Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('profesor.mobility.export');
 });
 
 require __DIR__.'/auth.php';

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Element\Text;
 use PhpOffice\PhpWord\Element\TextRun;
 use PhpOffice\PhpWord\Element\Table;
+use PhpOffice\PhpWord\SimpleType\JcTable;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +21,105 @@ class MobilityController extends Controller
         return view('mobility.index');
     }
 
+    public function export(Request $request)
+    {
+        $request->validate([
+            'links'     => 'required|array|min:1',
+            'courses'   => 'array',
+            'ime'       => 'required|string',
+            'prezime'   => 'required|string',
+            'fakultet'  => 'required|string',
+        ]);
+
+        $links = $request->input('links', []);
+        $courses = $request->input('courses', []);
+        $ime = trim($request->input('ime'));
+        $prezime = trim($request->input('prezime'));
+        $fakultet = trim($request->input('fakultet'));
+
+        $courseMap = [];
+        foreach ($courses as $c) {
+            $name = $c['Course'] ?? $c['Predmet'] ?? $c['name'] ?? null;
+            if ($name) {
+                $courseMap[trim($name)] = [
+                    'Term' => $c['Term'] ?? '',
+                    'ECTS' => $c['ECTS'] ?? '',
+                ];
+            }
+        }
+
+        $phpWord = new PhpWord();
+        $section = $phpWord->addSection();
+
+        $section->addText('Mobilnost', ['bold' => true, 'size' => 16]);
+        $section->addTextBreak(1);
+
+        $textRun = $section->addTextRun(['size' => 12]);
+        $textRun->addText('Student osnovnih studija ');
+        $textRun->addText("{$ime} {$prezime}", ['bold' => true]);
+        $textRun->addText(' će boraviti na ');
+        $textRun->addText($fakultet, ['bold' => true]);
+        $textRun->addText('.');
+
+        $section->addText(
+            'Studentu ce se priznavati sledeci ispiti:',
+            ['size' => 12]
+        );
+        $section->addTextBreak(1);
+
+        $tableStyle = [
+            'borderSize' => 6,
+            'borderColor' => '999999',
+            'cellMargin' => 80,
+            'alignment' => JcTable::CENTER
+        ];
+        $phpWord->addTableStyle('CoursesTable', $tableStyle);
+        $table = $section->addTable('CoursesTable');
+
+        // Headeri
+        $headers = ['R.br', 'Predmet (FIT)', 'Semestar', 'ECTS', 'Priznaje se', 'ECTS'];
+        $table->addRow();
+        foreach ($headers as $header) {
+            $table->addCell(2000)->addText($header, ['bold' => true]);
+        }
+
+        $rowNum = 1;
+        foreach ($links as $fitSubject => $linkedSubjects) {
+            if (empty($linkedSubjects)) continue;
+
+            $term = $courseMap[$fitSubject]['Term'] ?? '';
+            $ects = $courseMap[$fitSubject]['ECTS'] ?? '';
+
+            $table->addRow();
+            $table->addCell(800)->addText($rowNum++);
+            $table->addCell(3000)->addText($fitSubject);
+            $table->addCell(1200)->addText($term);
+            $table->addCell(800)->addText($ects);
+
+            $textRun = $table->addCell(4000)->addTextRun();
+            foreach ($linkedSubjects as $i => $subj) {
+                $textRun->addText($subj);
+                if ($i < count($linkedSubjects) - 1) {
+                    $textRun->addTextBreak();
+                }
+            }
+
+            $table->addCell(800)->addText('/');
+        }
+
+        $section->addTextBreak(2);
+        $section->addText('Dekan,', ['bold' => true]);
+        $section->addText('___________________________');
+
+        $fileName = 'Mobilnost_' . date('Ymd_His') . '.docx';
+        $filePath = storage_path("app/public/$fileName");
+
+        $writer = IOFactory::createWriter($phpWord, 'Word2007');
+        $writer->save($filePath);
+
+        return response()->download($filePath)->deleteFileAfterSend(true);
+    }
+
     public function upload(Request $request)
     {
         $request->validate([
@@ -27,13 +128,11 @@ class MobilityController extends Controller
 
         $file = $request->file('word_file');
         $path = $file->storeAs('uploads', $file->getClientOriginalName());
-        Log::info('File stored at: ' . storage_path('app/' . $path));
-
 
         $courses = [];
         $this->loadCoursesWithoutGrades(storage_path('app/private/' . $path), $courses);
 
-        return redirect()->route($this->getRedirectRoute())->with('courses', $courses);
+        return redirect()->route($this->getRedirectRoute())->with('courses', $courses)->withInput();
     }
 
     private function getRedirectRoute(): string
