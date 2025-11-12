@@ -9,9 +9,17 @@
             <div class="w-[45%] bg-white border border-gray-200 rounded-xl shadow p-6 transition-all duration-300">
                 <h2 class="text-xl font-semibold mb-4">Information</h2>
 
-                <input type="text" id="ime" name="ime" value="{{ old('ime') }}" placeholder="First Name" class="w-full border rounded-md px-3 py-2 mb-4" />
-                <input type="text" id="prezime" name="prezime" value="{{ old('prezime') }}" placeholder="Last Name" class="w-full border rounded-md px-3 py-2 mb-4" />
-                <input type="text" id="fakultet" name="fakultet" value="{{ old('fakultet') }}" placeholder="Faculty Name" class="w-full border rounded-md px-3 py-2 mb-6" />
+               <div class="flex flex-col gap-4 mb-6">
+                <input type="text" id="ime" name="ime" value="{{ old('ime') }}" placeholder="First Name"
+                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+
+                <input type="text" id="prezime" name="prezime" value="{{ old('prezime') }}" placeholder="Last Name"
+                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+
+                <input type="text" id="fakultet" name="fakultet" value="{{ old('fakultet') }}" placeholder="Faculty Name"
+                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            </div>
+
 
                 <h3 class="text-lg font-semibold mb-3">Subjects</h3>
                 <div id="subjectList" class="subjects-container mb-3"></div>
@@ -158,7 +166,7 @@
                     return;
                 }
                 currentSet.add(rightName);
-                rightCard.classList.add('border-blue-400', 'bg-blue-50');
+                rightCard.classList.add('border-gray-400', 'bg-blue-50');
             }
 
             renderPillsForLeft(activeLeft);
