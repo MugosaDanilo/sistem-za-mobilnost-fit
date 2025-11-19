@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LearningAgreement;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Element\Text;
@@ -19,6 +20,55 @@ class MobilityController extends Controller
     public function index()
     {
         return view('mobility.index');
+    }
+
+    public function save(Request $request)
+    {
+        $request->validate([
+            'ime' => 'required|string',
+            'prezime' => 'required|string',
+            'fakultet' => 'required|string',
+            'links' => 'required|array|min:1',
+            'courses' => 'array',
+        ]);
+
+        $ime = $request->ime;
+        $prezime = $request->prezime;
+        $fakultet = $request->fakultet;
+        $links = $request->input('links', []);
+        $courses = $request->input('courses', []);
+
+        $courseMap = [];
+        foreach ($courses as $c) {
+            $name = $c['Course'] ?? $c['Predmet'] ?? $c['name'] ?? null;
+            if ($name) {
+                $courseMap[trim($name)] = [
+                    'Term' => $c['Term'] ?? '',
+                    'ECTS' => $c['ECTS'] ?? '',
+                ];
+            }
+        }
+
+        $la = LearningAgreement::Create(
+            ['ime' => $ime, 'prezime' => $prezime, 'naziv_fakulteta' => $fakultet]
+        );
+
+        foreach ($links as $fitSubject => $foreignSubjects) {
+            $term = $courseMap[$fitSubject]['Term'] ?? null;
+            $ects = $courseMap[$fitSubject]['ECTS'] ?? null;
+
+            foreach ($foreignSubjects as $foreign) {
+                $la->courses()->create([
+                    'predmet_fit' => $fitSubject,
+                    'semestar' => $term,
+                    'ects' => $ects,
+                    'strani_predmet' => $foreign,
+                    'ocjena' => null,
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Learning Agreement saved successfully.']);
     }
 
     public function export(Request $request)

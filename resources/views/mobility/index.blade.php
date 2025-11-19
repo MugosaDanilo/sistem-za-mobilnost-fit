@@ -1,4 +1,11 @@
 <x-app-layout>
+
+    @if(session('success'))
+        <div class="mb-4 bg-green-100 text-green-800 p-3 rounded-md">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="py-10 max-w-6xl mx-auto px-6">
         <div class="flex gap-8 items-start">
 
@@ -39,6 +46,12 @@
                         class="btn bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg"
                         id="exportButton">
                         Export Word
+                    </button>
+
+                    <button type="button"
+                        class="btn bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg"
+                        id="saveButton">
+                        Save LA
                     </button>
 
                 </form>
@@ -277,6 +290,51 @@
                 a.remove();
             })
             .catch(err => alert(err.message));
+    });
+
+    document.getElementById('saveButton')?.addEventListener('click', () => {
+        const ime = document.getElementById('ime')?.value.trim();
+        const prezime = document.getElementById('prezime')?.value.trim();
+        const fakultet = document.getElementById('fakultet')?.value.trim();
+
+        if (!ime || !prezime || !fakultet) {
+            alert('Molimo unesite ime, prezime i fakultet prije cuvanja.');
+            return;
+        }
+
+        const hasAnyLinks = Object.values(links).some(set => set.size > 0);
+
+        if (!hasAnyLinks) {
+            alert('Molimo povežite barem jedan predmet prije eksportovanja.');
+            return;
+        }
+
+        const plainLinks = {};
+        for (const [key, value] of Object.entries(links)) {
+            plainLinks[key] = Array.from(value);
+        }
+
+        const saveRoute = "{{ route(auth()->user()->type === 0 ? 'admin.mobility.save' : 'profesor.mobility.save') }}";
+
+        fetch(saveRoute, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            },
+            body: JSON.stringify({
+                ime,
+                prezime,
+                fakultet,
+                links: plainLinks,
+                courses: uploadedCourses
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(err => alert("Save failed: " + err));
     });
 
     </script>
