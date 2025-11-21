@@ -11,18 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('learning_agreement', function (Blueprint $table) {
+        Schema::create('learning_agreements', function (Blueprint $table) {
             $table->id();
-            $table->date('datum_pocetka');
             $table->text('napomena')->nullable();
 
-            // samo upload original LA (dodajemo polje za dokument)
-            $table->string('dokument_path')->nullable();
-
+            $table->string('ocjena')->nullable();
+            
             $table->foreignId('mobilnost_id')
-                  ->constrained('mobilnost')
+                  ->constrained('mobilnosti')->onDelete('cascade')
                   ->onDelete('cascade');
 
+            $table->foreignId('fit_predmet_id')
+                  ->constrained('predmeti')
+                  ->onDelete('cascade');
+
+            $table->foreignId('strani_predmet_id')
+                  ->constrained('predmeti')
+                  ->onDelete('cascade');
+            
             $table->timestamps();
         });
     }
@@ -32,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('learning_agreement');
+        Schema::dropIfExists('learning_agreements');
     }
 };

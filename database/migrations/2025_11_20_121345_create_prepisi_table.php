@@ -11,21 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-      Schema::create('prepis', function (Blueprint $table) {
+        Schema::create('prepisi', function (Blueprint $table) {
             $table->id();
             $table->date('datum');
-            
-            // ENUM status: ‘u procesu’, ‘odobren’, ‘odbijen’
             $table->enum('status', ['u procesu', 'odobren', 'odbijen'])->default('u procesu');
-
             $table->text('napomena')->nullable();
-
+            
             $table->foreignId('fakultet_id')
-                  ->constrained('fakultet')
+                  ->constrained('fakulteti')
                   ->onDelete('restrict');
 
             $table->foreignId('student_id')
-                  ->constrained('student')
+                  ->constrained('studenti')
                   ->onDelete('restrict');
 
             $table->timestamps();
@@ -37,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('prepis');
+        Schema::dropIfExists('prepisi');
     }
 };

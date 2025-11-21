@@ -11,21 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mobilnost', function (Blueprint $table) {
+        Schema::create('mobilnosti', function (Blueprint $table) {
             $table->id();
             $table->date('datum_pocetka');
             $table->date('datum_kraja');
 
-            $table->foreignId('predmet_id')
-                  ->constrained('predmet')
-                  ->onDelete('restrict');
-
             $table->foreignId('student_id')
-                  ->constrained('student')
+                  ->constrained('studenti')
                   ->onDelete('restrict');
 
             $table->foreignId('fakultet_id')
-                  ->constrained('fakultet')
+                  ->constrained('fakulteti')
                   ->onDelete('restrict');
 
             $table->timestamps();
@@ -37,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mobilnost');
+        Schema::dropIfExists('mobilnosti');
     }
 };

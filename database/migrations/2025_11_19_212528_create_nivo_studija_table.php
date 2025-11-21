@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('nivo_studija', function (Blueprint $table) {
             $table->id();
-            $table->string('naziv')->unique();
+            $table->string('naziv');
             $table->timestamps();
         });
     }

@@ -8,19 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('predmet', function (Blueprint $table) {
+        Schema::create('predmeti', function (Blueprint $table) {
             $table->id();
-            $table->string('naziv')->unique();
+            $table->string('naziv');
             $table->integer('ects');
             $table->integer('semestar');
-            $table->string('naziv_teze')->nullable();
-            $table->date('datum_teze')->nullable();
+
+            $table->foreignId('fakultet_id')
+                ->constrained('fakulteti')
+                ->onDelete('restrict');
+
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('predmet');
+        Schema::dropIfExists('predmeti');
     }
 };

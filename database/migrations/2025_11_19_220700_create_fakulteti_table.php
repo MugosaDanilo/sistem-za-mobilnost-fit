@@ -8,22 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('fakultet', function (Blueprint $table) {
+        Schema::create('fakulteti', function (Blueprint $table) {
             $table->id();
-            $table->string('naziv')->unique();
+            $table->string('naziv');
             $table->string('email')->unique();
             $table->string('telefon');
             $table->string('web')->nullable();
             $table->text('uputstvo_za_ocjene')->nullable();
             $table->foreignId('univerzitet_id')
-                  ->constrained('univerzitet')
-                  ->onDelete('restrict');
+                  ->constrained('univerziteti')
+                  ->onDelete('cascade');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('fakultet');
+        Schema::dropIfExists('fakulteti');
     }
 };

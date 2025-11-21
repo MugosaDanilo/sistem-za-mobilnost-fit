@@ -14,14 +14,12 @@ return new class extends Migration
         Schema::create('fakultet_predmet', function (Blueprint $table) {
             $table->id();
 
-            // FK ka fakultetu
             $table->foreignId('fakultet_id')
-                  ->constrained('fakultet')
+                  ->constrained('fakulteti')
                   ->onDelete('cascade');
 
-            // FK ka predmetu
             $table->foreignId('predmet_id')
-                  ->constrained('predmet')
+                  ->constrained('predmeti')
                   ->onDelete('cascade');
 
             $table->timestamps();

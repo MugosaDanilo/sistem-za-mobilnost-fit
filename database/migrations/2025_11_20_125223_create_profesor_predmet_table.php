@@ -11,23 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-           Schema::create('profesor_predmet', function (Blueprint $table) {
+        Schema::create('profesor_predmet', function (Blueprint $table) {
             $table->id();
 
-            // FK ka vrsta_korisnika (profesor)
-            $table->foreignId('vrsta_korisnika_id')
-                  ->constrained('vrsta_korisnika')
+            $table->foreignId('profesor_id')
+                  ->constrained('users')
                   ->onDelete('cascade');
 
-            // FK ka predmetu
             $table->foreignId('predmet_id')
-                  ->constrained('predmet')
+                  ->constrained('predmeti')
                   ->onDelete('cascade');
 
             $table->timestamps();
 
             // Unikatni indeks da profesor ne može imati isti predmet više puta
-            $table->unique(['vrsta_korisnika_id', 'predmet_id']);
+            $table->unique(['profesor_id', 'predmet_id']);
         });
     }
 
