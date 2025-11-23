@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('editCity').value = button.getAttribute('data-grad');
             document.getElementById('editEmail').value = button.getAttribute('data-email');
 
-            form.action = `/univerzitet/${id}`;
+            form.action = `{{ route('univerzitet.index') }}/${id}`;
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         });
