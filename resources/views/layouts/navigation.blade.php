@@ -23,6 +23,11 @@
                         <x-nav-link :href="route('admin.mobility')" :active="request()->routeIs('admin.mobility')">
                             {{ __('Mobilnost') }}
                         </x-nav-link>
+
+                        <x-nav-link :href="route('univerzitet.index')" :active="request()->routeIs('univerzitet.*')">
+                         {{ __('University') }}
+                    </x-nav-link>
+
                     @elseif((int)$user->type === 1)
                         <x-nav-link :href="route('profesorDashboardShow')" :active="request()->routeIs('profesorDashboardShow')">
                             {{ __('Dashboard') }}
@@ -104,6 +109,14 @@
                 <x-responsive-nav-link :href="route('admin.mobility')" :active="request()->routeIs('admin.mobility')">
                     {{ __('Mobilnost') }}
                 </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('univerzitet.index')" :active="request()->routeIs('univerzitet.*')">
+    {{ __('University') }}
+</x-responsive-nav-link>
+php 
+<x-nav-link :href="route('univerzitet.create')" :active="request()->routeIs('univerzitet.create')">
+    {{ __('Dodaj Univerzitet') }}
+</x-nav-link>
             @elseif((int)$user->type === 1)
                 <x-responsive-nav-link :href="route('profesorDashboardShow')" :active="request()->routeIs('profesorDashboardShow')">
                     {{ __('Dashboard') }}
