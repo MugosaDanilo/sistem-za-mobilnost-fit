@@ -6,6 +6,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UniverzitetController;
+
 
 Route::get('/', function () {
     $user = Auth::user();
@@ -40,6 +42,17 @@ Route::middleware('adminAuth')->prefix('admin')->group(function(){
     Route::post('/users/', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+
+
+    //univerzitet
+ 
+        Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
+    Route::get('/univerzitet/create', [UniverzitetController::class, 'create'])->name('univerzitet.create');
+    Route::post('/univerzitet', [UniverzitetController::class, 'store'])->name('univerzitet.store');
+    Route::get('/univerzitet/{id}/edit', [UniverzitetController::class, 'edit'])->name('univerzitet.edit');
+    Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
+    Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
+
 });
 
 Route::middleware('profesorAuth')->prefix('profesor')->group(function(){
