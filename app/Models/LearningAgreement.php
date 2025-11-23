@@ -3,14 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LearningAgreement extends Model
 {
-    protected $fillable = ['ime', 'prezime', 'naziv_fakulteta', 'broj_indeksa'];
+    protected $table = 'learning_agreements';
+    
+    protected $fillable = [
+        'mobilnost_id',
+        'fit_predmet_id',
+        'strani_predmet_id',
+        'napomena',
+        'ocjena'
+    ];
 
-    public function courses(): HasMany
+    public function mobilnost()
     {
-        return $this->hasMany(LearningAgreementCourse::class);
+        return $this->belongsTo(Mobilnost::class);
+    }
+
+    public function fitPredmet()
+    {
+        return $this->belongsTo(Predmet::class, 'fit_predmet_id');
+    }
+
+    public function straniPredmet()
+    {
+        return $this->belongsTo(Predmet::class, 'strani_predmet_id');
     }
 }

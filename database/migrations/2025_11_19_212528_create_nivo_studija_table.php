@@ -11,20 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('learning_agreements', function (Blueprint $table) {
+        Schema::create('nivo_studija', function (Blueprint $table) {
             $table->id();
-            $table->string('ime');
-            $table->string('prezime');
-            $table->string('naziv_fakulteta');
+            $table->string('naziv');
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('learning_agreements');
+        Schema::dropIfExists('nivo_studija');
     }
 };

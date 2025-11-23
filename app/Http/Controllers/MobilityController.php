@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fakultet;
 use App\Models\LearningAgreement;
+use App\Models\Mobilnost;
+use App\Models\Student;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Element\Text;
@@ -19,24 +22,30 @@ class MobilityController extends Controller
 {
     public function index()
     {
-        return view('mobility.index');
+        $students = Student::orderBy('ime')->orderBy('prezime')->get();
+        $fakulteti = Fakultet::with('predmeti')->orderBy('naziv')->get();
+        return view('mobility.index', compact('students', 'fakulteti'));
     }
+    
 
     public function save(Request $request)
     {
         $request->validate([
             'ime' => 'required|string',
             'prezime' => 'required|string',
-            'fakultet' => 'required|string',
-            'broj_indeksa' => 'required|string|unique:learning_agreements,broj_indeksa',
+            'fakultet_id' => 'required|exists:fakulteti,id',
+            'student_id' => 'required|exists:studenti,id',
+            'broj_indeksa' => 'required|string',
+            'datum_pocetka' => 'required|date',
+            'datum_kraja' => 'required|date|after:datum_pocetka',
             'links' => 'required|array|min:1',
             'courses' => 'array',
         ]);
 
-        $ime = $request->ime;
-        $prezime = $request->prezime;
-        $fakultet = $request->fakultet;
-        $brojIndeksa = $request->broj_indeksa;
+        $fakultetId = $request->fakultet_id;
+        $studentId = $request->student_id;
+        $datumPocetka = $request->datum_pocetka;
+        $datumKraja = $request->datum_kraja;
         $links = $request->input('links', []);
         $courses = $request->input('courses', []);
 
@@ -51,22 +60,79 @@ class MobilityController extends Controller
             }
         }
 
-        $la = LearningAgreement::Create(
-            ['ime' => $ime, 'prezime' => $prezime, 'naziv_fakulteta' => $fakultet, 'broj_indeksa' => $brojIndeksa]
-        );
+        // Create or update Mobilnost
+        $mobilnost = Mobilnost::create([
+            'student_id' => $studentId,
+            'fakultet_id' => $fakultetId,
+            'datum_pocetka' => $datumPocetka,
+            'datum_kraja' => $datumKraja,
+        ]);
 
-        foreach ($links as $fitSubject => $foreignSubjects) {
-            $term = $courseMap[$fitSubject]['Term'] ?? null;
-            $ects = $courseMap[$fitSubject]['ECTS'] ?? null;
+        \Illuminate\Support\Facades\Log::info('Mobilnost created', ['id' => $mobilnost->id]);
+        \Illuminate\Support\Facades\Log::info('Links payload', ['links' => $links]);
 
-            foreach ($foreignSubjects as $foreign) {
-                $la->courses()->create([
-                    'predmet_fit' => $fitSubject,
-                    'semestar' => $term,
-                    'ects' => $ects,
-                    'strani_predmet' => $foreign,
-                    'ocjena' => null,
+        foreach ($links as $fitSubjectName => $foreignSubjects) {
+            $fitSubjectName = trim($fitSubjectName);
+            \Illuminate\Support\Facades\Log::info('Processing FIT subject', ['name' => $fitSubjectName]);
+
+            // Find FIT subject
+            // Try exact match first
+            $fitPredmet = \App\Models\Predmet::where('naziv', $fitSubjectName)
+                ->whereHas('fakultet', function($q) {
+                    $q->where('naziv', 'FIT');
+                })->first();
+
+            if (!$fitPredmet) {
+                // Try ignoring whitespace
+                $normalizedName = str_replace(' ', '', $fitSubjectName);
+                $fitPredmet = \App\Models\Predmet::whereRaw("REPLACE(naziv, ' ', '') = ?", [$normalizedName])
+                    ->whereHas('fakultet', function($q) {
+                        $q->where('naziv', 'FIT');
+                    })->first();
+            }
+
+            if (!$fitPredmet) {
+                \Illuminate\Support\Facades\Log::warning('FIT subject not found', ['name' => $fitSubjectName]);
+                // Fallback: try finding by name only (ignoring whitespace)
+                 $fitPredmet = \App\Models\Predmet::whereRaw("REPLACE(naziv, ' ', '') = ?", [$normalizedName])->first();
+                 if (!$fitPredmet) continue;
+            }
+
+            foreach ($foreignSubjects as $foreignSubjectName) {
+                $foreignSubjectName = trim($foreignSubjectName);
+                \Illuminate\Support\Facades\Log::info('Processing Foreign subject', ['name' => $foreignSubjectName]);
+
+                // Find or create foreign subject
+                $foreignPredmet = \App\Models\Predmet::firstOrCreate(
+                    [
+                        'naziv' => $foreignSubjectName,
+                        'fakultet_id' => $fakultetId
+                    ],
+                    [
+                        'ects' => $courseMap[$foreignSubjectName]['ECTS'] ?? 0,
+                        'semestar' => 0 // Default or extract if possible
+                    ]
+                );
+                
+                if ($foreignPredmet->wasRecentlyCreated) {
+                    \Illuminate\Support\Facades\Log::warning('Duplicate/New subject created!', [
+                        'name' => $foreignSubjectName,
+                        'fakultet_id' => $fakultetId,
+                        'id' => $foreignPredmet->id
+                    ]);
+                } else {
+                    \Illuminate\Support\Facades\Log::info('Existing subject found', ['id' => $foreignPredmet->id]);
+                }
+
+                LearningAgreement::create([
+                    'mobilnost_id' => $mobilnost->id,
+                    'fit_predmet_id' => $fitPredmet->id,
+                    'strani_predmet_id' => $foreignPredmet->id,
+                    'napomena' => null,
+                    'ocjena' => null
                 ]);
+                
+                \Illuminate\Support\Facades\Log::info('LA created');
             }
         }
 

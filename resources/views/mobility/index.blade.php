@@ -16,21 +16,54 @@
             <div class="w-[45%] bg-white border border-gray-200 rounded-xl shadow p-6 transition-all duration-300">
                 <h2 class="text-xl font-semibold mb-4">Information</h2>
 
-               <div class="flex flex-col gap-4 mb-6">
-                <input type="text" id="ime" name="ime" value="{{ old('ime') }}" placeholder="First Name"
-                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                <div class="flex flex-col gap-4 mb-6">
+                    <label for="student_id" class="font-semibold">Student</label>
+                    <select id="student_id" name="student_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">-- Odaberite studenta --</option>
+                        @foreach($students as $student)
+                            <option value="{{ $student->id }}"
+                                {{ old('student_id') == $student->id ? 'selected' : '' }}
+                                data-ime="{{ $student->ime }}"
+                                data-prezime="{{ $student->prezime }}"
+                                data-br_indexa="{{ $student->br_indexa }}">
+                                {{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                <input type="text" id="prezime" name="prezime" value="{{ old('prezime') }}" placeholder="Last Name"
-                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 
-                <input type="text" id="fakultet" name="fakultet" value="{{ old('fakultet') }}" placeholder="Faculty Name"
-                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                <div class="flex flex-col gap-4 mb-6">
+                    <label for="fakultet_id" class="font-semibold">Fakultet</label>
+                    <select id="fakultet_id" name="fakultet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">-- Odaberite fakultet --</option>
+                        @foreach($fakulteti as $fakultet)
+                            @if($fakultet->naziv !== 'FIT')
+                                <option value="{{ $fakultet->id }}" 
+                                    {{ old('fakultet_id') == $fakultet->id ? 'selected' : '' }}
+                                    data-naziv="{{ $fakultet->naziv }}">
+                                    {{ $fakultet->naziv }}
+                                </option>
+                            @endif
+                        @endforeach
+                    </select>
+                </div>
 
-                <input type="text" id="broj_indeksa" name="broj_indeksa" value="{{ old('broj_indeksa') }}" placeholder="Broj indeksa"
-                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" />
 
-            </div>
-
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="flex flex-col gap-2">
+                        <label for="datum_pocetka" class="font-semibold">Datum početka</label>
+                        <input type="date" id="datum_pocetka" name="datum_pocetka" 
+                            value="{{ old('datum_pocetka') }}"
+                            class="border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label for="datum_kraja" class="font-semibold">Datum kraja</label>
+                        <input type="date" id="datum_kraja" name="datum_kraja" 
+                            value="{{ old('datum_kraja') }}"
+                            class="border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
 
                 <h3 class="text-lg font-semibold mb-3">Subjects</h3>
                 <div id="subjectList" class="subjects-container mb-3"></div>
@@ -87,27 +120,7 @@
                 <h2 class="text-xl font-semibold mb-4">Available Subjects</h2>
 
                 <div id="availableSubjects" class="flex flex-col gap-3">
-                    @php
-                    $subjects = [
-                        'Engineering Mathematics',
-                        'Basic Programming',
-                        'CAD Design',
-                        'Information Technology',
-                        'English Language 1',
-                        'Statistics',
-                        'Computer Networks',
-                        'Introduction to Databases',
-                        'Object-Oriented Programming 1',
-                        'English Language 2',
-                        'Operating Systems',
-                        'Web Programming',
-                    ];
-                    @endphp
-                    @foreach($subjects as $subject)
-                        <div class="available-subject border border-gray-200 px-4 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition cursor-pointer" data-name="{{ $subject }}">
-                            {{ $subject }}
-                        </div>
-                    @endforeach
+                  
                 </div>
             </div>
 
@@ -130,7 +143,47 @@
         const MAX_LINKS = 4;
 
         const leftCards = Array.from(document.querySelectorAll('.uploaded-subject'));
-        const rightCards = Array.from(document.querySelectorAll('.available-subject'));
+        const rightCards =  refreshRightCards();
+
+        const fakultetPredmeti = @json($fakulteti->mapWithKeys(function($fak) {
+            return [$fak->id => $fak->predmeti->pluck('naziv')];
+        }));
+
+        const fakultetSelect = document.getElementById('fakultet_id');
+        const availableSubjectsContainer = document.getElementById('availableSubjects');
+
+        fakultetSelect.addEventListener('change', () => {
+            const fakultetId = fakultetSelect.value;
+            availableSubjectsContainer.innerHTML = ''; // obavezno očisti stare
+
+            // Clear all links and visual indicators
+            for (const key in links) delete links[key];
+            document.querySelectorAll('.linked-pills').forEach(el => el.innerHTML = '');
+            setActiveLeft(null);
+
+            if (!fakultetId || !fakultetPredmeti[fakultetId]) return;
+
+            fakultetPredmeti[fakultetId].forEach(subject => {
+                const div = document.createElement('div');
+                div.className = 'available-subject border border-gray-200 px-4 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition cursor-pointer';
+                div.dataset.name = subject;
+                div.textContent = subject;
+
+                div.addEventListener('click', () => toggleLink(div)); // linkovanje sa lijevom stranom
+                availableSubjectsContainer.appendChild(div);
+            });
+        });
+
+        // Trigger change event if value exists (e.g. after validation error or upload)
+        if (fakultetSelect.value) {
+            fakultetSelect.dispatchEvent(new Event('change'));
+        }
+
+        function refreshRightCards() {
+            return Array.from(document.querySelectorAll('.available-subject'));
+        }
+
+
 
         function clearActiveBadges() {
             document.querySelectorAll('.uploaded-subject .active-badge').forEach(el => el.remove());
@@ -237,18 +290,53 @@
 
 
         fileInput.addEventListener('change', () => {
-            document.getElementById('hiddenIme').value = document.getElementById('ime').value;
-            document.getElementById('hiddenPrezime').value = document.getElementById('prezime').value;
-            document.getElementById('hiddenFakultet').value = document.getElementById('fakultet').value;
-            document.getElementById('hiddenBrojIndeksa').value = document.getElementById('broj_indeksa').value;
+            const studentSelect = document.getElementById('student_id');
+            const selectedOption = studentSelect.options[studentSelect.selectedIndex];
+            const fakultetSelect = document.getElementById('fakultet_id');
+
+            document.getElementById('hiddenIme').value = selectedOption?.dataset.ime || '';
+            document.getElementById('hiddenPrezime').value = selectedOption?.dataset.prezime || '';
+            document.getElementById('hiddenFakultet').value = fakultetSelect.options[fakultetSelect.selectedIndex]?.dataset.naziv || '';
+            document.getElementById('hiddenBrojIndeksa').value = selectedOption?.dataset.br_indexa || '';
+            
+            // Add hidden inputs for student_id and fakultet_id to preserve selection
+            const hiddenStudentId = document.createElement('input');
+            hiddenStudentId.type = 'hidden';
+            hiddenStudentId.name = 'student_id';
+            hiddenStudentId.value = studentSelect.value;
+            form.appendChild(hiddenStudentId);
+
+            const hiddenFakultetId = document.createElement('input');
+            hiddenFakultetId.type = 'hidden';
+            hiddenFakultetId.name = 'fakultet_id';
+            hiddenFakultetId.value = fakultetSelect.value;
+            form.appendChild(hiddenFakultetId);
+
+            const hiddenDatumPocetka = document.createElement('input');
+            hiddenDatumPocetka.type = 'hidden';
+            hiddenDatumPocetka.name = 'datum_pocetka';
+            hiddenDatumPocetka.value = document.getElementById('datum_pocetka')?.value || '';
+            form.appendChild(hiddenDatumPocetka);
+
+            const hiddenDatumKraja = document.createElement('input');
+            hiddenDatumKraja.type = 'hidden';
+            hiddenDatumKraja.name = 'datum_kraja';
+            hiddenDatumKraja.value = document.getElementById('datum_kraja')?.value || '';
+            form.appendChild(hiddenDatumKraja);
+
             form.submit();
         });
 
         document.getElementById('exportButton')?.addEventListener('click', () => {
-            const ime = document.getElementById('ime')?.value.trim();
-            const prezime = document.getElementById('prezime')?.value.trim();
-            const fakultet = document.getElementById('fakultet')?.value.trim();
-            const brojIndeksa = document.getElementById('broj_indeksa')?.value.trim();
+            const studentSelect = document.getElementById('student_id');
+            const selectedOption = studentSelect.options[studentSelect.selectedIndex];
+            
+            const ime = selectedOption?.dataset.ime || '';
+            const prezime = selectedOption?.dataset.prezime || '';
+            const brojIndeksa = selectedOption?.dataset.br_indexa || '';
+
+            const fakultetSelect = document.getElementById('fakultet_id');
+            const fakultet = fakultetSelect.options[fakultetSelect.selectedIndex]?.dataset.naziv || '';
 
             if (!ime || !prezime || !fakultet) {
                 alert('Molimo unesite ime, prezime i fakultet prije eksportovanja.');
@@ -307,10 +395,15 @@
     });
 
     document.getElementById('saveButton')?.addEventListener('click', () => {
-        const ime = document.getElementById('ime')?.value.trim();
-        const prezime = document.getElementById('prezime')?.value.trim();
-        const fakultet = document.getElementById('fakultet')?.value.trim();
-        const brojIndeksa = document.getElementById('broj_indeksa')?.value.trim();
+        const studentSelect = document.getElementById('student_id');
+        const selectedOption = studentSelect.options[studentSelect.selectedIndex];
+
+        const ime = selectedOption?.dataset.ime || '';
+        const prezime = selectedOption?.dataset.prezime || '';
+        const brojIndeksa = selectedOption?.dataset.br_indexa || '';
+
+        const fakultetSelect = document.getElementById('fakultet_id');
+        const fakultet = fakultetSelect.options[fakultetSelect.selectedIndex]?.dataset.naziv || '';
       
         if (!ime || !prezime || !fakultet) {
             alert('Molimo unesite ime, prezime i fakultet prije cuvanja.');
@@ -334,6 +427,14 @@
             plainLinks[key] = Array.from(value);
         }
 
+        const datumPocetka = document.getElementById('datum_pocetka')?.value;
+        const datumKraja = document.getElementById('datum_kraja')?.value;
+
+        if (!datumPocetka || !datumKraja) {
+            alert('Molimo unesite datume mobilnosti.');
+            return;
+        }
+
         const saveRoute = "{{ route(auth()->user()->type === 0 ? 'admin.mobility.save' : 'profesor.mobility.save') }}";
 
         fetch(saveRoute, {
@@ -345,8 +446,11 @@
             body: JSON.stringify({
                 ime,
                 prezime,
-                fakultet,
+                fakultet_id: fakultetSelect.value, // Send ID instead of name
+                student_id: studentSelect.value,   // Send ID
                 broj_indeksa: brojIndeksa,
+                datum_pocetka: datumPocetka,
+                datum_kraja: datumKraja,
                 links: plainLinks,
                 courses: uploadedCourses
             })

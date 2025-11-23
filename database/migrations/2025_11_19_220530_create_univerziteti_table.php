@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('learning_agreements', function (Blueprint $table) {
-            $table->string('broj_indeksa')->unique()->after('naziv_fakulteta');
+        Schema::create('univerziteti', function (Blueprint $table) {
+            $table->id();
+            $table->string('naziv');
+            $table->string('drzava');
+            $table->string('grad');
+            $table->string('email')->unique();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('learning_agreements', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('univerziteti');
     }
 };
