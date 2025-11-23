@@ -14,9 +14,11 @@
     <div class="py-10 max-w-6xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Universities</h1>
-            <a href="{{ route('univerzitet.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg">
-                Add University
-            </a>
+           <button
+    id="addUniversityBtn"
+    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded inline-block mb-4">
+    Add University
+</button>
         </div>
 
         <div class="overflow-x-auto bg-white shadow rounded-lg">
@@ -39,10 +41,15 @@
                             <td class="px-4 py-3 text-sm text-gray-800">{{ $u->email }}</td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center space-x-2">
-                                    <a href="{{ route('univerzitet.edit', $u->id) }}" 
-                                       class="bg-yellow-400 hover:bg-yellow-500 text-white text-sm px-3 py-1 rounded transition">
-                                        Edit
-                                    </a>
+                                   <button
+    class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-3 py-1 rounded transition mr-2 openEditModal"
+    data-id="{{ $u->id }}"
+    data-naziv="{{ $u->naziv }}"
+    data-drzava="{{ $u->drzava }}"
+    data-grad="{{ $u->grad }}"
+    data-email="{{ $u->email }}">
+    Edit
+</button>
                                     <form action="{{ route('univerzitet.destroy', $u->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
                                         @csrf
                                         @method('DELETE')
@@ -57,6 +64,141 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <!-- Edit University Modal -->
+<div id="editUniversityModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <h2 id="modalTitle" class="text-xl font-semibold mb-4">Edit University</h2>
+
+        <form id="editUniversityForm" method="POST">
+            @csrf
+            @method('PUT')
+            
+            <input type="hidden" name="id" id="editUniversityId">
+
+            <div class="mb-4">
+                <label for="editName" class="block text-gray-700 font-medium mb-1">University Name</label>
+                <input type="text" id="editName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="editCountry" class="block text-gray-700 font-medium mb-1">Country</label>
+                <input type="text" id="editCountry" name="drzava" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="editCity" class="block text-gray-700 font-medium mb-1">City</label>
+                <input type="text" id="editCity" name="grad" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="editEmail" class="block text-gray-700 font-medium mb-1">Email</label>
+                <input type="email" id="editEmail" name="email" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            </div>
+
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="cancelEditModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Add University -->
+<div id="addUniversityModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <h2 id="modalTitleAdd" class="text-xl font-semibold mb-4">Add University</h2>
+
+        <form id="addUniversityForm" action="{{ route('univerzitet.store') }}" method="POST">
+            @csrf
+
+            <div class="mb-4">
+                <label for="addName" class="block text-gray-700 font-medium mb-1">University Name</label>
+                <input type="text" id="addName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="addCountry" class="block text-gray-700 font-medium mb-1">Country</label>
+                <input type="text" id="addCountry" name="drzava" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="addCity" class="block text-gray-700 font-medium mb-1">City</label>
+                <input type="text" id="addCity" name="grad" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="addEmail" class="block text-gray-700 font-medium mb-1">Email</label>
+                <input type="email" id="addEmail" name="email" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            </div>
+
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="cancelAddModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
         </div>
     </div>
+
+
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('editUniversityModal');
+    const cancelBtn = document.getElementById('cancelEditModal');
+    const form = document.getElementById('editUniversityForm');
+
+    // Otvori modal i popuni polja
+    document.querySelectorAll('.openEditModal').forEach(button => {
+        button.addEventListener('click', () => {
+            const id = button.getAttribute('data-id');
+            document.getElementById('editUniversityId').value = id;
+            document.getElementById('editName').value = button.getAttribute('data-naziv');
+            document.getElementById('editCountry').value = button.getAttribute('data-drzava');
+            document.getElementById('editCity').value = button.getAttribute('data-grad');
+            document.getElementById('editEmail').value = button.getAttribute('data-email');
+
+            form.action = `/univerzitet/${id}`;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+    });
+
+    // Zatvori modal
+    cancelBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const addModal = document.getElementById('addUniversityModal');
+    const addBtn = document.getElementById('addUniversityBtn');
+    const cancelAdd = document.getElementById('cancelAddModal');
+
+    addBtn.addEventListener('click', () => {
+        addModal.classList.remove('hidden');
+        addModal.classList.add('flex');
+    });
+
+    cancelAdd.addEventListener('click', () => {
+        addModal.classList.add('hidden');
+        addModal.classList.remove('flex');
+    });
+});
+</script>
+
+
 </x-app-layout>
