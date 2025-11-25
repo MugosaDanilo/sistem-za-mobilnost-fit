@@ -36,23 +36,20 @@ Route::middleware('adminAuth')->prefix('admin')->group(function(){
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('admin.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('admin.mobility.save');
 
-
-
     Route::get('/users/', [UserController::class, 'index'])->name('users.index');
     Route::post('/users/', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
-
-    //univerzitet
  
-        Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
+    Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
     Route::get('/univerzitet/create', [UniverzitetController::class, 'create'])->name('univerzitet.create');
     Route::post('/univerzitet', [UniverzitetController::class, 'store'])->name('univerzitet.store');
     Route::get('/univerzitet/{id}/edit', [UniverzitetController::class, 'edit'])->name('univerzitet.edit');
     Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
     Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
 
+    Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
 });
 
 Route::middleware('profesorAuth')->prefix('profesor')->group(function(){
@@ -62,8 +59,6 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function(){
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('profesor.mobility.upload');
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('profesor.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('profesor.mobility.save');
-
-
 });
 
 require __DIR__.'/auth.php';
