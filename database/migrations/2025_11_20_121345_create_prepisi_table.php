@@ -34,6 +34,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('prepis_predmeti');
         Schema::dropIfExists('prepisi');
     }
 };
