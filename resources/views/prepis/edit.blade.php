@@ -1,112 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Prepis</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 font-sans antialiased">
-    <div class="min-h-screen">
-      
-        <nav class="bg-white border-b border-gray-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <div class="shrink-0 flex items-center">
-                            <a href="index.blade.php" class="font-bold text-xl text-gray-800">MyApp</a>
-                        </div>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Edit Prepis') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <div class="mb-6">
+                        <a href="{{ route('prepis.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                            &larr; Back to Prepis Management
+                        </a>
                     </div>
-                </div>
-            </div>
-        </nav>
 
-        <header class="bg-white shadow">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Edit Prepis
-                </h2>
-            </div>
-        </header>
+                    <form action="{{ route('prepis.update', $prepis->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">
-                        <div class="mb-6">
-                            <a href="index.blade.php" class="text-blue-600 hover:text-blue-800 font-semibold">
-                                &larr; Back to Prepis Management
-                            </a>
+                        <div class="mb-4">
+                            <label for="student_id" class="block text-sm font-medium text-gray-700">Student</label>
+                            <select name="student_id" id="student_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                <option value="">Select Student</option>
+                                @foreach($studenti as $student)
+                                    <option value="{{ $student->id }}" {{ $prepis->student_id == $student->id ? 'selected' : '' }}>{{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})</option>
+                                @endforeach
+                            </select>
                         </div>
 
-                        <form action="#" method="POST" onsubmit="event.preventDefault(); alert('Form updated (Static Demo)');">
-                            <div class="mb-4">
-                                <label for="student_id" class="block text-sm font-medium text-gray-700">Student</label>
-                                <select name="student_id" id="student_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                                    <option value="">Select Student</option>
-                                    <option value="1" selected>John Doe (IB200001)</option>
-                                    <option value="2">Jane Smith (IB200002)</option>
-                                </select>
-                            </div>
+                        <div class="mb-4">
+                            <label for="fakultet_id" class="block text-sm font-medium text-gray-700">Faculty</label>
+                            <select name="fakultet_id" id="fakultet_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                                <option value="">Select Faculty</option>
+                                @foreach($fakulteti as $fakultet)
+                                    <option value="{{ $fakultet->id }}" {{ $prepis->fakultet_id == $fakultet->id ? 'selected' : '' }}>{{ $fakultet->naziv }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                            <div class="mb-4">
-                                <label for="fakultet_id" class="block text-sm font-medium text-gray-700">Faculty</label>
-                                <select name="fakultet_id" id="fakultet_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                                    <option value="">Select Faculty</option>
-                                    <option value="1" selected>Faculty of Engineering</option>
-                                    <option value="2">Faculty of Economics</option>
-                                </select>
-                            </div>
+                        <div class="mb-4">
+                            <label for="datum" class="block text-sm font-medium text-gray-700">Date</label>
+                            <input type="date" name="datum" id="datum" value="{{ $prepis->datum->format('Y-m-d') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+                        </div>
 
-                            <div class="mb-4">
-                                <label for="datum" class="block text-sm font-medium text-gray-700">Date</label>
-                                <input type="date" name="datum" id="datum" value="2025-11-24" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                            </div>
-
-                            <div class="mb-4">
-                                <h3 class="text-lg font-medium mb-2">Subjects</h3>
-                                <div id="agreements-container">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-medium mb-2">Subjects</h3>
+                            <div id="agreements-container">
+                                @foreach($prepis->agreements as $index => $agreement)
                                     <div class="agreement-row flex space-x-4 mb-2">
                                         <div class="w-1/2">
                                             <label class="block text-sm font-medium text-gray-700">FIT Subject</label>
-                                            <select name="agreements[0][fit_predmet_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm fit-predmet-select" required>
+                                            <select name="agreements[{{ $index }}][fit_predmet_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm fit-predmet-select" required>
                                                 <option value="">Select FIT Subject</option>
-                                                <option value="1" selected>Programming I (6 ECTS)</option>
-                                                <option value="2">Databases (6 ECTS)</option>
+                                                @foreach($predmeti as $predmet)
+                                                    <option value="{{ $predmet->id }}" {{ $agreement->fit_predmet_id == $predmet->id ? 'selected' : '' }}>{{ $predmet->naziv }} ({{ $predmet->ects }} ECTS)</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="w-1/2">
                                             <label class="block text-sm font-medium text-gray-700">Foreign Subject</label>
-                                            <select name="agreements[0][strani_predmet_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm strani-predmet-select" required data-initial-value="101">
+                                            <select name="agreements[{{ $index }}][strani_predmet_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm strani-predmet-select" required data-initial-value="{{ $agreement->strani_predmet_id }}">
                                                 <option value="">Select Faculty First</option>
                                             </select>
                                         </div>
                                         <button type="button" class="text-red-600 hover:text-red-900 remove-agreement">X</button>
                                     </div>
-                                </div>
-                                <button type="button" id="add-agreement" class="mt-2 text-sm text-blue-600 hover:text-blue-900">+ Add Another Subject Pair</button>
+                                @endforeach
                             </div>
+                            <button type="button" id="add-agreement" class="mt-2 text-sm text-blue-600 hover:text-blue-900">+ Add Another Subject Pair</button>
+                        </div>
 
-                            <div class="flex justify-end">
-                                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                    Update
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                Update
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const allSubjects = [
-            { id: 101, naziv: "Intro to Engineering", ects: 6, fakultet_id: 1 },
-            { id: 102, naziv: "Advanced Math", ects: 7, fakultet_id: 1 },
-            { id: 201, naziv: "Microeconomics", ects: 6, fakultet_id: 2 },
-            { id: 202, naziv: "Macroeconomics", ects: 6, fakultet_id: 2 }
-        ];
-
+        const allSubjects = @json($predmeti);
         const agreementsContainer = document.getElementById('agreements-container');
         const fakultetSelect = document.getElementById('fakultet_id');
 
@@ -155,8 +132,9 @@
                 <div class="w-1/2">
                     <select name="agreements[${uniqueIndex}][fit_predmet_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm fit-predmet-select" required>
                         <option value="">Select FIT Subject</option>
-                        <option value="1">Programming I (6 ECTS)</option>
-                        <option value="2">Databases (6 ECTS)</option>
+                        @foreach($predmeti as $predmet)
+                            <option value="{{ $predmet->id }}">{{ $predmet->naziv }} ({{ $predmet->ects }} ECTS)</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="w-1/2">
@@ -180,5 +158,4 @@
 
         document.addEventListener('DOMContentLoaded', updateAllForeignSubjects);
     </script>
-</body>
-</html>
+</x-app-layout>

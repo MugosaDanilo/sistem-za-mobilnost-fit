@@ -28,6 +28,10 @@
                          {{ __('University') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('prepis.index')" :active="request()->routeIs('prepis.*')">
+                        {{ __('Prepisi') }}
+                    </x-nav-link>
+
                     @elseif((int)$user->type === 1)
                         <x-nav-link :href="route('profesorDashboardShow')" :active="request()->routeIs('profesorDashboardShow')">
                             {{ __('Dashboard') }}
@@ -112,6 +116,10 @@
 
                 <x-responsive-nav-link :href="route('univerzitet.index')" :active="request()->routeIs('univerzitet.*')">
     {{ __('University') }}
+</x-responsive-nav-link>
+
+<x-responsive-nav-link :href="route('prepis.index')" :active="request()->routeIs('prepis.*')">
+    {{ __('Prepisi') }}
 </x-responsive-nav-link>
 php 
 <x-nav-link :href="route('univerzitet.create')" :active="request()->routeIs('univerzitet.create')">
