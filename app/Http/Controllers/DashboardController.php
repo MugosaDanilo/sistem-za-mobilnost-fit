@@ -6,11 +6,14 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function adminDashboard() {
-        return view('dashboard.admin-dashboard');
+    public function adminDashboard()
+    {
+        $mobilnosti = \App\Models\Mobilnost::with(['student', 'fakultet'])->latest()->get();
+        return view('dashboard.admin-dashboard', compact('mobilnosti'));
     }
 
-    public function profesorDashboard() {
+    public function profesorDashboard()
+    {
         return view('dashboard.profesor-dashboard');
     }
 }
