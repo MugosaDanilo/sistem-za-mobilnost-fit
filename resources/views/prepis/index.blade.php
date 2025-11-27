@@ -17,9 +17,7 @@
             <table class="min-w-full border border-gray-200">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ID</th>
                         <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Student</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Index</th>
                         <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Faculty</th>
                         <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
                         <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
@@ -29,9 +27,17 @@
                 <tbody class="divide-y divide-gray-200">
                     @foreach($prepisi as $prepis)
                         <tr>
-                            <td class="px-4 py-3 text-sm text-gray-800">{{ $prepis->id }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-800">{{ $prepis->student->ime }} {{ $prepis->student->prezime }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-800">{{ $prepis->student->br_indexa }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                                        {{ substr($prepis->student->ime, 0, 1) }}{{ substr($prepis->student->prezime, 0, 1) }}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ $prepis->student->ime }} {{ $prepis->student->prezime }}</div>
+                                        <div class="text-sm text-gray-500">{{ $prepis->student->br_indexa }}</div>
+                                    </div>
+                                </div>
+                            </td>
                             <td class="px-4 py-3 text-sm text-gray-800">{{ $prepis->fakultet->naziv }}</td>
                             <td class="px-4 py-3 text-sm text-gray-800">{{ $prepis->datum->format('d.m.Y') }}</td>
                             <td class="px-4 py-3 text-sm">

@@ -379,7 +379,7 @@ class MobilityController extends Controller
     public function show($id)
     {
         $mobilnost = Mobilnost::with(['student', 'fakultet', 'learningAgreements.fitPredmet', 'learningAgreements.straniPredmet'])->findOrFail($id);
-        return response()->json($mobilnost);
+        return view('mobility.show', compact('mobilnost'));
     }
 
     public function updateGrade(Request $request, $id)
@@ -392,5 +392,24 @@ class MobilityController extends Controller
         $la->update(['ocjena' => $request->ocjena]);
 
         return response()->json(['message' => 'Ocjena uspješno ažurirana.']);
+    }
+
+    public function updateGrades(Request $request, $id)
+    {
+        $request->validate([
+            'grades' => 'required|array',
+            'grades.*' => 'nullable|string|max:10',
+        ]);
+
+        $mobilnost = Mobilnost::findOrFail($id);
+
+        foreach ($request->grades as $laId => $grade) {
+            $la = LearningAgreement::where('mobilnost_id', $mobilnost->id)->where('id', $laId)->first();
+            if ($la) {
+                $la->update(['ocjena' => $grade]);
+            }
+        }
+
+        return response()->json(['message' => 'Grades updated successfully.']);
     }
 }
