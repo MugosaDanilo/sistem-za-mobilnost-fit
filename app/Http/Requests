@@ -1,0 +1,28 @@
+<?php
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class SacuvajStudentaRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        $id = $this->route('student')?->id;
+
+        return [
+            'ime'            => ['required','string','max:100'],
+            'prezime'        => ['required','string','max:100'],
+            'broj_indeksa'   => ['required','string','max:50','unique:students,broj_indeksa,'.($id ?? 'NULL').',id'],
+            'email'          => ['required','email','max:255','unique:students,email,'.($id ?? 'NULL').',id'],
+            'telefon'        => ['nullable','string','max:50'],
+            'datum_rodjenja' => ['nullable','date','before:today'],
+            'godina_studija' => ['nullable','integer','min:1','max:8'],
+            'napomena'       => ['nullable','string'],
+        ];
+    }
+}
