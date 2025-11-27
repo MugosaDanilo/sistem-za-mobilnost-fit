@@ -36,4 +36,23 @@ class Prepis extends Model
     {
         return $this->hasMany(PrepisAgreement::class);
     }
+
+    public function getDerivedStatusAttribute(): string
+    {
+        $agreements = $this->agreements;
+
+        if ($agreements->isEmpty()) {
+            return 'u procesu'; 
+        }
+
+        if ($agreements->contains('status', 'odbijen')) {
+            return 'odbijen';
+        }
+
+        if ($agreements->contains('status', 'u procesu')) {
+            return 'u procesu';
+        }
+
+        return 'odobren';
+    }
 }

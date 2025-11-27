@@ -108,4 +108,10 @@ class PrepisController extends Controller
         $prepis->delete();
         return redirect()->route('prepis.index')->with('success', 'Prepis deleted successfully.');
     }
+
+    public function show($id)
+    {
+        $prepis = Prepis::with(['student', 'fakultet', 'agreements.fitPredmet', 'agreements.straniPredmet'])->findOrFail($id);
+        return view('prepis.show', compact('prepis'));
+    }
 }

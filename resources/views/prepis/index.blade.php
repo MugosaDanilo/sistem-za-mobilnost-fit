@@ -34,7 +34,21 @@
                             <td class="px-4 py-3 text-sm text-gray-800">{{ $prepis->student->br_indexa }}</td>
                             <td class="px-4 py-3 text-sm text-gray-800">{{ $prepis->fakultet->naziv }}</td>
                             <td class="px-4 py-3 text-sm text-gray-800">{{ $prepis->datum->format('d.m.Y') }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-800">{{ $prepis->status }}</td>
+                            <td class="px-4 py-3 text-sm">
+                                <a href="{{ route('prepis.show', $prepis->id) }}" class="hover:opacity-80 transition-opacity">
+                                    @php
+                                        $status = $prepis->derived_status;
+                                        $colorClass = match($status) {
+                                            'odobren' => 'bg-green-100 text-green-800',
+                                            'odbijen' => 'bg-red-100 text-red-800',
+                                            default => 'bg-yellow-100 text-yellow-800',
+                                        };
+                                    @endphp
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
+                                        {{ ucfirst($status) }}
+                                    </span>
+                                </a>
+                            </td>
                             <td class="px-4 py-3">
                                 <div class="flex space-x-2">
                                     <a href="{{ route('prepis.edit', $prepis->id) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md">
