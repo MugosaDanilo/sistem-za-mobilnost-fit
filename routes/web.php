@@ -49,6 +49,19 @@ Route::middleware('adminAuth')->prefix('admin')->group(function(){
     Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
     Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
 
+    Route::get('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'index'])->name('fakulteti.index');
+    Route::post('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
+    Route::put('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');
+    Route::delete('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
+
+    // Nested route for listing subjects of a specific faculty
+    Route::get('/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'index'])->name('fakulteti.predmeti.index');
+    
+    // Standard resource routes for creating/updating/deleting subjects (can remain top-level or be nested if we want full nesting, but keeping them simple for now as they use ID)
+    Route::post('/predmeti', [\App\Http\Controllers\PredmetController::class, 'store'])->name('predmeti.store');
+    Route::put('/predmeti/{id}', [\App\Http\Controllers\PredmetController::class, 'update'])->name('predmeti.update');
+    Route::delete('/predmeti/{id}', [\App\Http\Controllers\PredmetController::class, 'destroy'])->name('predmeti.destroy');
+
     Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
 });
 
