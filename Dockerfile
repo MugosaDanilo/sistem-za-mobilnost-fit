@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     nodejs \
     npm \
+    openssl \
     && docker-php-ext-install pdo pdo_pgsql zip
 
 # Install Composer
@@ -32,7 +33,7 @@ RUN npm ci
 RUN npx vite build --emptyOutDir
 
 # ============================================================
-# 2) PRODUCTION STAGE — Apache + Laravel
+# 2) PRODUCTION STAGE — Apache + Laravel + SSL
 # ============================================================
 FROM php:8.2-apache
 
@@ -42,15 +43,23 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     curl \
+    openssl \
     && docker-php-ext-install pdo pdo_pgsql zip
 
-# Enable Apache rewrite
-RUN a2enmod rewrite
+# Enable Apache SSL and rewrite modules
+RUN a2enmod rewrite ssl
 
-# Set DocumentRoot to Laravel public folder
+# Copy SSL certificates (if you have them, otherwise for development you can use self-signed certificates)
+# Assuming you have SSL certificates in ./certs/ folder
+COPY ./certs/ /etc/ssl/
+
+# Enable default SSL site
+RUN a2ensite default-ssl.conf
+
+# Set up DocumentRoot to Laravel public folder
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# Set ServerName to suppress warnings
+# Set ServerName to suppress warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Working directory
@@ -63,8 +72,9 @@ COPY --from=build /app /var/www/html
 RUN chmod -R 775 storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
-# Expose port 80
-EXPOSE 80
+# Expose ports for HTTP and HTTPS
+EXPOSE 80 443
 
 CMD ["apache2-foreground"]
+
 
