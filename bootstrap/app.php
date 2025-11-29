@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'adminAuth' => \App\Http\Middleware\AdminAuth::class,
             'profesorAuth' => \App\Http\Middleware\ProfesorAuth::class,
         ]);
+        
+        // Trust all proxies on Render (they use reverse proxy)
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
