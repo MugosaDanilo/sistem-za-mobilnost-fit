@@ -8,4 +8,6 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    // ovo osigurava da asseti imaju relativan path
+    base: '/',
 });
