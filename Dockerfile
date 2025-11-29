@@ -1,9 +1,42 @@
-FROM php:8.2-apache
+# ============================================================
+# 1) BUILD STAGE — Composer + NPM + Vite build
+# ============================================================
+FROM php:8.2-apache as build
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
+    libpq-dev \
+    libzip-dev \
+    zip \
+    curl \
+    nodejs \
+    npm \
+    && docker-php-ext-install pdo pdo_pgsql zip
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Working directory
+WORKDIR /app
+
+# Copy all files for build
+COPY . .
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Install JS deps + build Vite assets
+RUN npm ci && npm run build
+
+# ============================================================
+# 2) PRODUCTION STAGE — Apache + Laravel
+# ============================================================
+FROM php:8.2-apache
+
+# System dependencies (same as before)
+RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
     zip \
@@ -22,21 +55,14 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 # Working directory
 WORKDIR /var/www/html
 
-# Copy project files
-COPY . .
+# Copy built project from build stage
+COPY --from=build /app /var/www/html
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Set permissions for Laravel storage and cache
+# Set permissions
 RUN chmod -R 775 storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
-# Expose port 80
 EXPOSE 80
 
-# Start Apache
 CMD ["apache2-foreground"]
+
