@@ -21,7 +21,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy all project files
+# Copy project files
 COPY . .
 
 # Install PHP dependencies
@@ -53,7 +53,7 @@ RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available
 # Set ServerName to suppress warnings
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Set working directory
+# Working directory
 WORKDIR /var/www/html
 
 # Copy built project from build stage
@@ -66,6 +66,5 @@ RUN chmod -R 775 storage bootstrap/cache \
 # Expose port 80
 EXPOSE 80
 
-# Start Apache
 CMD ["apache2-foreground"]
 
