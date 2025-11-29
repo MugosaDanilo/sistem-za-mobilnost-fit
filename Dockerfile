@@ -1,5 +1,5 @@
 # ============================================================
-# 1) BUILD STAGE — Composer + NPM + Vite build
+# 1) BUILD STAGE — Composer + NPM + Vite buildd
 # ============================================================
 FROM php:8.2-apache as build
 
