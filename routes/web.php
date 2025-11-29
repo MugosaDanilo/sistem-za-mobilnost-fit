@@ -27,7 +27,7 @@ Route::get('/', function () {
         return redirect()->route('login');
     }
 
-    return match ((int)$user->type) {
+    return match ((int) $user->type) {
         0 => redirect()->route('adminDashboardShow'),
         1 => redirect()->route('profesorDashboardShow'),
     };
@@ -39,15 +39,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware('adminAuth')->prefix('admin')->group(function(){
+Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('adminDashboardShow');
 
     Route::get('/mobilnost', [MobilityController::class, 'index'])->name('admin.mobility');
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('admin.mobility.upload');
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('admin.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('admin.mobility.save');
-
-
+    Route::get('/mobility/{id}', [MobilityController::class, 'show'])->name('admin.mobility.show');
+    Route::post('/mobility/grade/{id}', [MobilityController::class, 'updateGrade'])->name('admin.mobility.update-grade');
+    Route::post('/mobility/{id}/grades', [MobilityController::class, 'updateGrades'])->name('admin.mobility.update-grades');
 
     Route::get('/users/', [UserController::class, 'index'])->name('users.index');
     Route::post('/users/', [UserController::class, 'store'])->name('users.store');
@@ -55,26 +56,36 @@ Route::middleware('adminAuth')->prefix('admin')->group(function(){
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
 
-    //univerzitet
- 
-        Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
+    Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
     Route::get('/univerzitet/create', [UniverzitetController::class, 'create'])->name('univerzitet.create');
     Route::post('/univerzitet', [UniverzitetController::class, 'store'])->name('univerzitet.store');
     Route::get('/univerzitet/{id}/edit', [UniverzitetController::class, 'edit'])->name('univerzitet.edit');
     Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
     Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
 
+    Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
+
+    Route::get('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'index'])->name('fakulteti.index');
+    Route::post('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
+    Route::put('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');
+    Route::delete('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
+
+    // Nested route for listing subjects of a specific faculty
+    Route::get('/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'index'])->name('fakulteti.predmeti.index');
+    
+    // Standard resource routes for creating/updating/deleting subjects
+    Route::post('/predmeti', [\App\Http\Controllers\PredmetController::class, 'store'])->name('predmeti.store');
+    Route::put('/predmeti/{id}', [\App\Http\Controllers\PredmetController::class, 'update'])->name('predmeti.update');
+    Route::delete('/predmeti/{id}', [\App\Http\Controllers\PredmetController::class, 'destroy'])->name('predmeti.destroy');
 });
 
-Route::middleware('profesorAuth')->prefix('profesor')->group(function(){
+Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'profesorDashboard'])->name('profesorDashboardShow');
 
     Route::get('/mobilnost', [MobilityController::class, 'index'])->name('profesor.mobility');
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('profesor.mobility.upload');
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('profesor.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('profesor.mobility.save');
-
-
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -14,11 +14,9 @@
     <div class="py-10 max-w-6xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Universities</h1>
-           <button
-    id="addUniversityBtn"
-    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded inline-block mb-4">
-    Add University
-</button>
+            <button id="addUniversityBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg">
+                Add University
+            </button>
         </div>
 
         <div class="mb-4">
@@ -51,7 +49,7 @@
                             <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center space-x-2">
                                    <button
-    class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-3 py-1 rounded transition mr-2 openEditModal"
+    class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md openEditModal"
     data-id="{{ $u->id }}"
     data-naziv="{{ $u->naziv }}"
     data-drzava="{{ $u->drzava }}"
@@ -63,7 +61,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 
-                                                class="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded transition">
+                                                class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded-md">
                                             Delete
                                         </button>
                                     </form>
@@ -75,7 +73,7 @@
             </table>
 
             <!-- Edit University Modal -->
-<div id="editUniversityModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+<div id="editUniversityModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
         <h2 id="modalTitle" class="text-xl font-semibold mb-4">Edit University</h2>
 
@@ -117,7 +115,7 @@
     </div>
 </div>
 <!-- Add University -->
-<div id="addUniversityModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+<div id="addUniversityModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
         <h2 id="modalTitleAdd" class="text-xl font-semibold mb-4">Add University</h2>
 

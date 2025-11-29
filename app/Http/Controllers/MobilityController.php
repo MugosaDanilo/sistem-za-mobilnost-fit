@@ -26,7 +26,7 @@ class MobilityController extends Controller
         $fakulteti = Fakultet::with('predmeti')->orderBy('naziv')->get();
         return view('mobility.index', compact('students', 'fakulteti'));
     }
-    
+
 
     public function save(Request $request)
     {
@@ -78,7 +78,7 @@ class MobilityController extends Controller
             // Find FIT subject
             // Try exact match first
             $fitPredmet = \App\Models\Predmet::where('naziv', $fitSubjectName)
-                ->whereHas('fakultet', function($q) {
+                ->whereHas('fakultet', function ($q) {
                     $q->where('naziv', 'FIT');
                 })->first();
 
@@ -86,7 +86,7 @@ class MobilityController extends Controller
                 // Try ignoring whitespace
                 $normalizedName = str_replace(' ', '', $fitSubjectName);
                 $fitPredmet = \App\Models\Predmet::whereRaw("REPLACE(naziv, ' ', '') = ?", [$normalizedName])
-                    ->whereHas('fakultet', function($q) {
+                    ->whereHas('fakultet', function ($q) {
                         $q->where('naziv', 'FIT');
                     })->first();
             }
@@ -94,8 +94,9 @@ class MobilityController extends Controller
             if (!$fitPredmet) {
                 \Illuminate\Support\Facades\Log::warning('FIT subject not found', ['name' => $fitSubjectName]);
                 // Fallback: try finding by name only (ignoring whitespace)
-                 $fitPredmet = \App\Models\Predmet::whereRaw("REPLACE(naziv, ' ', '') = ?", [$normalizedName])->first();
-                 if (!$fitPredmet) continue;
+                $fitPredmet = \App\Models\Predmet::whereRaw("REPLACE(naziv, ' ', '') = ?", [$normalizedName])->first();
+                if (!$fitPredmet)
+                    continue;
             }
 
             foreach ($foreignSubjects as $foreignSubjectName) {
@@ -113,7 +114,7 @@ class MobilityController extends Controller
                         'semestar' => 0 // Default or extract if possible
                     ]
                 );
-                
+
                 if ($foreignPredmet->wasRecentlyCreated) {
                     \Illuminate\Support\Facades\Log::warning('Duplicate/New subject created!', [
                         'name' => $foreignSubjectName,
@@ -131,7 +132,7 @@ class MobilityController extends Controller
                     'napomena' => null,
                     'ocjena' => null
                 ]);
-                
+
                 \Illuminate\Support\Facades\Log::info('LA created');
             }
         }
@@ -142,11 +143,11 @@ class MobilityController extends Controller
     public function export(Request $request)
     {
         $request->validate([
-            'links'     => 'required|array|min:1',
-            'courses'   => 'array',
-            'ime'       => 'required|string',
-            'prezime'   => 'required|string',
-            'fakultet'  => 'required|string',
+            'links' => 'required|array|min:1',
+            'courses' => 'array',
+            'ime' => 'required|string',
+            'prezime' => 'required|string',
+            'fakultet' => 'required|string',
             'brojIndeksa' => 'required|string'
         ]);
 
@@ -205,7 +206,8 @@ class MobilityController extends Controller
 
         $rowNum = 1;
         foreach ($links as $fitSubject => $linkedSubjects) {
-            if (empty($linkedSubjects)) continue;
+            if (empty($linkedSubjects))
+                continue;
 
             $term = $courseMap[$fitSubject]['Term'] ?? '';
             $ects = $courseMap[$fitSubject]['ECTS'] ?? '';
@@ -258,7 +260,7 @@ class MobilityController extends Controller
     private function getRedirectRoute(): string
     {
         $user = Auth::user();
-        if ((int)$user->type === 0) {
+        if ((int) $user->type === 0) {
             return 'admin.mobility';
         }
         return 'profesor.mobility';
@@ -282,9 +284,10 @@ class MobilityController extends Controller
     {
         foreach ($possibleNames as $name) {
             if (isset($headerMap[$name])) {
-                $idxs = (array)$headerMap[$name];
+                $idxs = (array) $headerMap[$name];
                 foreach ($idxs as $i) {
-                    if (!empty($rowData[$i])) return $rowData[$i];
+                    if (!empty($rowData[$i]))
+                        return $rowData[$i];
                 }
             }
         }
@@ -308,7 +311,8 @@ class MobilityController extends Controller
 
         foreach ($phpWord->getSections() as $section) {
             foreach ($section->getElements() as $element) {
-                if (!($element instanceof Table)) continue;
+                if (!($element instanceof Table))
+                    continue;
 
                 $rows = $element->getRows();
                 $headerMap = [];
@@ -365,11 +369,47 @@ class MobilityController extends Controller
                         $courses[] = [
                             'Term' => $term,
                             'Course' => $course,
-                            'ECTS' => $ects, 
+                            'ECTS' => $ects,
                         ];
                     }
                 }
             }
         }
+    }
+    public function show($id)
+    {
+        $mobilnost = Mobilnost::with(['student', 'fakultet', 'learningAgreements.fitPredmet', 'learningAgreements.straniPredmet'])->findOrFail($id);
+        return view('mobility.show', compact('mobilnost'));
+    }
+
+    public function updateGrade(Request $request, $id)
+    {
+        $request->validate([
+            'ocjena' => 'nullable|string|max:10',
+        ]);
+
+        $la = LearningAgreement::findOrFail($id);
+        $la->update(['ocjena' => $request->ocjena]);
+
+        return response()->json(['message' => 'Ocjena uspješno ažurirana.']);
+    }
+
+    public function updateGrades(Request $request, $id)
+    {
+        $request->validate([
+            'grades' => 'required|array',
+            'grades.*' => 'nullable|string|max:10',
+        ]);
+
+        $mobilnost = Mobilnost::findOrFail($id);
+
+        foreach ($request->grades as $laId => $grade) {
+            $la = LearningAgreement::where('mobilnost_id', $mobilnost->id)->where('id', $laId)->first();
+            if ($la) {
+                $la->update(['ocjena' => $grade]);
+            }
+        }
+
+        return response()->json(['message' => 'Grades updated successfully.']);
     }
 }

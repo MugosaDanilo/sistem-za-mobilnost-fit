@@ -18,5 +18,10 @@ class Mobilnost extends Model
     {
         return $this->belongsTo(Fakultet::class);
     }
+
+    public function learningAgreements()
+    {
+        return $this->hasMany(LearningAgreement::class);
+    }
     
 }
