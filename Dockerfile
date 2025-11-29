@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install pdo pdo_pgsql zip
 
-# Enable Apache rewrite
+# Enable Apache rewrite for Laravel routes
 RUN a2enmod rewrite
 
 # Set working directory
@@ -26,11 +26,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install PHP dependencies for production
 RUN composer install --no-dev --optimize-autoloader
 
-# Optimize Laravel
-RUN php artisan config:clear \
-    && php artisan route:clear \
-    && php artisan cache:clear \
-    && php artisan optimize
+# Expose port
+EXPOSE 80
+
+# No artisan optimize in build phase!
+# Render Start Command will handle it
+CMD ["apache2-foreground"]
 
 # Expose port
 EXPOSE 80
