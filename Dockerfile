@@ -1,8 +1,7 @@
-
 # ============================================================
 # 1) BUILD STAGE — Composer + NPM + Vite build
 # ============================================================
-FROM php:8.2-apache as build
+FROM php:8.2-apache AS build
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
@@ -22,7 +21,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy all project files for build
+# Copy project files
 COPY . .
 
 # Install PHP dependencies
@@ -30,7 +29,7 @@ RUN composer install --no-dev --optimize-autoloader
 
 # Install JS dependencies and build Vite assets
 RUN npm ci
-RUN npm run build
+RUN npx vite build --emptyOutDir
 
 # ============================================================
 # 2) PRODUCTION STAGE — Apache + Laravel
@@ -54,7 +53,7 @@ RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available
 # Set ServerName to suppress warnings
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Set working directory
+# Working directory
 WORKDIR /var/www/html
 
 # Copy built project from build stage
@@ -67,6 +66,5 @@ RUN chmod -R 775 storage bootstrap/cache \
 # Expose port 80
 EXPOSE 80
 
-# Start Apache
 CMD ["apache2-foreground"]
 
