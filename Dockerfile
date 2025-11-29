@@ -36,6 +36,10 @@ EXPOSE 80
 
 # Start Apache
 CMD ["apache2-foreground"]
+RUN chmod -R 775 /app/storage /app/bootstrap/cache
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
+
+
 
 
 # Expose port
