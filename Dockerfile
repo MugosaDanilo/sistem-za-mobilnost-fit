@@ -1,7 +1,6 @@
-# Use PHP 8.2 with Apache
 FROM php:8.2-apache
 
-# Install system dependencies
+# System dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -11,27 +10,33 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install pdo pdo_pgsql zip
 
-# Enable Apache rewrite for Laravel routes
+# Enable Apache rewrite
 RUN a2enmod rewrite
 
-# Set working directory
+# Set DocumentRoot to Laravel public folder
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# Set ServerName to suppress warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+# Working directory
 WORKDIR /var/www/html
 
-# Copy project code
+# Copy project files
 COPY . .
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install PHP dependencies for production
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Expose port
+# Expose port 80
 EXPOSE 80
 
-# No artisan optimize in build phase!
-# Render Start Command will handle it
+# Start Apache
 CMD ["apache2-foreground"]
+
 
 # Expose port
 EXPOSE 80
