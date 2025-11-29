@@ -9,5 +9,5 @@ export default defineConfig({
         }),
     ],
     // ovo osigurava da asseti imaju relativan path
-    base: '/',
+    base: 'https://dakazzmobilnost.onrender.com/', // da bude HTTPS
 });
