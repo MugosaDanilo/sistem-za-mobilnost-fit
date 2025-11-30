@@ -18,35 +18,57 @@
 
                 <div class="flex flex-col gap-4 mb-6">
                     <label for="student_id" class="font-semibold">Student</label>
-                    <select id="student_id" name="student_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">-- Odaberite studenta --</option>
-                        @foreach($students as $student)
-                            <option value="{{ $student->id }}"
-                                {{ old('student_id') == $student->id ? 'selected' : '' }}
-                                data-ime="{{ $student->ime }}"
-                                data-prezime="{{ $student->prezime }}"
-                                data-br_indexa="{{ $student->br_indexa }}">
-                                {{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="relative">
+                        <input type="text" 
+                            id="student_search" 
+                            placeholder="Pretraži studenta..." 
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            autocomplete="off">
+                        
+                        <div id="student_search_results" class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden">
+                        </div>
+
+                        <select id="student_id" name="student_id" class="hidden">
+                            <option value="">-- Odaberite studenta --</option>
+                            @foreach($students as $student)
+                                <option value="{{ $student->id }}"
+                                    {{ old('student_id') == $student->id ? 'selected' : '' }}
+                                    data-ime="{{ $student->ime }}"
+                                    data-prezime="{{ $student->prezime }}"
+                                    data-br_indexa="{{ $student->br_indexa }}">
+                                    {{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
 
                 <div class="flex flex-col gap-4 mb-6">
                     <label for="fakultet_id" class="font-semibold">Fakultet</label>
-                    <select id="fakultet_id" name="fakultet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">-- Odaberite fakultet --</option>
-                        @foreach($fakulteti as $fakultet)
-                            @if($fakultet->naziv !== 'FIT')
-                                <option value="{{ $fakultet->id }}" 
-                                    {{ old('fakultet_id') == $fakultet->id ? 'selected' : '' }}
-                                    data-naziv="{{ $fakultet->naziv }}">
-                                    {{ $fakultet->naziv }}
-                                </option>
-                            @endif
-                        @endforeach
-                    </select>
+                    <div class="relative">
+                        <input type="text" 
+                            id="fakultet_search" 
+                            placeholder="Pretraži fakultet..." 
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            autocomplete="off">
+                        
+                        <div id="fakultet_search_results" class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden">
+                        </div>
+
+                        <select id="fakultet_id" name="fakultet_id" class="hidden">
+                            <option value="">-- Odaberite fakultet --</option>
+                            @foreach($fakulteti as $fakultet)
+                                @if($fakultet->naziv !== 'FIT')
+                                    <option value="{{ $fakultet->id }}" 
+                                        {{ old('fakultet_id') == $fakultet->id ? 'selected' : '' }}
+                                        data-naziv="{{ $fakultet->naziv }}">
+                                        {{ $fakultet->naziv }}
+                                    </option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
 
@@ -154,9 +176,8 @@
 
         fakultetSelect.addEventListener('change', () => {
             const fakultetId = fakultetSelect.value;
-            availableSubjectsContainer.innerHTML = ''; // obavezno očisti stare
+            availableSubjectsContainer.innerHTML = ''; 
 
-            // Clear all links and visual indicators
             for (const key in links) delete links[key];
             document.querySelectorAll('.linked-pills').forEach(el => el.innerHTML = '');
             setActiveLeft(null);
@@ -174,7 +195,6 @@
             });
         });
 
-        // Trigger change event if value exists (e.g. after validation error or upload)
         if (fakultetSelect.value) {
             fakultetSelect.dispatchEvent(new Event('change'));
         }
@@ -299,7 +319,6 @@
             document.getElementById('hiddenFakultet').value = fakultetSelect.options[fakultetSelect.selectedIndex]?.dataset.naziv || '';
             document.getElementById('hiddenBrojIndeksa').value = selectedOption?.dataset.br_indexa || '';
             
-            // Add hidden inputs for student_id and fakultet_id to preserve selection
             const hiddenStudentId = document.createElement('input');
             hiddenStudentId.type = 'hidden';
             hiddenStudentId.name = 'student_id';
@@ -446,8 +465,8 @@
             body: JSON.stringify({
                 ime,
                 prezime,
-                fakultet_id: fakultetSelect.value, // Send ID instead of name
-                student_id: studentSelect.value,   // Send ID
+                fakultet_id: fakultetSelect.value, 
+                student_id: studentSelect.value,   
                 broj_indeksa: brojIndeksa,
                 datum_pocetka: datumPocetka,
                 datum_kraja: datumKraja,
@@ -461,6 +480,150 @@
         })
         .catch(err => alert("Save failed: " + err));
     });
+
+    const studentSelect = document.getElementById('student_id');
+    const studentSearchInput = document.getElementById('student_search');
+    const studentSearchResults = document.getElementById('student_search_results');
+    
+    const studentsData = Array.from(studentSelect.options)
+        .filter(option => option.value)
+        .map(option => ({
+            id: option.value,
+            text: option.text,
+            ime: option.dataset.ime,
+            prezime: option.dataset.prezime,
+            br_indexa: option.dataset.br_indexa,
+            element: option
+        }));
+
+    if (studentSelect.value) {
+        const selected = studentsData.find(s => s.id === studentSelect.value);
+        if (selected) {
+            studentSearchInput.value = selected.text;
+        }
+    }
+
+    studentSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = studentsData.filter(student => 
+            student.text.toLowerCase().includes(query)
+        );
+
+        renderSearchResults(filtered);
+    });
+
+    studentSearchInput.addEventListener('focus', () => {
+        const query = studentSearchInput.value.toLowerCase();
+        const filtered = studentsData.filter(student => 
+            student.text.toLowerCase().includes(query)
+        );
+        renderSearchResults(filtered);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!studentSearchInput.contains(e.target) && !studentSearchResults.contains(e.target)) {
+            studentSearchResults.classList.add('hidden');
+        }
+    });
+
+    function renderSearchResults(results) {
+        studentSearchResults.innerHTML = '';
+        
+        if (results.length === 0) {
+            const noResults = document.createElement('div');
+            noResults.className = 'px-4 py-2 text-gray-500 italic';
+            noResults.textContent = 'Nema rezultata';
+            studentSearchResults.appendChild(noResults);
+        } else {
+            results.forEach(student => {
+                const div = document.createElement('div');
+                div.className = 'px-4 py-2 hover:bg-blue-50 cursor-pointer transition-colors';
+                div.textContent = student.text;
+                
+                div.addEventListener('click', () => {
+                    studentSearchInput.value = student.text;
+                    studentSelect.value = student.id;
+                    studentSelect.dispatchEvent(new Event('change')); 
+                    studentSearchResults.classList.add('hidden');
+                });
+
+                studentSearchResults.appendChild(div);
+            });
+        }
+
+        studentSearchResults.classList.remove('hidden');
+    }
+
+    const fakultetSelectElement = document.getElementById('fakultet_id');
+    const fakultetSearchInput = document.getElementById('fakultet_search');
+    const fakultetSearchResults = document.getElementById('fakultet_search_results');
+    
+    const facultiesData = Array.from(fakultetSelectElement.options)
+        .filter(option => option.value) // Skip placeholder
+        .map(option => ({
+            id: option.value,
+            text: option.text,
+            naziv: option.dataset.naziv,
+            element: option
+        }));
+
+    if (fakultetSelectElement.value) {
+        const selected = facultiesData.find(f => f.id === fakultetSelectElement.value);
+        if (selected) {
+            fakultetSearchInput.value = selected.text;
+        }
+    }
+
+    fakultetSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = facultiesData.filter(faculty => 
+            faculty.text.toLowerCase().includes(query)
+        );
+
+        renderFacultySearchResults(filtered);
+    });
+
+    fakultetSearchInput.addEventListener('focus', () => {
+        const query = fakultetSearchInput.value.toLowerCase();
+        const filtered = facultiesData.filter(faculty => 
+            faculty.text.toLowerCase().includes(query)
+        );
+        renderFacultySearchResults(filtered);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!fakultetSearchInput.contains(e.target) && !fakultetSearchResults.contains(e.target)) {
+            fakultetSearchResults.classList.add('hidden');
+        }
+    });
+
+    function renderFacultySearchResults(results) {
+        fakultetSearchResults.innerHTML = '';
+        
+        if (results.length === 0) {
+            const noResults = document.createElement('div');
+            noResults.className = 'px-4 py-2 text-gray-500 italic';
+            noResults.textContent = 'Nema rezultata';
+            fakultetSearchResults.appendChild(noResults);
+        } else {
+            results.forEach(faculty => {
+                const div = document.createElement('div');
+                div.className = 'px-4 py-2 hover:bg-blue-50 cursor-pointer transition-colors';
+                div.textContent = faculty.text;
+                
+                div.addEventListener('click', () => {
+                    fakultetSearchInput.value = faculty.text;
+                    fakultetSelectElement.value = faculty.id;
+                    fakultetSelectElement.dispatchEvent(new Event('change')); 
+                    fakultetSearchResults.classList.add('hidden');
+                });
+
+                fakultetSearchResults.appendChild(div);
+            });
+        }
+
+        fakultetSearchResults.classList.remove('hidden');
+    }
 
     </script>
 </x-app-layout>

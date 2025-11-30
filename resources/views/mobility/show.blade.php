@@ -2,9 +2,17 @@
     <div class="py-10 max-w-6xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Mobility Details</h1>
-            <a href="{{ route('adminDashboardShow') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg">
-                Back to Dashboard
-            </a>
+            <div class="flex gap-2">
+                <form action="{{ route('admin.mobility.export-word', $mobilnost->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg">
+                        Export Word
+                    </button>
+                </form>
+                <a href="{{ route('adminDashboardShow') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg">
+                    Back to Dashboard
+                </a>
+            </div>
         </div>
 
         <div class="bg-white shadow rounded-lg p-6 mb-6">

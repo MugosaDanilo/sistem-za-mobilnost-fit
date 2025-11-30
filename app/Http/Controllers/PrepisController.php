@@ -58,7 +58,7 @@ class PrepisController extends Controller
 
     public function edit($id)
     {
-        $prepis = Prepis::with('agreements')->findOrFail($id);
+        $prepis = Prepis::with(['student', 'fakultet', 'agreements.fitPredmet', 'agreements.straniPredmet'])->findOrFail($id);
         $studenti = Student::all();
         $fakulteti = Fakultet::all();
         $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id')->get();
