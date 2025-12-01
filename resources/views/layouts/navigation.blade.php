@@ -4,6 +4,12 @@
         <div class="flex justify-between h-16">
             <div class="flex">
 
+    <a href="{{ url('/') }}" class="flex items-center">
+        <img src="{{ asset('logo/logo.png') }}" alt="Logo" class="h-10 w-auto">
+    </a>
+
+
+
             <!-- Navigation Links -->
             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 @php
@@ -25,16 +31,16 @@
                         </x-nav-link>
 
                         <x-nav-link :href="route('univerzitet.index')" :active="request()->routeIs('univerzitet.*')">
-                         {{ __('University') }}
-                    </x-nav-link>
+                         {{ __('Univerzitet') }}
+                        </x-nav-link>
 
-                    <x-nav-link :href="route('fakulteti.index')" :active="request()->routeIs('fakulteti.*')">
-                        {{ __('Fakulteti') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('fakulteti.index')" :active="request()->routeIs('fakulteti.*')">
+                            {{ __('Fakulteti') }}
+                        </x-nav-link>
 
-                    <x-nav-link :href="route('prepis.index')" :active="request()->routeIs('prepis.*')">
-                        {{ __('Prepisi') }}
-                    </x-nav-link>
+                        <x-nav-link :href="route('prepis.index')" :active="request()->routeIs('prepis.*')">
+                            {{ __('Prepisi') }}
+                        </x-nav-link>
 
                     @elseif((int)$user->type === 1)
                         <x-nav-link :href="route('profesorDashboardShow')" :active="request()->routeIs('profesorDashboardShow')">
@@ -119,20 +125,18 @@
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('univerzitet.index')" :active="request()->routeIs('univerzitet.*')">
-    {{ __('University') }}
-</x-responsive-nav-link>
+                    {{ __('Univerzitet') }}
+                </x-responsive-nav-link>
 
-<x-responsive-nav-link :href="route('fakulteti.index')" :active="request()->routeIs('fakulteti.*')">
-    {{ __('Fakulteti') }}
-</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('fakulteti.index')" :active="request()->routeIs('fakulteti.*')">
+                    {{ __('Fakulteti') }}
+                </x-responsive-nav-link>
 
-<x-responsive-nav-link :href="route('prepis.index')" :active="request()->routeIs('prepis.*')">
-    {{ __('Prepisi') }}
-</x-responsive-nav-link>
-php 
-<x-nav-link :href="route('univerzitet.create')" :active="request()->routeIs('univerzitet.create')">
-    {{ __('Dodaj Univerzitet') }}
-</x-nav-link>
+                <x-responsive-nav-link :href="route('prepis.index')" :active="request()->routeIs('prepis.*')">
+                    {{ __('Prepisi') }}
+                </x-responsive-nav-link>
+
+             
             @elseif((int)$user->type === 1)
                 <x-responsive-nav-link :href="route('profesorDashboardShow')" :active="request()->routeIs('profesorDashboardShow')">
                     {{ __('Dashboard') }}

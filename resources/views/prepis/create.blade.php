@@ -44,7 +44,35 @@
                         </div>
 
                         <div class="mb-4">
-                            <h3 class="text-lg font-medium mb-2">Subjects</h3>
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-lg font-medium">Predmeti</h3>
+
+
+<audio id="hover-zvuk" src="{{ asset('sound/maczvuk.mp3') }}"></audio>
+                           
+<button type="button" id="automec-btn"
+    class="group bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded flex flex-col items-center gap-1 w-24">
+    <img src="{{ asset('logo/logo.png') }}" 
+         class="w-10 h-10 block group-hover:hidden" 
+         alt="Automeč logo">
+    <img src="{{ asset('logo/imagehover.png') }}" 
+         class="w-10 h-10 hidden group-hover:block" 
+         alt="Automeč logo hover">
+    <span class="text-sm">Automeč</span>
+</button>
+
+
+
+
+
+
+                            </div>
+
+
+
+
+
+
                             <div id="agreements-container">
                                 <div class="agreement-row flex space-x-4 mb-2">
                                     <div class="w-1/2">
@@ -162,5 +190,76 @@
                 e.target.closest('.agreement-row').remove();
             }
         });
+
+        // Automec funkcionalnost
+        document.getElementById('automec-btn').addEventListener('click', async function() {
+            const fakultetId = fakultetSelect.value;
+            if (!fakultetId) {
+                alert('Selektuj fakultet prvo');
+                return;
+            }
+
+            // Svi odabrani strani predmeti, ovo sam okrenuo
+            const straniPredmetSelects = document.querySelectorAll('.strani-predmet-select');
+            const straniPredmetIds = Array.from(straniPredmetSelects)
+                .map(select => select.value)
+                .filter(id => id !== '');
+
+            if (straniPredmetIds.length === 0) {
+                alert('Selektuj bar jedan strani predmet');
+                return;
+            }
+
+            try {
+                const response = await fetch('{{ route("prepis.automec-sugestija") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        strani_predmet_ids: straniPredmetIds,
+                        fakultet_id: fakultetId
+                    })
+                });
+
+                const suggestions = await response.json();
+
+                // Svaki red pojedinacno
+                straniPredmetSelects.forEach((straniSelect) => {
+                    const straniPredmetId = straniSelect.value;
+                    if (straniPredmetId && suggestions[straniPredmetId]) {
+                        const row = straniSelect.closest('.agreement-row');
+                        const fitSelect = row.querySelector('.fit-predmet-select');
+                        
+                        // Postavi preporučeni
+                        if (fitSelect) {
+                            fitSelect.value = suggestions[straniPredmetId].fit_predmet_id;
+                        }
+                    }
+                });
+
+                if (Object.keys(suggestions).length > 0) {
+                    alert('Mačovanje pokrenuto!');
+                } else {
+                    alert('Nema predmeta za mačovanje.');
+                }
+            } catch (error) {
+                console.error('Greška:', error);
+                alert('Greška prilikom mečovanja. Probaj opet.');
+            }
+        });
+
+
+
+    const btn = document.getElementById("automec-btn");
+    const zvuk = document.getElementById("hover-zvuk");
+
+    btn.addEventListener("mouseenter", () => {
+        zvuk.currentTime = 0;
+        zvuk.play();
+    });
+
+
     </script>
 </x-app-layout>

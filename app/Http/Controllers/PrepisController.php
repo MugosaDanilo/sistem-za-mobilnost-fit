@@ -58,7 +58,7 @@ class PrepisController extends Controller
 
     public function edit($id)
     {
-        $prepis = Prepis::with('agreements')->findOrFail($id);
+        $prepis = Prepis::with(['student', 'fakultet', 'agreements.fitPredmet', 'agreements.straniPredmet'])->findOrFail($id);
         $studenti = Student::all();
         $fakulteti = Fakultet::all();
         $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id')->get();
@@ -113,5 +113,50 @@ class PrepisController extends Controller
     {
         $prepis = Prepis::with(['student', 'fakultet', 'agreements.fitPredmet', 'agreements.straniPredmet'])->findOrFail($id);
         return view('prepis.show', compact('prepis'));
+    }
+
+    public function getAutomecSuggestions(Request $request)
+    {
+        $request->validate([
+            'strani_predmet_ids' => 'required|array',
+            'strani_predmet_ids.*' => 'exists:predmeti,id',
+            'fakultet_id' => 'nullable|exists:fakulteti,id',
+        ]);
+
+        $straniPredmetIds = $request->strani_predmet_ids;
+        $fakultetId = $request->fakultet_id;
+        $suggestions = [];
+
+        foreach ($straniPredmetIds as $straniPredmetId) {
+            // Nadji automec
+            $query = PrepisAgreement::where('strani_predmet_id', $straniPredmetId)
+                ->whereNotNull('fit_predmet_id');
+
+            // Ako ima taj fakultet_id, filtriraj prepise sa tim fakultetom
+            if ($fakultetId) {
+                $query->whereHas('prepis', function ($q) use ($fakultetId) {
+                    $q->where('fakultet_id', $fakultetId);
+                });
+            }
+
+            // Grupiši
+
+            $pairings = $query->selectRaw('fit_predmet_id, COUNT(*) as count')
+                ->groupBy('fit_predmet_id')
+                ->orderByDesc('count')
+                ->first();
+
+            if ($pairings && $pairings->fit_predmet_id) {
+                $fitPredmet = \App\Models\Predmet::find($pairings->fit_predmet_id);
+                if ($fitPredmet) {
+                    $suggestions[$straniPredmetId] = [
+                        'fit_predmet_id' => $fitPredmet->id,
+                        'count' => $pairings->count,
+                    ];
+                }
+            }
+        }
+
+        return response()->json($suggestions);
     }
 }
