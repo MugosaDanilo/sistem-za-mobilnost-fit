@@ -4,6 +4,12 @@
         <div class="flex justify-between h-16">
             <div class="flex">
 
+    <a href="{{ url('/') }}" class="flex items-center">
+        <img src="{{ asset('logo/logo.png') }}" alt="Logo" class="h-10 w-auto">
+    </a>
+
+
+
             <!-- Navigation Links -->
             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 @php
