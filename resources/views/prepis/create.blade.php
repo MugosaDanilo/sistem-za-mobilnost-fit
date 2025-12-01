@@ -48,16 +48,11 @@
                                 <h3 class="text-lg font-medium">Predmeti</h3>
 
 
-<audio id="hover-zvuk" src="{{ asset('sound/maczvuk.mp3') }}"></audio>
+
                            
 <button type="button" id="automec-btn"
     class="group bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded flex flex-col items-center gap-1 w-24">
-    <img src="{{ asset('logo/logo.png') }}" 
-         class="w-10 h-10 block group-hover:hidden" 
-         alt="Automeč logo">
-    <img src="{{ asset('logo/imagehover.png') }}" 
-         class="w-10 h-10 hidden group-hover:block" 
-         alt="Automeč logo hover">
+
     <span class="text-sm">Automeč</span>
 </button>
 
@@ -250,15 +245,6 @@
             }
         });
 
-
-
-    const btn = document.getElementById("automec-btn");
-    const zvuk = document.getElementById("hover-zvuk");
-
-    btn.addEventListener("mouseenter", () => {
-        zvuk.currentTime = 0;
-        zvuk.play();
-    });
 
 
     </script>
