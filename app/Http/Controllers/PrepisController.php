@@ -118,19 +118,19 @@ class PrepisController extends Controller
     public function getAutomecSuggestions(Request $request)
     {
         $request->validate([
-            'strani_predmet_ids' => 'required|array',
-            'strani_predmet_ids.*' => 'exists:predmeti,id',
+            'fit_predmet_ids' => 'required|array',
+            'fit_predmet_ids.*' => 'exists:predmeti,id',
             'fakultet_id' => 'nullable|exists:fakulteti,id',
         ]);
 
-        $straniPredmetIds = $request->strani_predmet_ids;
+        $fitPredmetIds = $request->fit_predmet_ids;
         $fakultetId = $request->fakultet_id;
         $suggestions = [];
 
-        foreach ($straniPredmetIds as $straniPredmetId) {
-            // Nadji automec
-            $query = PrepisAgreement::where('strani_predmet_id', $straniPredmetId)
-                ->whereNotNull('fit_predmet_id');
+        foreach ($fitPredmetIds as $fitPredmetId) {
+            // Nadji prepise
+            $query = PrepisAgreement::where('fit_predmet_id', $fitPredmetId)
+                ->whereNotNull('strani_predmet_id');
 
             // Ako ima taj fakultet_id, filtriraj prepise sa tim fakultetom
             if ($fakultetId) {
@@ -140,17 +140,16 @@ class PrepisController extends Controller
             }
 
             // Grupiši
-
-            $pairings = $query->selectRaw('fit_predmet_id, COUNT(*) as count')
-                ->groupBy('fit_predmet_id')
+            $pairings = $query->selectRaw('strani_predmet_id, COUNT(*) as count')
+                ->groupBy('strani_predmet_id')
                 ->orderByDesc('count')
                 ->first();
 
-            if ($pairings && $pairings->fit_predmet_id) {
-                $fitPredmet = \App\Models\Predmet::find($pairings->fit_predmet_id);
-                if ($fitPredmet) {
-                    $suggestions[$straniPredmetId] = [
-                        'fit_predmet_id' => $fitPredmet->id,
+            if ($pairings && $pairings->strani_predmet_id) {
+                $straniPredmet = \App\Models\Predmet::find($pairings->strani_predmet_id);
+                if ($straniPredmet) {
+                    $suggestions[$fitPredmetId] = [
+                        'strani_predmet_id' => $straniPredmet->id,
                         'count' => $pairings->count,
                     ];
                 }
