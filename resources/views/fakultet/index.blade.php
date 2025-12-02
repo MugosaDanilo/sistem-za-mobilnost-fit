@@ -15,9 +15,9 @@
         </div>
     @endif
 
-    <div class="py-10 max-w-7xl mx-auto px-6">
+    <div class="py-10 max-w-6xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Fakulteti</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Fakulteti</h1>
             <button id="addFacultyBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg">
                 Dodaj Fakultet
             </button>
@@ -32,37 +32,31 @@
             >
         </div>
 
-        <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Lista Fakulteta</h2>
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($fakulteti) }} Total</span>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naziv</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefon</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Web</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Univerzitet</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Akcije</th>
-                        </tr>
-                    </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+        <div class="overflow-x-auto bg-white shadow rounded-lg">
+            <table class="min-w-full border border-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Naziv</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Email</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Telefon</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Web</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Univerzitet</th>
+                        <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Akcije</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
                     @foreach($fakulteti as $f)
-                        <tr class="faculty-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($f->naziv . ' ' . $f->email . ' ' . $f->univerzitet->naziv) }}">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $f->naziv }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->email }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->telefon }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <tr class="bg-white faculty-row" data-search="{{ strtolower($f->naziv . ' ' . $f->email . ' ' . $f->univerzitet->naziv) }}">
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $f->naziv }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $f->email }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $f->telefon }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">
                                 @if($f->web)
                                     <a href="{{ $f->web }}" target="_blank" class="text-blue-600 hover:underline">{{ $f->web }}</a>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->univerzitet->naziv }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $f->univerzitet->naziv }}</td>
+                            <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center space-x-2">
                                     <button
                                         class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md openEditModal"
@@ -92,8 +86,6 @@
                     @endforeach
                 </tbody>
             </table>
-            </div>
-        </div>
         </div>
     </div>
 

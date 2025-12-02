@@ -11,9 +11,9 @@
         </div>
     @endif
 
-    <div class="py-10 max-w-7xl mx-auto px-6">
+    <div class="py-10 max-w-6xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Universities</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Universities</h1>
             <button id="addUniversityBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg">
                 Add University
             </button>
@@ -28,31 +28,25 @@
             >
         </div>
 
-        <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">University List</h2>
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($univerziteti) }} Total</span>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+        <div class="overflow-x-auto bg-white shadow rounded-lg">
+            <table class="min-w-full border border-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Country</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">City</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Email</th>
+                        <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
                     @foreach($univerziteti as $u)
-                        <tr class="university-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($u->naziv . ' ' . $u->drzava . ' ' . $u->grad . ' ' . $u->email) }}">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $u->naziv }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $u->drzava }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $u->grad }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $u->email }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <tr class="bg-white university-row" data-search="{{ strtolower($u->naziv . ' ' . $u->drzava . ' ' . $u->grad . ' ' . $u->email) }}">
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $u->naziv }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $u->drzava }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $u->grad }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $u->email }}</td>
+                            <td class="px-4 py-3 text-center">
                                 <div class="flex justify-center space-x-2">
                                    <button
     class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md openEditModal"
@@ -77,9 +71,8 @@
                     @endforeach
                 </tbody>
             </table>
-            </div>
-        </div>
 
+            <!-- Edit University Modal -->
 <div id="editUniversityModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
         <h2 id="modalTitle" class="text-xl font-semibold mb-4">Edit University</h2>
@@ -121,7 +114,7 @@
         </form>
     </div>
 </div>
-
+<!-- Add University -->
 <div id="addUniversityModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
         <h2 id="modalTitleAdd" class="text-xl font-semibold mb-4">Add University</h2>
@@ -166,68 +159,72 @@
     </div>
 
 
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('editUniversityModal');
+    const cancelBtn = document.getElementById('cancelEditModal');
+    const form = document.getElementById('editUniversityForm');
+
+    // Otvori modal i popuni polja
+    document.querySelectorAll('.openEditModal').forEach(button => {
+        button.addEventListener('click', () => {
+            const id = button.getAttribute('data-id');
+            document.getElementById('editUniversityId').value = id;
+            document.getElementById('editName').value = button.getAttribute('data-naziv');
+            document.getElementById('editCountry').value = button.getAttribute('data-drzava');
+            document.getElementById('editCity').value = button.getAttribute('data-grad');
+            document.getElementById('editEmail').value = button.getAttribute('data-email');
+
+            form.action = `{{ route('univerzitet.index') }}/${id}`;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+    });
+
+    // Zatvori modal
+    cancelBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    });
+});
+</script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const modal = document.getElementById('editUniversityModal');
-        const cancelBtn = document.getElementById('cancelEditModal');
-        const form = document.getElementById('editUniversityForm');
+document.addEventListener('DOMContentLoaded', function () {
+    const addModal = document.getElementById('addUniversityModal');
+    const addBtn = document.getElementById('addUniversityBtn');
+    const cancelAdd = document.getElementById('cancelAddModal');
 
-        document.querySelectorAll('.openEditModal').forEach(button => {
-            button.addEventListener('click', () => {
-                const id = button.getAttribute('data-id');
-                document.getElementById('editUniversityId').value = id;
-                document.getElementById('editName').value = button.getAttribute('data-naziv');
-                document.getElementById('editCountry').value = button.getAttribute('data-drzava');
-                document.getElementById('editCity').value = button.getAttribute('data-grad');
-                document.getElementById('editEmail').value = button.getAttribute('data-email');
-
-                form.action = `{{ route('univerzitet.index') }}/${id}`;
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            });
-        });
-
-        cancelBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        });
+    addBtn.addEventListener('click', () => {
+        addModal.classList.remove('hidden');
+        addModal.classList.add('flex');
     });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const addModal = document.getElementById('addUniversityModal');
-        const addBtn = document.getElementById('addUniversityBtn');
-        const cancelAdd = document.getElementById('cancelAddModal');
+    cancelAdd.addEventListener('click', () => {
+        addModal.classList.add('hidden');
+        addModal.classList.remove('flex');
+    });
+});
+</script>
 
-        addBtn.addEventListener('click', () => {
-            addModal.classList.remove('hidden');
-            addModal.classList.add('flex');
-        });
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchUniversity');
+    const rows = document.querySelectorAll('.university-row');
 
-        cancelAdd.addEventListener('click', () => {
-            addModal.classList.add('hidden');
-            addModal.classList.remove('flex');
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        
+        rows.forEach(row => {
+            const searchText = row.getAttribute('data-search');
+            if (searchText.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
         });
     });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('searchUniversity');
-        const rows = document.querySelectorAll('.university-row');
-
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            
-            rows.forEach(row => {
-                const searchText = row.getAttribute('data-search');
-                if (searchText.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-    });
-
-
+});
 </script>
 
 

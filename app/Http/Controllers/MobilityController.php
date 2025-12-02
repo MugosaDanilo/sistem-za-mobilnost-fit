@@ -75,12 +75,15 @@ class MobilityController extends Controller
             $fitSubjectName = trim($fitSubjectName);
             \Illuminate\Support\Facades\Log::info('Processing FIT subject', ['name' => $fitSubjectName]);
 
+            // Find FIT subject
+            // Try exact match first
             $fitPredmet = \App\Models\Predmet::where('naziv', $fitSubjectName)
                 ->whereHas('fakultet', function ($q) {
                     $q->where('naziv', 'FIT');
                 })->first();
 
             if (!$fitPredmet) {
+                // Try ignoring whitespace
                 $normalizedName = str_replace(' ', '', $fitSubjectName);
                 $fitPredmet = \App\Models\Predmet::whereRaw("REPLACE(naziv, ' ', '') = ?", [$normalizedName])
                     ->whereHas('fakultet', function ($q) {
@@ -90,6 +93,7 @@ class MobilityController extends Controller
 
             if (!$fitPredmet) {
                 \Illuminate\Support\Facades\Log::warning('FIT subject not found', ['name' => $fitSubjectName]);
+                // Fallback: try finding by name only (ignoring whitespace)
                 $fitPredmet = \App\Models\Predmet::whereRaw("REPLACE(naziv, ' ', '') = ?", [$normalizedName])->first();
                 if (!$fitPredmet)
                     continue;
@@ -99,6 +103,7 @@ class MobilityController extends Controller
                 $foreignSubjectName = trim($foreignSubjectName);
                 \Illuminate\Support\Facades\Log::info('Processing Foreign subject', ['name' => $foreignSubjectName]);
 
+                // Find or create foreign subject
                 $foreignPredmet = \App\Models\Predmet::firstOrCreate(
                     [
                         'naziv' => $foreignSubjectName,
@@ -106,7 +111,7 @@ class MobilityController extends Controller
                     ],
                     [
                         'ects' => $courseMap[$foreignSubjectName]['ECTS'] ?? 0,
-                        'semestar' => 0
+                        'semestar' => 0 // Default or extract if possible
                     ]
                 );
 
@@ -406,88 +411,5 @@ class MobilityController extends Controller
         }
 
         return response()->json(['message' => 'Grades updated successfully.']);
-    }
-    public function exportWord($id)
-    {
-        $mobilnost = Mobilnost::with(['student', 'fakultet', 'learningAgreements.fitPredmet', 'learningAgreements.straniPredmet'])
-            ->findOrFail($id);
-
-        $phpWord = new PhpWord();
-        $section = $phpWord->addSection();
-
-        $section->addText('Predlog za priznavanje ispita', ['bold' => true, 'size' => 16], ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
-        $section->addTextBreak(1);
-
-        $textRun = $section->addTextRun(['size' => 12]);
-        $textRun->addText('Student osnovnih studija ');
-        $textRun->addText("{$mobilnost->student->ime} {$mobilnost->student->prezime}", ['bold' => true]);
-        $textRun->addText(", broj indeksa ");
-        $textRun->addText($mobilnost->student->br_indexa, ['bold' => true]);
-        $textRun->addText(", boravio je na ");
-        $textRun->addText($mobilnost->fakultet->naziv, ['bold' => true]);
-        $textRun->addText(". Na osnovu sporazuma o mobilnosti i transkripta ocjena, studentu treba da se priznaju sledeći ispiti:");
-        $section->addTextBreak(1);
-
-        $tableStyle = [
-            'borderSize' => 6,
-            'borderColor' => '999999',
-            'cellMargin' => 80,
-            'alignment' => JcTable::CENTER,
-            'bgColor' => 'FFFFCC'
-        ];
-        $phpWord->addTableStyle('GradesTable', $tableStyle);
-        $table = $section->addTable('GradesTable');
-
-        $headers = ['R.br', 'Predmet (FIT)', 'Semestar', 'ECTS (FIT)', 'Priznaje se', 'Ocjena', 'ECTS'];
-        $table->addRow();
-        foreach ($headers as $header) {
-            $table->addCell(2000, ['bgColor' => 'FFFFFF'])->addText($header, ['name' => 'Times New Roman', 'bold' => true, 'italic' => true]);
-        }
-
-        $groupedAgreements = $mobilnost->learningAgreements->groupBy('fit_predmet_id');
-
-        $rowNum = 1;
-        foreach ($groupedAgreements as $fitPredmetId => $agreements) {
-            $fitPredmet = $agreements->first()->fitPredmet;
-            
-            if (!$fitPredmet) continue;
-
-            $fitSubjectName = $fitPredmet->naziv;
-            $semester = $fitPredmet->semestar;
-            $fitEcts = $fitPredmet->ects;
-
-            $foreignSubjects = [];
-            $totalForeignEcts = 0;
-            $grade = ''; 
-            
-            foreach ($agreements as $la) {
-                if ($la->straniPredmet) {
-                    $foreignSubjects[] = $la->straniPredmet->naziv;
-                    $totalForeignEcts += $la->straniPredmet->ects;
-                }
-                if (empty($grade) && !empty($la->ocjena)) {
-                    $grade = $la->ocjena;
-                }
-            }
-
-            $foreignSubjectsString = implode(', ', $foreignSubjects);
-
-            $table->addRow();
-            $table->addCell(800)->addText($rowNum++);
-            $table->addCell(3000)->addText($fitSubjectName);
-            $table->addCell(1000)->addText($semester);
-            $table->addCell(1000)->addText($fitEcts);
-            $table->addCell(3000)->addText($foreignSubjectsString);
-            $table->addCell(1000)->addText($grade);
-            $table->addCell(1000)->addText($totalForeignEcts);
-        }
-
-        $fileName = 'Mobility_Grades_' . $mobilnost->student->br_indexa . '_' . date('Ymd_His') . '.docx';
-        $filePath = storage_path("app/public/$fileName");
-
-        $writer = IOFactory::createWriter($phpWord, 'Word2007');
-        $writer->save($filePath);
-
-        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 }

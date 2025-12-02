@@ -18,9 +18,9 @@
         </div>
     @endif
 
-    <div class="py-10 max-w-7xl mx-auto px-6">
+    <div class="py-10 max-w-6xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Korisnici</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Korisnici</h1>
             <button id="addUserBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg">
                 Dodaj korisnika
             </button>
@@ -35,46 +35,31 @@
             >
         </div>
 
-        <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Lista Korisnika</h2>
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($users) }} Total</span>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200" id="userTable">
-                    <thead class="bg-gray-50">
-                        <tr>
-
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200" id="userTableBody">
-                        @foreach ($users as $user)
-                            <tr class="user-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($user->id . ' ' . $user->name . ' ' . $user->email . ' ' . (($user->type == 0) ? 'admin' : 'profesor')) }}">
-
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
-                                            {{ substr($user->name, 0, 1) }}
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <div class="overflow-x-auto bg-white shadow rounded-lg">
+            <table class="min-w-full border border-gray-200" id="userTable">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ID</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Email</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Type</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200" id="userTableBody">
+                    @foreach ($users as $user)
+                        <tr class="user-row" data-search="{{ strtolower($user->id . ' ' . $user->name . ' ' . $user->email . ' ' . (($user->type == 0) ? 'admin' : 'profesor')) }}">
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $user->id }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $user->name }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">{{ $user->email }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-800">
                                 @if ((int)$user->type === 0)
                                     Admin
                                 @elseif((int)$user->type === 1)
                                     Profesor
                                 @endif
                            </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <td class="px-4 py-3">
                                 <div class="flex space-x-2">
                                     <button
                                         onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}')"
@@ -97,8 +82,6 @@
                     @endforeach
                 </tbody>
             </table>
-
-            </div>
         </div>
     </div>
 
