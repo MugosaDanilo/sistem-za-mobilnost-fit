@@ -46,4 +46,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function predmeti()
+    {
+        return $this->belongsToMany(Predmet::class, 'profesor_predmet', 'profesor_id', 'predmet_id');
+    }
 }

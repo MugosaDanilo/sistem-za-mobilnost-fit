@@ -82,6 +82,13 @@
                                         Edit
                                     </button>
 
+                                    @if((int)$user->type === 1)
+                                        <a href="{{ route('users.subjects.index', $user->id) }}"
+                                           class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded-md inline-block">
+                                            Subjects
+                                        </a>
+                                    @endif
+
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                           onsubmit="return confirm('Are you sure you want to delete this user?')">
                                         @csrf
@@ -158,6 +165,8 @@
         </div>
     </div>
 
+
+
     <script>
         const modal = document.getElementById('userModal');
         const addUserBtn = document.getElementById('addUserBtn');
@@ -222,4 +231,6 @@
         });
     });
     </script>
+
+
 </x-app-layout>

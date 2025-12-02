@@ -14,4 +14,8 @@ class Predmet extends Model
     {
         return $this->belongsTo(Fakultet::class);
     }
+    public function profesori()
+    {
+        return $this->belongsToMany(User::class, 'profesor_predmet', 'predmet_id', 'profesor_id');
+    }
 }

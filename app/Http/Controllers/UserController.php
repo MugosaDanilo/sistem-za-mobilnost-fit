@@ -11,8 +11,9 @@ class UserController extends Controller
     public function index()
     {
         $users = User::orderBy('created_at', 'desc')->get();
+        $predmeti = \App\Models\Predmet::select('id', 'naziv', 'ects')->get();
 
-        return view('users.index', ["users" => $users]);
+        return view('users.index', ["users" => $users, "predmeti" => $predmeti]);
     }
 
     public function store(Request $request)
