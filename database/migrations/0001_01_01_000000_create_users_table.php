@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+<<<<<<< HEAD
             $table->tinyInteger('type')->default(0); //admin = 0, profesor = 1
+=======
+>>>>>>> master
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
