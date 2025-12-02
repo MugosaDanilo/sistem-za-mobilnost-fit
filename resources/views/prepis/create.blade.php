@@ -44,12 +44,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <h3 class="text-lg font-medium">Predmeti</h3>
-                                <button type="button" id="automec-btn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
-                                    Automeč
-                                </button>
-                            </div>
+                            <h3 class="text-lg font-medium mb-2">Subjects</h3>
                             <div id="agreements-container">
                                 <div class="agreement-row flex space-x-4 mb-2">
                                     <div class="w-1/2">
@@ -165,70 +160,6 @@
         agreementsContainer.addEventListener('click', function(e) {
             if (e.target.classList.contains('remove-agreement')) {
                 e.target.closest('.agreement-row').remove();
-            }
-        });
-
-        // Automec funkcionalnost
-        document.getElementById('automec-btn').addEventListener('click', async function() {
-            const fakultetId = fakultetSelect.value;
-            if (!fakultetId) {
-                alert('Selektuj fakultet prvo');
-                return;
-            }
-
-            // Svi odabrani FIT predmeti
-            const fitPredmetSelects = document.querySelectorAll('.fit-predmet-select');
-            const fitPredmetIds = Array.from(fitPredmetSelects)
-                .map(select => select.value)
-                .filter(id => id !== '');
-
-            if (fitPredmetIds.length === 0) {
-                alert('Selektuj bar jedan FIT predmet');
-                return;
-            }
-
-            try {
-                const response = await fetch('{{ route("prepis.automec-sugestija") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        fit_predmet_ids: fitPredmetIds,
-                        fakultet_id: fakultetId
-                    })
-                });
-
-                const suggestions = await response.json();
-
-                // Svaki red
-                fitPredmetSelects.forEach((fitSelect, index) => {
-                    const fitPredmetId = fitSelect.value;
-                    if (fitPredmetId && suggestions[fitPredmetId]) {
-                        const row = fitSelect.closest('.agreement-row');
-                        const straniSelect = row.querySelector('.strani-predmet-select');
-                        
-                       
-                        if (straniSelect.disabled) {
-                            populateForeignSubjects(straniSelect, fakultetId);
-                        }
-                        
-                        
-                        setTimeout(() => {
-                            straniSelect.value = suggestions[fitPredmetId].strani_predmet_id;
-                        }, 100);
-                    }
-                });
-
-                if (Object.keys(suggestions).length > 0) {
-                    alert('Mačovanje pokrenuto!');
-                } else {
-                    alert('Nema predmeta za mačovanje.');
-                }
-            } catch (error) {
-                console.error('Greška:', error);
-                alert('Greška prilikom mečovanja. Probaj opet.');
             }
         });
     </script>

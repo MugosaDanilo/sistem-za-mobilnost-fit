@@ -114,48 +114,4 @@ class PrepisController extends Controller
         $prepis = Prepis::with(['student', 'fakultet', 'agreements.fitPredmet', 'agreements.straniPredmet'])->findOrFail($id);
         return view('prepis.show', compact('prepis'));
     }
-
-    public function getAutomecSuggestions(Request $request)
-    {
-        $request->validate([
-            'fit_predmet_ids' => 'required|array',
-            'fit_predmet_ids.*' => 'exists:predmeti,id',
-            'fakultet_id' => 'nullable|exists:fakulteti,id',
-        ]);
-
-        $fitPredmetIds = $request->fit_predmet_ids;
-        $fakultetId = $request->fakultet_id;
-        $suggestions = [];
-
-        foreach ($fitPredmetIds as $fitPredmetId) {
-            // Nadji prepise
-            $query = PrepisAgreement::where('fit_predmet_id', $fitPredmetId)
-                ->whereNotNull('strani_predmet_id');
-
-            // Ako ima taj fakultet_id, filtriraj prepise sa tim fakultetom
-            if ($fakultetId) {
-                $query->whereHas('prepis', function ($q) use ($fakultetId) {
-                    $q->where('fakultet_id', $fakultetId);
-                });
-            }
-
-            // Grupiši
-            $pairings = $query->selectRaw('strani_predmet_id, COUNT(*) as count')
-                ->groupBy('strani_predmet_id')
-                ->orderByDesc('count')
-                ->first();
-
-            if ($pairings && $pairings->strani_predmet_id) {
-                $straniPredmet = \App\Models\Predmet::find($pairings->strani_predmet_id);
-                if ($straniPredmet) {
-                    $suggestions[$fitPredmetId] = [
-                        'strani_predmet_id' => $straniPredmet->id,
-                        'count' => $pairings->count,
-                    ];
-                }
-            }
-        }
-
-        return response()->json($suggestions);
-    }
 }
