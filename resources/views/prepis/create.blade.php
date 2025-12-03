@@ -91,9 +91,9 @@
                             <table class="w-full border-collapse border border-gray-300 bg-white">
                                 <thead class="bg-gray-200">
                                     <tr>
-                                        <th class="border border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700 w-1/2">FIT Predmet</th>
+                                        <th class="border border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700 w-1/2">Strani Predmet</th>
                                         <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700 w-24">ECTS</th>
-                                        <th class="border-l-4 border-l-gray-500 border-r border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700 w-1/2">Strani Predmet</th>
+                                        <th class="border-l-4 border-l-gray-500 border-r border-gray-300 px-4 py-3 text-left text-sm font-semibold text-gray-700 w-1/2">FIT Predmet</th>
                                         <th class="border border-gray-300 px-4 py-3 text-center text-sm font-semibold text-gray-700 w-24">ECTS</th>
                                     </tr>
                                 </thead>
@@ -107,11 +107,17 @@
                                 </tbody>
                                 <tfoot class="bg-gray-100">
                                     <tr>
-                                        <td class="border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700" colspan="2">
-                                            <span>Ukupno FIT ECTS: <span id="ukupno-fit-ects">0</span></span>
+                                        <td class="border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700">
+                                            <span>Ukupno Strani ECTS:</span>
                                         </td>
-                                        <td class="border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700" colspan="2">
-                                            <span>Ukupno Strani ECTS: <span id="ukupno-strani-macovanje-ects">0</span></span>
+                                        <td class="border border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-800">
+                                            <span id="ukupno-strani-macovanje-ects">0</span>
+                                        </td>
+                                        <td class="border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700">
+                                            <span>Ukupno FIT ECTS:</span>
+                                        </td>
+                                        <td class="border border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-800">
+                                            <span id="ukupno-fit-ects">0</span>
                                         </td>
                                     </tr>
                                 </tfoot>
@@ -135,8 +141,9 @@
         const fakultetSelect = document.getElementById('fakultet_id');
         const macovanjeTable = document.getElementById('macovanje');
         
-        // Store all matched pairs from macovanje table
+        // Store all matched pairs from macovanje table with batch tracking
         const macovanjePairs = [];
+        let currentBatch = 0;
 
         function populateForeignSubjects(selectElement, facultyId) {
             selectElement.innerHTML = '<option value="">Odaberite strani predmet</option>';
@@ -226,21 +233,33 @@
                 return;
             }
             
+            let lastBatch = -1;
             macovanjePairs.forEach((pair, index) => {
+                // Add separator line if this is a new batch
+                if (pair.batch !== undefined && pair.batch !== lastBatch && lastBatch !== -1) {
+                    const separatorRow = document.createElement('tr');
+                    separatorRow.className = 'border-separator';
+                    separatorRow.innerHTML = `
+                        <td colspan="4" class="border-t-4 border-t-gray-600 px-4 py-2"></td>
+                    `;
+                    macovanjeTable.appendChild(separatorRow);
+                }
+                lastBatch = pair.batch !== undefined ? pair.batch : 0;
+                
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-50 transition-colors';
                 tr.dataset.pairIndex = index;
                 tr.innerHTML = `
                     <td class="border border-gray-300 px-4 py-3 text-sm text-gray-800 w-1/2">
-                        ${pair.fitName}
-                        <button type="button" class="ml-2 text-red-600 hover:text-red-900 text-xs" onclick="removeFromMacovanje(${index})">×</button>
-                    </td>
-                    <td class="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-gray-800">${pair.fitEcts}</td>
-                    <td class="border-l-4 border-l-gray-500 border-r border-gray-300 px-4 py-3 text-sm text-gray-800 w-1/2">
                         ${pair.straniName}
                         <button type="button" class="ml-2 text-red-600 hover:text-red-900 text-xs" onclick="removeFromMacovanje(${index})">×</button>
                     </td>
                     <td class="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-gray-800">${pair.straniEcts}</td>
+                    <td class="border-l-4 border-l-gray-500 border-r border-gray-300 px-4 py-3 text-sm text-gray-800 w-1/2">
+                        ${pair.fitName}
+                        <button type="button" class="ml-2 text-red-600 hover:text-red-900 text-xs" onclick="removeFromMacovanje(${index})">×</button>
+                    </td>
+                    <td class="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-gray-800">${pair.fitEcts}</td>
                 `;
                 macovanjeTable.appendChild(tr);
             });
@@ -489,7 +508,10 @@
                 return;
             }
             
-            // Create all combinations (many-to-many)
+            // Increment batch number for this group
+            currentBatch++;
+            
+            // Create all combinations (many-to-many) with batch tracking
             straniItems.forEach(straniItem => {
                 domaciItems.forEach(domaciItem => {
                     macovanjePairs.push({
@@ -498,7 +520,8 @@
                         fitEcts: domaciItem.dataset.ects,
                         straniId: straniItem.dataset.id,
                         straniName: straniItem.dataset.name,
-                        straniEcts: straniItem.dataset.ects
+                        straniEcts: straniItem.dataset.ects,
+                        batch: currentBatch
                     });
                 });
             });
