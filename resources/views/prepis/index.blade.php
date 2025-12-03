@@ -63,13 +63,13 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('prepis.edit', $prepis->id) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md">
+                                    <a href="{{ route('prepis.edit', $prepis->id) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
                                         Edit
                                     </a>
                                     <form action="{{ route('prepis.destroy', $prepis->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this prepis?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded-md">
+                                        <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
                                             Delete
                                         </button>
                                     </form>

@@ -91,6 +91,21 @@ class MobilityController extends Controller
             if (!$fitPredmet) {
                 \Illuminate\Support\Facades\Log::warning('FIT subject not found', ['name' => $fitSubjectName]);
                 $fitPredmet = \App\Models\Predmet::whereRaw("REPLACE(naziv, ' ', '') = ?", [$normalizedName])->first();
+                
+                if (!$fitPredmet) {
+                    \Illuminate\Support\Facades\Log::info('Creating new FIT subject', ['name' => $fitSubjectName]);
+                    $fitFaculty = \App\Models\Fakultet::where('naziv', 'FIT')->first();
+                    
+                    if ($fitFaculty) {
+                        $fitPredmet = \App\Models\Predmet::create([
+                            'naziv' => $fitSubjectName,
+                            'fakultet_id' => $fitFaculty->id,
+                            'ects' => $courseMap[$fitSubjectName]['ECTS'] ?? 0,
+                            'semestar' => $courseMap[$fitSubjectName]['Term'] ?? 0 
+                        ]);
+                    }
+                }
+
                 if (!$fitPredmet)
                     continue;
             }
@@ -510,5 +525,13 @@ class MobilityController extends Controller
         $writer->save($filePath);
 
         return response()->download($filePath)->deleteFileAfterSend(true);
+    }
+
+    public function destroy($id)
+    {
+        $mobilnost = Mobilnost::findOrFail($id);
+        $mobilnost->delete();
+
+        return redirect()->back()->with('success', 'Mobility record deleted successfully.');
     }
 }

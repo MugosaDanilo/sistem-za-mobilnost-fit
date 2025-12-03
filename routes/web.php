@@ -39,6 +39,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/mobility/grade/{id}', [MobilityController::class, 'updateGrade'])->name('admin.mobility.update-grade');
     Route::post('/mobility/{id}/grades', [MobilityController::class, 'updateGrades'])->name('admin.mobility.update-grades');
     Route::post('/mobility/{id}/export-word', [MobilityController::class, 'exportWord'])->name('admin.mobility.export-word');
+    Route::delete('/mobilnost/{id}', [MobilityController::class, 'destroy'])->name('admin.mobility.destroy');
 
     Route::get('/users/', [UserController::class, 'index'])->name('users.index');
     Route::post('/users/', [UserController::class, 'store'])->name('users.store');

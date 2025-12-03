@@ -65,7 +65,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center space-x-2">
                                     <button
-                                        class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md openEditModal"
+                                        class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors openEditModal"
                                         data-id="{{ $f->id }}"
                                         data-naziv="{{ $f->naziv }}"
                                         data-email="{{ $f->email }}"
@@ -75,14 +75,14 @@
                                         data-univerzitet="{{ $f->univerzitet_id }}">
                                         Izmijeni
                                     </button>
-                                    <a href="{{ route('fakulteti.predmeti.index', $f->id) }}" class="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded-md">
+                                    <a href="{{ route('fakulteti.predmeti.index', $f->id) }}" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md transition-colors">
                                         Predmeti
                                     </a>
                                     <form action="{{ route('fakulteti.destroy', $f->id) }}" method="POST" onsubmit="return confirm('Da li ste sigurni?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 
-                                                class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded-md">
+                                                class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
                                             Obriši
                                         </button>
                                     </form>

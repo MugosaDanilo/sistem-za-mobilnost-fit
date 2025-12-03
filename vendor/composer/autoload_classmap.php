@@ -21,6 +21,7 @@ return array(
     'App\\Http\\Controllers\\MobilityController' => $baseDir . '/app/Http/Controllers/MobilityController.php',
     'App\\Http\\Controllers\\PredmetController' => $baseDir . '/app/Http/Controllers/PredmetController.php',
     'App\\Http\\Controllers\\PrepisController' => $baseDir . '/app/Http/Controllers/PrepisController.php',
+    'App\\Http\\Controllers\\ProfesorPredmetController' => $baseDir . '/app/Http/Controllers/ProfesorPredmetController.php',
     'App\\Http\\Controllers\\ProfileController' => $baseDir . '/app/Http/Controllers/ProfileController.php',
     'App\\Http\\Controllers\\UniverzitetController' => $baseDir . '/app/Http/Controllers/UniverzitetController.php',
     'App\\Http\\Controllers\\UserController' => $baseDir . '/app/Http/Controllers/UserController.php',

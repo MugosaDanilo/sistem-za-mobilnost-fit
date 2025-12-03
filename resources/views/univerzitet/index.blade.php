@@ -55,7 +55,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center space-x-2">
                                    <button
-    class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md openEditModal"
+    class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors openEditModal"
     data-id="{{ $u->id }}"
     data-naziv="{{ $u->naziv }}"
     data-drzava="{{ $u->drzava }}"
@@ -67,7 +67,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 
-                                                class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded-md">
+                                                class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
                                             Delete
                                         </button>
                                     </form>
