@@ -14,6 +14,15 @@ class DashboardController extends Controller
 
     public function profesorDashboard()
     {
-        return view('dashboard.profesor-dashboard');
+        $user = auth()->user();
+        
+        $predmetiIds = $user->predmeti->pluck('id');
+
+        $agreements = \App\Models\PrepisAgreement::whereIn('fit_predmet_id', $predmetiIds)
+            ->with(['prepis.student', 'fitPredmet', 'straniPredmet'])
+            ->latest()
+            ->get();
+
+        return view('dashboard.profesor-dashboard', compact('agreements'));
     }
 }
