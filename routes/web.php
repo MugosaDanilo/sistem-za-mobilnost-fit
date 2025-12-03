@@ -78,6 +78,9 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('profesor.mobility.upload');
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('profesor.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('profesor.mobility.save');
+    
+    Route::post('/prepis-agreement/{id}/accept', [App\Http\Controllers\PrepisAgreementController::class, 'accept'])->name('prepis-agreement.accept');
+    Route::post('/prepis-agreement/{id}/reject', [App\Http\Controllers\PrepisAgreementController::class, 'reject'])->name('prepis-agreement.reject');
 });
 
 require __DIR__ . '/auth.php';
