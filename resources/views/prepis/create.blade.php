@@ -2,7 +2,7 @@
     <div class="py-1">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="p-2">
-                <form action="{{ route('prepis.store') }}" method="POST">
+                <form action="{{ route('prepis.store') }}" method="POST" id="prepis-form">
                     @csrf
 
                     <div class="border p-4 rounded mb-3 bg-white">
@@ -48,6 +48,9 @@
                                 <div>
                                     <h5 class="font-semibold mb-2 text-sm">Trenutni predmet</h5>
                                     <div id="trenutnis" class="border border-gray-400 min-h-[200px] p-2 rounded drop-zone bg-white overflow-y-auto max-h-[300px]"></div>
+                                    <div class="mt-2 text-sm font-semibold border-t pt-2">
+                                        <span>Ukupno: </span><span id="ukupno-strani-ects">0</span> ECTS
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -58,6 +61,9 @@
                                 <div>
                                     <h5 class="font-semibold mb-2 text-sm">Trenutni predmet</h5>
                                     <div id="trenutnid" class="border border-gray-400 min-h-[200px] p-2 rounded drop-zone bg-white overflow-y-auto max-h-[300px]"></div>
+                                    <div class="mt-2 text-sm font-semibold border-t pt-2">
+                                        <span>Ukupno: </span><span id="ukupno-domaci-ects">0</span> ECTS
+                                    </div>
                                     <button type="button" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm" id="potvrdi">Potvrdi</button>
                                 </div>
                                 <div style="max-width: 250px;">
@@ -96,6 +102,16 @@
                                         </td>
                                     </tr>
                                 </tbody>
+                                <tfoot class="bg-gray-100">
+                                    <tr>
+                                        <td class="border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700" colspan="2">Ukupno FIT ECTS</td>
+                                        <td class="border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700" colspan="2">Ukupno Strani ECTS</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-800" colspan="2" id="ukupno-fit-ects">0</td>
+                                        <td class="border border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-800" colspan="2" id="ukupno-strani-macovanje-ects">0</td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
@@ -115,6 +131,10 @@
         const agreementsContainer = document.getElementById('agreements-container');
         const fakultetSelect = document.getElementById('fakultet_id');
         const macovanjeTable = document.getElementById('macovanje');
+        
+        // Store original items for restoration
+        const originalStraniItems = new Map();
+        const originalDomaciItems = new Map();
 
         function populateForeignSubjects(selectElement, facultyId) {
             selectElement.innerHTML = '<option value="">Odaberite strani predmet</option>';
@@ -156,6 +176,25 @@
             });
         }
 
+        function calculateTotalEcts(containerId) {
+            const container = document.getElementById(containerId);
+            const items = container.querySelectorAll('.dropped-item');
+            let total = 0;
+            items.forEach(item => {
+                const ects = parseInt(item.dataset.ects) || 0;
+                total += ects;
+            });
+            return total;
+        }
+
+        function updateTotalEcts() {
+            const straniTotal = calculateTotalEcts('trenutnis');
+            const domaciTotal = calculateTotalEcts('trenutnid');
+            
+            document.getElementById('ukupno-strani-ects').textContent = straniTotal;
+            document.getElementById('ukupno-domaci-ects').textContent = domaciTotal;
+        }
+
         function updateMacovanjeTable() {
             macovanjeTable.innerHTML = '';
             const trenutnis = document.getElementById('trenutnis');
@@ -165,21 +204,25 @@
             const domaciItems = Array.from(trenutnid.querySelectorAll('.dropped-item'));
             
             let hasData = false;
-            const minLength = Math.min(straniItems.length, domaciItems.length);
+            let totalFitEcts = 0;
+            let totalStraniEcts = 0;
             
-            for (let i = 0; i < minLength; i++) {
-                const straniItem = straniItems[i];
-                const domaciItem = domaciItems[i];
-                
-                if (straniItem && domaciItem) {
+            // Many-to-many matching: create all combinations
+            straniItems.forEach(straniItem => {
+                domaciItems.forEach(domaciItem => {
                     hasData = true;
                     const straniName = straniItem.dataset.name || '';
-                    const straniEcts = straniItem.dataset.ects || '';
+                    const straniEcts = parseInt(straniItem.dataset.ects) || 0;
                     const domaciName = domaciItem.dataset.name || '';
-                    const domaciEcts = domaciItem.dataset.ects || '';
+                    const domaciEcts = parseInt(domaciItem.dataset.ects) || 0;
+                    
+                    totalFitEcts += domaciEcts;
+                    totalStraniEcts += straniEcts;
                     
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-gray-50 transition-colors';
+                    tr.dataset.fitId = domaciItem.dataset.id;
+                    tr.dataset.straniId = straniItem.dataset.id;
                     tr.innerHTML = `
                         <td class="border border-gray-300 px-4 py-3 text-sm text-gray-800">${domaciName}</td>
                         <td class="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-gray-800">${domaciEcts}</td>
@@ -187,8 +230,12 @@
                         <td class="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-gray-800">${straniEcts}</td>
                     `;
                     macovanjeTable.appendChild(tr);
-                }
-            }
+                });
+            });
+            
+            // Update totals in footer
+            document.getElementById('ukupno-fit-ects').textContent = totalFitEcts;
+            document.getElementById('ukupno-strani-macovanje-ects').textContent = totalStraniEcts;
             
             if (!hasData) {
                 const emptyRow = document.createElement('tr');
@@ -220,6 +267,10 @@
             
             const straniSubjects = allSubjects.filter(subject => subject.fakultet_id == facultyId);
             straniSubjects.forEach(subject => {
+                // Check if this item is already in trenutnis
+                const alreadyDropped = document.querySelector(`#trenutnis .dropped-item[data-id="${subject.id}"]`);
+                if (alreadyDropped) return; // Skip if already dropped
+                
                 const row = document.createElement('div');
                 row.className = 'drag-item border border-gray-300 mb-1 rounded bg-white cursor-move hover:bg-gray-100 transition overflow-hidden';
                 row.draggable = true;
@@ -236,10 +287,14 @@
             });
         }
         
-        // Popunjavanje domaće liste ovo je sa onim vasim id ijem
+        // Popunjavanje domaće liste
         function populateDomaciList() {
             listaDomaci.innerHTML = '';
             allSubjects.forEach(subject => {
+                // Check if this item is already in trenutnid
+                const alreadyDropped = document.querySelector(`#trenutnid .dropped-item[data-id="${subject.id}"]`);
+                if (alreadyDropped) return; // Skip if already dropped
+                
                 const row = document.createElement('div');
                 row.className = 'drag-item border border-gray-300 mb-1 rounded bg-white cursor-move hover:bg-gray-100 transition overflow-hidden';
                 row.draggable = true;
@@ -256,13 +311,55 @@
             });
         }
         
+        // Function to restore item to original list
+        function restoreItemToOriginalList(item, isStrani) {
+            const itemId = item.dataset.id;
+            const itemName = item.dataset.name;
+            const itemEcts = item.dataset.ects;
+            
+            if (isStrani) {
+                // Restore to strani list
+                const row = document.createElement('div');
+                row.className = 'drag-item border border-gray-300 mb-1 rounded bg-white cursor-move hover:bg-gray-100 transition overflow-hidden';
+                row.draggable = true;
+                row.dataset.id = itemId;
+                row.dataset.name = itemName;
+                row.dataset.ects = itemEcts;
+                row.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-1 p-2 text-xs">${itemName}</div>
+                        <div class="border-l border-gray-300 px-2 py-2 text-xs font-semibold bg-gray-200 w-12 text-center">${itemEcts}</div>
+                    </div>
+                `;
+                listaStrani.appendChild(row);
+            } else {
+                // Restore to domaci list
+                const row = document.createElement('div');
+                row.className = 'drag-item border border-gray-300 mb-1 rounded bg-white cursor-move hover:bg-gray-100 transition overflow-hidden';
+                row.draggable = true;
+                row.dataset.id = itemId;
+                row.dataset.name = itemName;
+                row.dataset.ects = itemEcts;
+                row.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-1 p-2 text-xs">${itemName}</div>
+                        <div class="border-l border-gray-300 px-2 py-2 text-xs font-semibold bg-gray-200 w-12 text-center">${itemEcts}</div>
+                    </div>
+                `;
+                listaDomaci.appendChild(row);
+            }
+        }
+        
         // Drag and drop 
         let draggedItem = null;
+        let draggedFromList = null;
         const dropzones = document.querySelectorAll('.drop-zone');
         
         document.addEventListener('dragstart', function(e) {
             if (e.target.classList.contains('drag-item')) {
                 draggedItem = e.target;
+                draggedFromList = e.target.closest('#listaStrani') ? 'strani' : 
+                                 e.target.closest('#listaDomaci') ? 'domaci' : null;
                 e.target.style.opacity = '0.5';
             }
         });
@@ -271,6 +368,7 @@
             if (e.target.classList.contains('drag-item')) {
                 e.target.style.opacity = '1';
                 draggedItem = null;
+                draggedFromList = null;
             }
         });
         
@@ -288,86 +386,88 @@
                 e.preventDefault();
                 zone.style.backgroundColor = '#f9fafb';
                 
-                if (draggedItem) {
+                if (draggedItem && draggedFromList) {
+                    // Check if item already exists in dropzone
+                    const itemId = draggedItem.dataset.id;
+                    const existingItem = zone.querySelector(`.dropped-item[data-id="${itemId}"]`);
+                    if (existingItem) {
+                        draggedItem = null;
+                        draggedFromList = null;
+                        return; // Item already exists
+                    }
+                    
                     const clonedItem = draggedItem.cloneNode(true);
                     clonedItem.style.opacity = '1';
                     clonedItem.draggable = false;
                     clonedItem.classList.remove('drag-item');
                     clonedItem.classList.add('dropped-item');
                     
-                    // dugme za dodaj
+                    // Remove button
                     const removeBtn = document.createElement('button');
                     removeBtn.textContent = 'X';
                     removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white w-5 h-5 rounded-full text-xs font-bold hover:bg-red-600';
                     removeBtn.style.fontSize = '10px';
                     removeBtn.onclick = function() {
+                        // Restore to original list
+                        const isStrani = zone.id === 'trenutnis';
+                        restoreItemToOriginalList(clonedItem, isStrani);
                         clonedItem.remove();
+                        updateTotalEcts();
+                        updateMacovanjeTable();
                     };
                     
-                    // relativno i apsolutno pozicioniranje
                     clonedItem.style.position = 'relative';
                     clonedItem.appendChild(removeBtn);
                     
                     zone.appendChild(clonedItem);
+                    
+                    // Remove from original list
+                    draggedItem.remove();
+                    
+                    updateTotalEcts();
+                    updateMacovanjeTable();
                 }
+                
+                draggedItem = null;
+                draggedFromList = null;
             });
         });
         
-        // Potvrdi dugme
+        // Potvrdi dugme - now just updates the table
         document.getElementById('potvrdi').addEventListener('click', function() {
-            const trenutnis = document.getElementById('trenutnis');
-            const trenutnid = document.getElementById('trenutnid');
+            updateMacovanjeTable();
+        });
+        
+        // Form submission - save from macovanje table
+        document.getElementById('prepis-form').addEventListener('submit', function(e) {
+            const rows = macovanjeTable.querySelectorAll('tr[data-fit-id][data-strani-id]');
             
-            const straniItems = Array.from(trenutnis.querySelectorAll('.dropped-item'));
-            const domaciItems = Array.from(trenutnid.querySelectorAll('.dropped-item'));
-            
-            // automatsko popunjavanje dogovora na osnovu stavki ovo malo doraditi
-            if (straniItems.length > 0 && domaciItems.length > 0) {
-                const minLength = Math.min(straniItems.length, domaciItems.length);
-                agreementsContainer.innerHTML = '';
-                
-                for (let i = 0; i < minLength; i++) {
-                    const straniId = straniItems[i].dataset.id;
-                    const domaciId = domaciItems[i].dataset.id;
-                    
-                    const row = document.createElement('div');
-                    row.className = 'agreement-row flex space-x-4 mb-2';
-                    
-                    // Kreiranje FIT opcija u listi
-                    let fitOptions = '<option value="">Odaberite FIT predmet</option>';
-                    allSubjects.forEach(subject => {
-                        const selected = subject.id == domaciId ? 'selected' : '';
-                        fitOptions += `<option value="${subject.id}" ${selected}>${subject.naziv} (${subject.ects} ECTS)</option>`;
-                    });
-                    
-                    row.innerHTML = `
-                        <div class="w-1/2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">FIT Predmet</label>
-                            <select name="agreements[${i}][fit_predmet_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm fit-predmet-select" required>
-                                ${fitOptions}
-                            </select>
-                        </div>
-                        <div class="w-1/2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Strani Predmet</label>
-                            <select name="agreements[${i}][strani_predmet_id]" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm strani-predmet-select" required>
-                                <option value="">Odaberite strani predmet</option>
-                            </select>
-                        </div>
-                    `;
-                    agreementsContainer.appendChild(row);
-                    
-                    const straniSelect = row.querySelector('.strani-predmet-select');
-                    populateForeignSubjects(straniSelect, fakultetSelect.value);
-                    if (straniId) {
-                        setTimeout(() => {
-                            straniSelect.value = straniId;
-                        }, 100);
-                    }
-                }
-                
-                // Updejtuj tabelu samo kada kliknemo dugme
-                updateMacovanjeTable();
+            if (rows.length === 0) {
+                e.preventDefault();
+                alert('Morate imati najmanje jedno uparivanje u tabeli mačovanja!');
+                return;
             }
+            
+            // Clear existing agreements
+            agreementsContainer.innerHTML = '';
+            
+            // Create hidden inputs from macovanje table
+            rows.forEach((row, index) => {
+                const fitId = row.dataset.fitId;
+                const straniId = row.dataset.straniId;
+                
+                const fitInput = document.createElement('input');
+                fitInput.type = 'hidden';
+                fitInput.name = `agreements[${index}][fit_predmet_id]`;
+                fitInput.value = fitId;
+                agreementsContainer.appendChild(fitInput);
+                
+                const straniInput = document.createElement('input');
+                straniInput.type = 'hidden';
+                straniInput.name = `agreements[${index}][strani_predmet_id]`;
+                straniInput.value = straniId;
+                agreementsContainer.appendChild(straniInput);
+            });
         });
         
         // Inicijalizuj listu
@@ -378,5 +478,6 @@
         
         populateDomaciList();
         populateStraniList();
+        updateTotalEcts();
     </script>
 </x-app-layout>
