@@ -90,7 +90,7 @@
                 <h3 class="text-lg font-semibold mb-3">Subjects</h3>
                 <div id="subjectList" class="subjects-container mb-3"></div>
 
-                <form id="uploadForm" action="{{ route(auth()->user()->type === 0 ? 'admin.mobility.upload' : 'profesor.mobility.upload') }}" method="POST" enctype="multipart/form-data" class="add-subject flex items-center gap-2 mt-auto">
+                <form id="uploadForm" action="{{ route((int)auth()->user()->type === 0 ? 'admin.mobility.upload' : 'profesor.mobility.upload') }}" method="POST" enctype="multipart/form-data" class="add-subject flex items-center gap-2 mt-auto">
                     @csrf
                     <input type="hidden" name="ime" id="hiddenIme">
                     <input type="hidden" name="prezime" id="hiddenPrezime">
@@ -380,7 +380,7 @@
                 plainLinks[key] = Array.from(value);
             }
 
-            fetch("{{ route(auth()->user()->type === 0 ? 'admin.mobility.export' : 'profesor.mobility.export') }}", {
+            fetch("{{ route((int)auth()->user()->type === 0 ? 'admin.mobility.export' : 'profesor.mobility.export') }}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -454,7 +454,7 @@
             return;
         }
 
-        const saveRoute = "{{ route(auth()->user()->type === 0 ? 'admin.mobility.save' : 'profesor.mobility.save') }}";
+        const saveRoute = "{{ route((int)auth()->user()->type === 0 ? 'admin.mobility.save' : 'profesor.mobility.save') }}";
 
         fetch(saveRoute, {
             method: "POST",

@@ -78,13 +78,13 @@
                                 <div class="flex space-x-2">
                                     <button
                                         onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}')"
-                                        class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md">
+                                        class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
                                         Edit
                                     </button>
 
                                     @if((int)$user->type === 1)
                                         <a href="{{ route('users.subjects.index', $user->id) }}"
-                                           class="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1 rounded-md inline-block">
+                                           class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md transition-colors inline-block">
                                             Subjects
                                         </a>
                                     @endif
@@ -94,7 +94,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                                class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded-md">
+                                                class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
                                             Delete
                                         </button>
                                     </form>
