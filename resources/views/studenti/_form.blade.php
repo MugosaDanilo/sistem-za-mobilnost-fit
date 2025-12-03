@@ -128,7 +128,9 @@
                         </option>
                     @endforeach
                 @else
-                    <option value="" disabled>Nema dostupnih nivoa studija</option>
+                    {{-- Fallback opcije ako nema podataka u bazi --}}
+                    <option value="1">Osnovne</option>
+                    <option value="2">Master</option>
                 @endif
             </select>
             @error('nivo_studija_id')

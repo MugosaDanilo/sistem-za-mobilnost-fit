@@ -17,6 +17,10 @@ class StudentController extends Controller
 
     public function create()
     {
+        // Osiguraj da postoje osnovni nivoi studija
+        NivoStudija::firstOrCreate(['naziv' => 'Osnovne']);
+        NivoStudija::firstOrCreate(['naziv' => 'Master']);
+        
         $nivoiStudija = NivoStudija::all();
         return view('studenti.create', compact('nivoiStudija'));
     }
@@ -62,6 +66,10 @@ class StudentController extends Controller
 
     public function edit($id)
     {
+        // Osiguraj da postoje osnovni nivoi studija
+        NivoStudija::firstOrCreate(['naziv' => 'Osnovne']);
+        NivoStudija::firstOrCreate(['naziv' => 'Master']);
+        
         $student = Student::findOrFail($id);
         $nivoiStudija = NivoStudija::all();
         return view('studenti.edit', compact('student', 'nivoiStudija'));
