@@ -23,7 +23,7 @@ class PrepisController extends Controller
         $fakulteti = Fakultet::all();
         $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id')->get();
 
-        return view('prepis.kreiraj', compact('studenti', 'fakulteti', 'predmeti'));
+        return view('prepis.create', compact('studenti', 'fakulteti', 'predmeti'));
     }
 
     public function store(Request $request)
