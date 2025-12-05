@@ -46,6 +46,11 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
+    Route::get('/students', [App\Http\Controllers\StudentController::class, 'index'])->name('students.index');
+    Route::post('/students', [App\Http\Controllers\StudentController::class, 'store'])->name('students.store');
+    Route::put('/students/{id}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
+    Route::delete('/students/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
+
 
     Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
     Route::get('/univerzitet/create', [UniverzitetController::class, 'create'])->name('univerzitet.create');
@@ -62,7 +67,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::delete('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
 
     Route::get('/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'index'])->name('fakulteti.predmeti.index');
-    
+
     Route::get('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'index'])->name('users.subjects.index');
     Route::post('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'store'])->name('users.subjects.store');
     Route::delete('/users/{id}/subjects/{predmet_id}', [App\Http\Controllers\ProfesorPredmetController::class, 'destroy'])->name('users.subjects.destroy');
@@ -79,7 +84,7 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('profesor.mobility.upload');
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('profesor.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('profesor.mobility.save');
-    
+
     Route::post('/prepis-agreement/{id}/accept', [App\Http\Controllers\PrepisAgreementController::class, 'accept'])->name('prepis-agreement.accept');
     Route::post('/prepis-agreement/{id}/reject', [App\Http\Controllers\PrepisAgreementController::class, 'reject'])->name('prepis-agreement.reject');
 });
