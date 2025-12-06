@@ -8,7 +8,7 @@ $editing = isset($student);
     @if($editing) @method('PUT') @endif
 
     <div class="grid grid-cols-2 gap-6">
-        <!-- Lijevo polje - Informacije o studentu -->
+        <!-- Lijevo polje - Informacije o stdentu -->
         <div class="space-y-4">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Informacije o studentu</h3>
             

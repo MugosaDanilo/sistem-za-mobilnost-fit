@@ -23,66 +23,22 @@
                                 <select name="fakultet_id" id="fakultet_id" class="w-full border rounded px-2 py-1 text-sm" required>
                                     <option value="">Odaberite fakultet</option>
                                 @foreach($fakulteti as $fakultet)
-                                    <option value="{{ $fakultet->id }}">{{ $fakultet->naziv }}</option>
+                                    @if(isset($fitFakultet) && $fitFakultet && $fitFakultet->id == $fakultet->id)
+                                        <option value="{{ $fakultet->id }}" disabled>{{ $fakultet->naziv }}</option>
+                                    @else
+                                        <option value="{{ $fakultet->id }}">{{ $fakultet->naziv }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>
 
                             <div>
                                 <label for="datum" class="block text-xs font-medium text-gray-700 mb-1">Datum:</label>
-                                <input type="date" name="datum" id="datum" class="w-full border rounded px-2 py-1 text-sm" required>
+                                <input type="date" name="datum" id="datum" class="w-full border rounded px-2 py-1 text-sm" value="{{ old('datum', date('Y-m-d')) }}" required>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 mb-2">
-                        <!-- Strani univerzitet i Trenutni predmet -->
-                        <div class="border p-4 rounded bg-white">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <h5 class="font-semibold mb-2 text-sm">Strani univerzitet</h5>
-                                    <div id="listaStrani" class="border border-gray-300 rounded p-2 min-h-[200px] overflow-y-auto max-h-[300px] bg-white">
-                                        <!-- Ovo će biti popunjeno dinamički kroz JavaScript -->
-                                    </div>
-                                </div>
-                                <div>
-                                    <h5 class="font-semibold mb-2 text-sm">Trenutni predmet</h5>
-                                    <div id="trenutnis" class="border border-gray-400 min-h-[200px] p-2 rounded drop-zone bg-white overflow-y-auto max-h-[300px]"></div>
-                                    <div class="mt-2 text-sm font-semibold border-t pt-2">
-                                        <span>Ukupno: <span id="ukupno-strani-ects">0</span> ECTS</span>
-                                    </div>
-                                </div>
-                            </div>
-                            </div>
-
-                        <!-- Domaći univerzitet i Trenutni predmet -->
-                        <div class="border p-4 rounded bg-white">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <h5 class="font-semibold mb-2 text-sm">Trenutni predmet</h5>
-                                    <div id="trenutnid" class="border border-gray-400 min-h-[200px] p-2 rounded drop-zone bg-white overflow-y-auto max-h-[300px]"></div>
-                                    <div class="mt-2 text-sm font-semibold border-t pt-2">
-                                        <span>Ukupno: <span id="ukupno-domaci-ects">0</span> ECTS</span>
-                                    </div>
-                                    <div class="mt-3 flex gap-2">
-                                        <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm flex-1" id="potvrdi">Potvrdi</button>
-                                        <button type="button" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm" id="automec-btn">Automeč</button>
-                                    </div>
-                                </div>
-                                <div style="max-width: 250px;">
-                                    <h5 class="font-semibold mb-2 text-sm">Domaći univerzitet</h5>
-                                    <div id="listaDomaci" class="border border-gray-300 rounded p-2 min-h-[200px] overflow-y-auto max-h-[300px] bg-white">
-                                        <!-- Ovo će biti popunjeno dinamički kroz JavaScript -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Hidden agreements container for form submission -->
-                    <div id="agreements-container" style="display: none;">
-                        <!-- Agreements will be added dynamically via JavaScript -->
-                        </div>
 
                     <!-- Mačovanje tabela -->
                     <div class="mt-1 border p-6 rounded-lg shadow-sm bg-gray-50">
@@ -124,6 +80,61 @@
                             </table>
                         </div>
                     </div>
+
+
+
+                    <div class="grid grid-cols-2 gap-4 mb-2">
+                        <!-- Strani univerzitet i Trenutni predmet -->
+                        <div class="border p-4 rounded bg-white">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <h5 class="font-semibold mb-2 text-sm">Strani univerzitet</h5>
+                                    <div id="listaStrani" class="border border-gray-300 rounded p-2 min-h-[200px] overflow-y-auto max-h-[300px] bg-white">
+                                        <!-- Ovo će biti popunjeno dinamički kroz JavaScript -->
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="font-semibold mb-2 text-sm">Trenutni predmet</h5>
+                                    <div id="trenutnis" class="border border-gray-400 min-h-[200px] p-2 rounded drop-zone bg-white overflow-y-auto max-h-[300px]"></div>
+                                    <div class="mt-2 text-sm font-semibold border-t pt-2">
+                                        <span>Ukupno: <span id="ukupno-strani-ects">0</span> ECTS</span>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+
+                        <!-- Domaći univerzitet i Trenutni predmet -->
+                        <div class="border p-4 rounded bg-white">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <h5 class="font-semibold mb-2 text-sm">Trenutni predmet</h5>
+                                    <div id="trenutnid" class="border border-gray-400 min-h-[200px] p-2 rounded drop-zone bg-white overflow-y-auto max-h-[300px]"></div>
+                                    <div class="mt-2 text-sm font-semibold border-t pt-2">
+                                        <span>Ukupno: <span id="ukupno-domaci-ects">0</span> ECTS</span>
+                                    </div>
+                                    <div class="mt-3 flex gap-2">
+                                        <button type="button" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm" id="automec-btn">Autome Sve</button>
+                                        <button type="button" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm" id="automec-btn">Automeč</button>
+                                        <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm flex-1" id="potvrdi">Potvrdi</button>
+
+                                    </div>
+                                </div>
+                                <div style="max-width: 250px;">
+                                    <h5 class="font-semibold mb-2 text-sm">Domaći univerzitet</h5>
+                                    <div id="listaDomaci" class="border border-gray-300 rounded p-2 min-h-[200px] overflow-y-auto max-h-[300px] bg-white">
+                                        <!-- Ovo će biti popunjeno dinamički kroz JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden agreements container for form submission -->
+                    <div id="agreements-container" style="display: none;">
+                        <!-- Agreements will be added dynamically via JavaScript -->
+                        </div>
+
+
 
                     <div class="flex justify-end mt-2">
                         <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -653,6 +664,83 @@
         fakultetSelect.addEventListener('change', function() {
             populateStraniList();
             updateAllForeignSubjects();
+        });
+        
+        // Handle student selection - auto-fill fakultet and polozeni predmeti
+        const studentSelect = document.getElementById('student_id');
+        studentSelect.addEventListener('change', async function() {
+            const studentId = this.value;
+            if (!studentId) {
+                // Clear fakultet and listaStrani if no student selected
+                fakultetSelect.value = '';
+                listaStrani.innerHTML = '<p class="text-gray-500 text-xs italic p-2">Prvo odaberi fakultet</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`{{ route('prepis.student-data', ['id' => ':id']) }}`.replace(':id', studentId), {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                
+                // Auto-select fakultet if available
+                if (data.fakultet_id) {
+                    fakultetSelect.value = data.fakultet_id;
+                    // Don't call populateStraniList() here - we'll populate with polozeni predmeti instead
+                    updateAllForeignSubjects();
+                }
+
+                // Populate listaStrani with polozeni predmeti (only from selected fakultet if available)
+                if (data.polozeni_predmeti && data.polozeni_predmeti.length > 0) {
+                    listaStrani.innerHTML = '';
+                    const selectedFakultetId = fakultetSelect.value;
+                    
+                    data.polozeni_predmeti.forEach(predmet => {
+                        // If fakultet is selected, only show predmeti from that fakultet
+                        if (selectedFakultetId && predmet.fakultet_id != selectedFakultetId) {
+                            return; // Skip predmeti from other fakulteti
+                        }
+                        
+                        // Check if this item is already in trenutnis
+                        const alreadyDropped = document.querySelector(`#trenutnis .dropped-item[data-id="${predmet.id}"]`);
+                        if (alreadyDropped) return; // Skip if already dropped
+                        
+                        const row = document.createElement('div');
+                        row.className = 'drag-item border border-gray-300 mb-1 rounded bg-white cursor-move hover:bg-gray-100 transition overflow-hidden';
+                        row.draggable = true;
+                        row.dataset.id = predmet.id;
+                        row.dataset.name = predmet.naziv;
+                        row.dataset.ects = predmet.ects;
+                        row.innerHTML = `
+                            <div class="flex">
+                                <div class="flex-1 p-2 text-xs">${predmet.naziv}</div>
+                                <div class="border-l border-gray-300 px-2 py-2 text-xs font-semibold bg-gray-200 w-12 text-center">${predmet.ects}</div>
+                            </div>
+                        `;
+                        listaStrani.appendChild(row);
+                    });
+                    
+                    // Poruka ako nema predmeta
+                    if (listaStrani.children.length === 0) {
+                        listaStrani.innerHTML = '<p class="text-gray-500 text-xs italic p-2">Student nema položene ispite za ovaj fakultet</p>';
+                    }
+                } else {
+                    // Ako nema polozenih ispita
+                    listaStrani.innerHTML = '<p class="text-gray-500 text-xs italic p-2">Student nema položene ispite</p>';
+                }
+            } catch (error) {
+                console.error('Error fetching student data:', error);
+                alert('Greška pri učitavanju podataka o studentu');
+            }
         });
         
         populateDomaciList();

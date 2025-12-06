@@ -19,11 +19,43 @@ class PrepisController extends Controller
 
     public function create()
     {
-        $studenti = Student::all();
+        $studenti = Student::with(['predmeti' => function($query) {
+            $query->wherePivot('polozen', true);
+        }])->get();
         $fakulteti = Fakultet::all();
-        $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id')->get();
+        $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id', 'semestar')->get();
+        $fitFakultet = Fakultet::where('naziv', 'FIT')->first();
 
-        return view('prepis.create', compact('studenti', 'fakulteti', 'predmeti'));
+        return view('prepis.create', compact('studenti', 'fakulteti', 'predmeti', 'fitFakultet'));
+    }
+
+    public function getStudentData($id)
+    {
+        $student = Student::with(['predmeti' => function($query) {
+            $query->wherePivot('polozen', true)->with('fakultet');
+        }])->findOrFail($id);
+
+        // Get the most common fakultet from student's passed subjects
+        $fakultetId = null;
+        if ($student->predmeti->count() > 0) {
+            $fakultetCounts = $student->predmeti->groupBy('fakultet_id')->map->count();
+            $fakultetId = $fakultetCounts->keys()->first();
+        }
+
+        $polozeniPredmeti = $student->predmeti->map(function($predmet) {
+            return [
+                'id' => $predmet->id,
+                'naziv' => $predmet->naziv,
+                'ects' => $predmet->ects,
+                'semestar' => $predmet->semestar,
+                'fakultet_id' => $predmet->fakultet_id,
+            ];
+        });
+
+        return response()->json([
+            'fakultet_id' => $fakultetId,
+            'polozeni_predmeti' => $polozeniPredmeti
+        ]);
     }
 
     public function store(Request $request)

@@ -66,6 +66,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
 
     Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
     Route::post('/prepisi/automec-sugestija', [\App\Http\Controllers\PrepisController::class, 'getAutomecSuggestions'])->name('prepis.automec-sugestija');
+    Route::get('/prepisi/student/{id}/data', [\App\Http\Controllers\PrepisController::class, 'getStudentData'])->name('prepis.student-data');
 
     Route::get('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'index'])->name('fakulteti.index');
     Route::post('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
