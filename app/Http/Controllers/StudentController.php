@@ -22,7 +22,8 @@ class StudentController extends Controller
         NivoStudija::firstOrCreate(['naziv' => 'Master']);
         
         $nivoiStudija = NivoStudija::all();
-        return view('studenti.create', compact('nivoiStudija'));
+        $predmeti = \App\Models\Predmet::with('fakultet')->orderBy('naziv')->get();
+        return view('studenti.create', compact('nivoiStudija', 'predmeti'));
     }
 
     public function store(Request $request)
@@ -59,7 +60,19 @@ class StudentController extends Controller
             'jmbg.size' => 'JMBG mora imati tačno 13 karaktera.',
         ]);
 
-        Student::create($validated);
+        $student = Student::create($validated);
+
+        // Handle predmeti relationships
+        if ($request->has('predmeti')) {
+            foreach ($request->predmeti as $predmetId => $predmetData) {
+                if (isset($predmetData['polozen']) && $predmetData['polozen'] == '1') {
+                    $student->predmeti()->attach($predmetId, [
+                        'polozen' => true,
+                        'ocjena' => $predmetData['ocjena'] ?? null
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('studenti.index')->with('success', 'Student uspješno dodat!');
     }
@@ -72,7 +85,9 @@ class StudentController extends Controller
         
         $student = Student::findOrFail($id);
         $nivoiStudija = NivoStudija::all();
-        return view('studenti.edit', compact('student', 'nivoiStudija'));
+        $predmeti = \App\Models\Predmet::with('fakultet')->orderBy('naziv')->get();
+        $student->load('predmeti');
+        return view('studenti.edit', compact('student', 'nivoiStudija', 'predmeti'));
     }
 
     public function update(Request $request, $id)
@@ -112,6 +127,19 @@ class StudentController extends Controller
         ]);
 
         $student->update($validated);
+
+        // Sync predmeti relationships
+        $student->predmeti()->detach();
+        if ($request->has('predmeti')) {
+            foreach ($request->predmeti as $predmetId => $predmetData) {
+                if (isset($predmetData['polozen']) && $predmetData['polozen'] == '1') {
+                    $student->predmeti()->attach($predmetId, [
+                        'polozen' => true,
+                        'ocjena' => $predmetData['ocjena'] ?? null
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('studenti.index')->with('success', 'Student uspješno ažuriran!');
     }

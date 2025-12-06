@@ -3,7 +3,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="p-2">
                 <form action="{{ route('prepis.store') }}" method="POST" id="prepis-form">
-                    @csrf
+                        @csrf
 
                     <div class="border p-4 rounded mb-3 bg-white">
                         <h4 class="font-semibold text-lg mb-3">INFO O STUDENTU</h4>
@@ -12,21 +12,21 @@
                                 <label for="student_id" class="block text-xs font-medium text-gray-700 mb-1">Ime i prezime:</label>
                                 <select name="student_id" id="student_id" class="w-full border rounded px-2 py-1 text-sm" required>
                                     <option value="">Odaberite studenta</option>
-                                    @foreach($studenti as $student)
-                                        <option value="{{ $student->id }}">{{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                                @foreach($studenti as $student)
+                                    <option value="{{ $student->id }}">{{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})</option>
+                                @endforeach
+                            </select>
+                        </div>
 
                             <div>
                                 <label for="fakultet_id" class="block text-xs font-medium text-gray-700 mb-1">Dolazi sa:</label>
                                 <select name="fakultet_id" id="fakultet_id" class="w-full border rounded px-2 py-1 text-sm" required>
                                     <option value="">Odaberite fakultet</option>
-                                    @foreach($fakulteti as $fakultet)
-                                        <option value="{{ $fakultet->id }}">{{ $fakultet->naziv }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                                @foreach($fakulteti as $fakultet)
+                                    <option value="{{ $fakultet->id }}">{{ $fakultet->naziv }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
                             <div>
                                 <label for="datum" class="block text-xs font-medium text-gray-700 mb-1">Datum:</label>
@@ -53,7 +53,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                            </div>
 
                         <!-- Domaći univerzitet i Trenutni predmet -->
                         <div class="border p-4 rounded bg-white">
@@ -82,7 +82,7 @@
                     <!-- Hidden agreements container for form submission -->
                     <div id="agreements-container" style="display: none;">
                         <!-- Agreements will be added dynamically via JavaScript -->
-                    </div>
+                        </div>
 
                     <!-- Mačovanje tabela -->
                     <div class="mt-1 border p-6 rounded-lg shadow-sm bg-gray-50">
@@ -129,8 +129,8 @@
                         <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             Sačuvaj
                         </button>
-                    </div>
-                </form>
+                        </div>
+                    </form>
             </div>
         </div>
     </div>
@@ -335,17 +335,17 @@
                 const alreadyDropped = document.querySelector(`#trenutnis .dropped-item[data-id="${subject.id}"]`);
                 if (alreadyDropped) return; // Skip if already dropped
                 
-                const row = document.createElement('div');
+            const row = document.createElement('div');
                 row.className = 'drag-item border border-gray-300 mb-1 rounded bg-white cursor-move hover:bg-gray-100 transition overflow-hidden';
                 row.draggable = true;
                 row.dataset.id = subject.id;
                 row.dataset.name = subject.naziv;
                 row.dataset.ects = subject.ects;
-                row.innerHTML = `
+            row.innerHTML = `
                     <div class="flex">
                         <div class="flex-1 p-2 text-xs">${subject.naziv}</div>
                         <div class="border-l border-gray-300 px-2 py-2 text-xs font-semibold bg-gray-200 w-12 text-center">${subject.ects}</div>
-                    </div>
+                </div>
                 `;
                 listaStrani.appendChild(row);
             });
@@ -369,7 +369,7 @@
                     <div class="flex">
                         <div class="flex-1 p-2 text-xs">${subject.naziv}</div>
                         <div class="border-l border-gray-300 px-2 py-2 text-xs font-semibold bg-gray-200 w-12 text-center">${subject.ects}</div>
-                    </div>
+                </div>
                 `;
                 listaDomaci.appendChild(row);
             });
@@ -621,7 +621,7 @@
                 alert('Greška prilikom mečovanja. Probaj opet.');
             }
         });
-        
+
         // Form submission - save from macovanje table
         document.getElementById('prepis-form').addEventListener('submit', function(e) {
             if (macovanjePairs.length === 0) {

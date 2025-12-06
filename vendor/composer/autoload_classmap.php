@@ -21,7 +21,9 @@ return array(
     'App\\Http\\Controllers\\MobilityController' => $baseDir . '/app/Http/Controllers/MobilityController.php',
     'App\\Http\\Controllers\\PredmetController' => $baseDir . '/app/Http/Controllers/PredmetController.php',
     'App\\Http\\Controllers\\PrepisController' => $baseDir . '/app/Http/Controllers/PrepisController.php',
+    'App\\Http\\Controllers\\ProfesorPredmetController' => $baseDir . '/app/Http/Controllers/ProfesorPredmetController.php',
     'App\\Http\\Controllers\\ProfileController' => $baseDir . '/app/Http/Controllers/ProfileController.php',
+    'App\\Http\\Controllers\\StudentController' => $baseDir . '/app/Http/Controllers/StudentController.php',
     'App\\Http\\Controllers\\UniverzitetController' => $baseDir . '/app/Http/Controllers/UniverzitetController.php',
     'App\\Http\\Controllers\\UserController' => $baseDir . '/app/Http/Controllers/UserController.php',
     'App\\Http\\Middleware\\AdminAuth' => $baseDir . '/app/Http/Middleware/AdminAuth.php',
@@ -33,11 +35,8 @@ return array(
     'App\\Models\\Mobilnost' => $baseDir . '/app/Models/Mobilnost.php',
     'App\\Models\\NivoStudija' => $baseDir . '/app/Models/NivoStudija.php',
     'App\\Models\\Predmet' => $baseDir . '/app/Models/Predmet.php',
-<<<<<<< HEAD
-=======
     'App\\Models\\Prepis' => $baseDir . '/app/Models/Prepis.php',
     'App\\Models\\PrepisAgreement' => $baseDir . '/app/Models/PrepisAgreement.php',
->>>>>>> upstream/main
     'App\\Models\\Student' => $baseDir . '/app/Models/Student.php',
     'App\\Models\\Univerzitet' => $baseDir . '/app/Models/Univerzitet.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
