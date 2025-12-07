@@ -1,13 +1,15 @@
 <x-app-layout>
     @if(session('success'))
-        <div class="bg-green-100 text-green-700 p-3 mb-4 rounded">
+        <div class="mb-4 bg-green-100 text-green-800 p-3 rounded-md">
             {{ session('success') }}
         </div>
     @endif
 
-    @if($errors->any())
-        <div class="bg-red-100 text-red-700 p-3 mb-4 rounded">
-            <ul>
+    @if ($errors->any())
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">Whoops!</strong>
+            <span class="block">There were some problems with your input:</span>
+            <ul class="mt-2 list-disc list-inside">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -15,17 +17,18 @@
         </div>
     @endif
 
-    <div class="py-10 max-w-6xl mx-auto px-6">
+    <div class="py-10 max-w-7xl mx-auto px-6">
+        <div class="mb-6">
+            <a href="{{ route('fakulteti.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                &larr; Back to Faculty Management
+            </a>
+        </div>
+
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Predmeti - {{ $fakultet->naziv }}</h1>
-            <div class="flex space-x-2">
-                <a href="{{ route('fakulteti.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg">
-                    Nazad
-                </a>
-                <button id="addSubjectBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg">
-                    Dodaj Predmet
-                </button>
-            </div>
+            <h1 class="text-3xl font-bold text-gray-900">Predmeti - {{ $fakultet->naziv }}</h1>
+            <button id="addSubjectBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                Dodaj Predmet
+            </button>
         </div>
 
         <div class="mb-4">
@@ -37,46 +40,53 @@
             >
         </div>
 
-        <div class="overflow-x-auto bg-white shadow rounded-lg">
-            <table class="min-w-full border border-gray-200">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Naziv</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">ECTS</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-600">Semestar</th>
-                        <th class="px-4 py-3 text-center text-sm font-semibold text-gray-600">Akcije</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    @foreach($predmeti as $p)
-                        <tr class="bg-white subject-row" data-search="{{ strtolower($p->naziv) }}">
-                            <td class="px-4 py-3 text-sm text-gray-800">{{ $p->naziv }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-800">{{ $p->ects }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-800">{{ $p->semestar }}</td>
-                            <td class="px-4 py-3 text-center">
-                                <div class="flex justify-center space-x-2">
-                                    <button
-                                        class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md openEditModal"
-                                        data-id="{{ $p->id }}"
-                                        data-naziv="{{ $p->naziv }}"
-                                        data-ects="{{ $p->ects }}"
-                                        data-semestar="{{ $p->semestar }}">
-                                        Izmijeni
-                                    </button>
-                                    <form action="{{ route('predmeti.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Da li ste sigurni?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded-md">
-                                            Obriši
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+        <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Lista Predmeta</h2>
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($predmeti) }} Total</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naziv</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ECTS</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Semestar</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Akcije</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($predmeti as $p)
+                            <tr class="subject-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($p->naziv) }}">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $p->naziv }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->ects }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->semestar }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <button
+                                            class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors openEditModal"
+                                            data-id="{{ $p->id }}"
+                                            data-naziv="{{ $p->naziv }}"
+                                            data-ects="{{ $p->ects }}"
+                                            data-semestar="{{ $p->semestar }}">
+                                            Izmijeni
+                                        </button>
+                                        <form action="{{ route('predmeti.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Da li ste sigurni koje odbrisati ovaj predmet?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
+                                                Obriši
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -105,10 +115,10 @@
                 </div>
 
                 <div class="flex justify-end space-x-2">
-                    <button type="button" id="cancelAddModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">
+                    <button type="button" id="cancelAddModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
                         Otkaži
                     </button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
                         Sačuvaj
                     </button>
                 </div>
@@ -144,10 +154,10 @@
                 </div>
 
                 <div class="flex justify-end space-x-2">
-                    <button type="button" id="cancelEditModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">
+                    <button type="button" id="cancelEditModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
                         Otkaži
                     </button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
                         Sačuvaj Izmjene
                     </button>
                 </div>

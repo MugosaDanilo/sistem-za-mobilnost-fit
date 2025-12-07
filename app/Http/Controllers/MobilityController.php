@@ -230,12 +230,22 @@ class MobilityController extends Controller
         }
 
         $rowNum = 1;
+        // Fetch details for all FIT subjects involved
+        $allFitSubjects = array_keys($links);
+        $fitSubjectsDetails = \App\Models\Predmet::whereIn('naziv', $allFitSubjects)
+            ->whereHas('fakultet', function ($q) {
+                $q->where('naziv', 'FIT');
+            })
+            ->get()
+            ->keyBy('naziv');
+
         foreach ($links as $fitSubject => $linkedSubjects) {
             if (empty($linkedSubjects))
                 continue;
 
-            $term = $courseMap[$fitSubject]['Term'] ?? '';
-            $ects = $courseMap[$fitSubject]['ECTS'] ?? '';
+            $fitSubjectModel = $fitSubjectsDetails[$fitSubject] ?? null;
+            $term = $fitSubjectModel ? $fitSubjectModel->semestar : '';
+            $ects = $fitSubjectModel ? $fitSubjectModel->ects : '';
 
             $table->addRow();
             $table->addCell(800)->addText($rowNum++);
@@ -283,7 +293,7 @@ class MobilityController extends Controller
         $path = $file->storeAs('uploads', $file->getClientOriginalName());
 
         $courses = [];
-        $this->loadCoursesWithoutGrades(storage_path('app/private/' . $path), $courses);
+        $this->findMissingFitSubjects(storage_path('app/private/' . $path), $courses);
 
         return redirect()->route($this->getRedirectRoute())->with('courses', $courses)->withInput();
     }
@@ -325,7 +335,7 @@ class MobilityController extends Controller
         return null;
     }
 
-    private function loadCoursesWithoutGrades(string $filePath, array &$courses)
+    private function findMissingFitSubjects(string $filePath, array &$missingSubjects)
     {
         $filePath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $filePath);
 
@@ -339,6 +349,8 @@ class MobilityController extends Controller
             Log::error('PhpWord failed to load file: ' . $filePath . ' | ' . $e->getMessage());
             throw $e;
         }
+
+        $foundSubjectNames = [];
 
         foreach ($phpWord->getSections() as $section) {
             foreach ($section->getElements() as $element) {
@@ -379,31 +391,39 @@ class MobilityController extends Controller
                     }
 
                     $gradeCandidates = $headerMap['grade'] ?? [];
-                    $gradeLetter = null;
+                    $gradeFound = false;
                     foreach ($gradeCandidates as $colIdx) {
                         $value = $rowData[$colIdx] ?? null;
                         if ($value && preg_match('/^[A-F][+-]?$/i', trim($value))) {
-                            $gradeLetter = strtoupper(trim($value));
+                            $gradeFound = true;
                             break;
                         }
                     }
 
-                    if ($gradeLetter) {
+                    // If NOT grade found, we skip (we only want passed subjects from ToR)
+                    if (!$gradeFound) {
                         continue;
                     }
 
-                    $term = $this->getColumnValue($rowData, $headerMap, ['term', 'semester']);
                     $course = $this->getColumnValue($rowData, $headerMap, ['course', 'subject', 'title']);
-                    $ects = $this->getColumnValue($rowData, $headerMap, ['ects', 'credits', 'points']);
-
                     if ($course) {
-                        $courses[] = [
-                            'Term' => $term,
-                            'Course' => $course,
-                            'ECTS' => $ects,
-                        ];
+                        $foundSubjectNames[] = $course;
                     }
                 }
+            }
+        }
+
+        // Fetch all FIT subjects
+        $fitSubjects = \App\Models\Predmet::whereHas('fakultet', function ($q) {
+            $q->where('naziv', 'FIT');
+        })->get();
+
+        $foundNormalized = array_map(fn($n) => strtolower(str_replace(' ', '', trim($n))), $foundSubjectNames);
+
+        foreach ($fitSubjects as $fitData) {
+            $fitNameNorm = strtolower(str_replace(' ', '', trim($fitData->naziv)));
+            if (!in_array($fitNameNorm, $foundNormalized)) {
+                $missingSubjects[] = $fitData->naziv;
             }
         }
     }
@@ -494,16 +514,37 @@ class MobilityController extends Controller
 
             $foreignSubjects = [];
             $totalForeignEcts = 0;
-            $grade = ''; 
+            
+            $gradeSum = 0;
+            $gradeCount = 0;
+            $gradeMap = ['A' => 10, 'B' => 9, 'C' => 8, 'D' => 7, 'E' => 6];
             
             foreach ($agreements as $la) {
                 if ($la->straniPredmet) {
                     $foreignSubjects[] = $la->straniPredmet->naziv;
                     $totalForeignEcts += $la->straniPredmet->ects;
                 }
-                if (empty($grade) && !empty($la->ocjena)) {
-                    $grade = $la->ocjena;
+                
+                if (!empty($la->ocjena)) {
+                    $rawGrade = strtoupper(trim($la->ocjena));
+                    // Check map first
+                    if (isset($gradeMap[$rawGrade])) {
+                        $gradeSum += $gradeMap[$rawGrade];
+                        $gradeCount++;
+                    } elseif (is_numeric($rawGrade)) {
+                        // Fallback if grade is already numeric
+                        $gradeSum += (float)$rawGrade;
+                        $gradeCount++;
+                    }
                 }
+            }
+
+            if ($gradeCount > 0) {
+                $numericGrade = (int) round($gradeSum / $gradeCount);
+                $reverseMap = [10 => 'A', 9 => 'B', 8 => 'C', 7 => 'D', 6 => 'E'];
+                $grade = $reverseMap[$numericGrade] ?? $numericGrade;
+            } else {
+                $grade = '';
             }
 
             $foreignSubjectsString = implode(', ', $foreignSubjects);

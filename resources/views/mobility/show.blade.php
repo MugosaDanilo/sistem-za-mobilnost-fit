@@ -5,11 +5,11 @@
             <div class="flex gap-2">
                 <form action="{{ route('admin.mobility.export-word', $mobilnost->id) }}" method="POST">
                     @csrf
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
                         Export Word
                     </button>
                 </form>
-                <a href="{{ route('adminDashboardShow') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg">
+                <a href="{{ route('adminDashboardShow') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
                     Back to Dashboard
                 </a>
             </div>
@@ -75,7 +75,7 @@
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end items-center gap-4">
                         <span id="saveMessage" class="text-sm font-medium"></span>
                         <button type="button" onclick="saveAllGrades()" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition duration-150 ease-in-out">
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transform transition hover:scale-105 duration-150 ease-in-out">
                             Save All Grades
                         </button>
                     </div>

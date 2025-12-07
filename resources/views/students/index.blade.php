@@ -21,7 +21,7 @@
   <div class="py-10 max-w-7xl mx-auto px-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-3xl font-bold text-gray-900">Studenti</h1>
-      <button id="addStudentBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg">
+      <button id="addStudentBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
         Dodaj studenta
       </button>
     </div>
@@ -169,10 +169,10 @@
         </div>
 
         <div class="flex justify-end space-x-2 mt-4">
-          <button type="button" id="cancelModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">
+          <button type="button" id="cancelModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
             Cancel
           </button>
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
             Save
           </button>
         </div>

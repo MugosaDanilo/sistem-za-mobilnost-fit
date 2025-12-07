@@ -23,7 +23,23 @@ class PrepisController extends Controller
         $fakulteti = Fakultet::all();
         $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id')->get();
 
-        return view('prepis.create', compact('studenti', 'fakulteti', 'predmeti'));
+        $existingAgreements = PrepisAgreement::select('fit_predmet_id', 'strani_predmet_id')
+            ->distinct()
+            ->get()
+            ->groupBy('fit_predmet_id')
+            ->map(function ($items) {
+                return $items->pluck('strani_predmet_id');
+            });
+
+        $existingAgreementsForeign = PrepisAgreement::select('fit_predmet_id', 'strani_predmet_id')
+            ->distinct()
+            ->get()
+            ->groupBy('strani_predmet_id')
+            ->map(function ($items) {
+                return $items->pluck('fit_predmet_id');
+            });
+
+        return view('prepis.create', compact('studenti', 'fakulteti', 'predmeti', 'existingAgreements', 'existingAgreementsForeign'));
     }
 
     public function store(Request $request)
@@ -63,7 +79,23 @@ class PrepisController extends Controller
         $fakulteti = Fakultet::all();
         $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id')->get();
 
-        return view('prepis.edit', compact('prepis', 'studenti', 'fakulteti', 'predmeti'));
+        $existingAgreements = PrepisAgreement::select('fit_predmet_id', 'strani_predmet_id')
+            ->distinct()
+            ->get()
+            ->groupBy('fit_predmet_id')
+            ->map(function ($items) {
+                return $items->pluck('strani_predmet_id');
+            });
+
+        $existingAgreementsForeign = PrepisAgreement::select('fit_predmet_id', 'strani_predmet_id')
+            ->distinct()
+            ->get()
+            ->groupBy('strani_predmet_id')
+            ->map(function ($items) {
+                return $items->pluck('fit_predmet_id');
+            });
+
+        return view('prepis.edit', compact('prepis', 'studenti', 'fakulteti', 'predmeti', 'existingAgreements', 'existingAgreementsForeign'));
     }
 
     public function update(Request $request, $id)

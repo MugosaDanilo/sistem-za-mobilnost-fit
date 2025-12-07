@@ -99,18 +99,18 @@
 
 
                     <input type="file" name="word_file" accept=".doc,.docx" class="hidden" id="wordFileInput">
-                    <button type="button" class="btn bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg" onclick="document.getElementById('wordFileInput').click()">
+                    <button type="button" class="btn bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105" onclick="document.getElementById('wordFileInput').click()">
                         Upload ToR
                     </button>
 
                     <button type="button"
-                        class="btn bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg"
+                        class="btn bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105"
                         id="exportButton">
                         Export Word
                     </button>
 
                     <button type="button"
-                        class="btn bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg"
+                        class="btn bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105"
                         id="saveButton">
                         Save LA
                     </button>
