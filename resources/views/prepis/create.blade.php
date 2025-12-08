@@ -113,7 +113,7 @@
                                         <span>Ukupno: <span id="ukupno-domaci-ects">0</span> ECTS</span>
                                     </div>
                                     <div class="mt-3 flex gap-2">
-                                        <button type="button" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm" id="automec-btn">Autome Sve</button>
+                                        <button type="button" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm" id="automecsve-btn">Automeč Sve</button>
                                         <button type="button" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm" id="automec-btn">Automeč</button>
                                         <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm flex-1" id="potvrdi">Potvrdi</button>
 
@@ -632,6 +632,106 @@
                 alert('Greška prilikom mečovanja. Probaj opet.');
             }
         });
+
+        // Automec functionality
+        document.getElementById('automec-btn').addEventListener('click', async function() {
+            // ... existing automec code ...
+        });
+
+        // Automec sve functionality - matches all subjects from listaStrani
+        document.getElementById('automecsve-btn').addEventListener('click', async function() {
+            const fakultetId = fakultetSelect.value;
+            if (!fakultetId) {
+                alert('Selektuj fakultet prvo');
+                return;
+            }
+
+            // Get all subjects from listaStrani (Strani univerzitet)
+            const straniItems = Array.from(listaStrani.querySelectorAll('.drag-item'));
+            
+            if (straniItems.length === 0) {
+                alert('Nema stranih predmeta za mečovanje');
+                return;
+            }
+
+            const straniPredmetIds = straniItems.map(item => item.dataset.id);
+
+            try {
+                const response = await fetch('{{ route("prepis.automec-sugestija") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        strani_predmet_ids: straniPredmetIds,
+                        fakultet_id: fakultetId
+                    })
+                });
+
+                const suggestions = await response.json();
+                
+                if (Object.keys(suggestions).length === 0) {
+                    alert('Nema predmeta za mečovanje.');
+                    return;
+                }
+
+                // Increment batch number for this group
+                currentBatch++;
+                
+                let matchedCount = 0;
+                
+                // Process each suggestion and add directly to macovanjePairs
+                Object.entries(suggestions).forEach(([straniPredmetId, suggestion]) => {
+                    const straniItem = straniItems.find(item => item.dataset.id == straniPredmetId);
+                    if (!straniItem) return;
+                    
+                    const fitSubject = allSubjects.find(s => s.id == suggestion.fit_predmet_id);
+                    if (!fitSubject) return;
+                    
+                    // Check if FIT predmet is still available in listaDomaci
+                    const fitItem = listaDomaci.querySelector(`.drag-item[data-id="${fitSubject.id}"]`);
+                    if (!fitItem) {
+                        // FIT predmet might already be matched or not available
+                        return;
+                    }
+                    
+                    // Add to macovanjePairs
+                    macovanjePairs.push({
+                        fitId: fitSubject.id,
+                        fitName: fitSubject.naziv,
+                        fitEcts: fitSubject.ects,
+                        straniId: straniItem.dataset.id,
+                        straniName: straniItem.dataset.name,
+                        straniEcts: straniItem.dataset.ects,
+                        batch: currentBatch
+                    });
+                    
+                    // Remove from listaStrani and listaDomaci
+                    straniItem.remove();
+                    fitItem.remove();
+                    
+                    matchedCount++;
+                });
+                
+                // Render the updated macovanje table
+                renderMacovanjeTable();
+                
+                // Update totals
+                updateTotalEcts();
+                
+                if (matchedCount > 0) {
+                    alert(`Uspešno mečovano ${matchedCount} predmeta!`);
+                } else {
+                    alert('Nema dostupnih predmeta za mečovanje.');
+                }
+            } catch (error) {
+                console.error('Greška:', error);
+                alert('Greška prilikom mečovanja. Probaj opet.');
+            }
+        });
+
+
 
         // Form submission - save from macovanje table
         document.getElementById('prepis-form').addEventListener('submit', function(e) {
