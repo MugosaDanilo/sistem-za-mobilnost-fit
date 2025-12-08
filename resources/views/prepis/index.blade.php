@@ -19,10 +19,19 @@
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($prepisi) }} Total</span>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="px-6 py-4 flex justify-start mb-2">
+                <button type="button" id="deleteSelectedBtn" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg">
+                    Delete Selected
+                </button>
+            </div>
+
+            <div class="overflow-x-auto px-6 pb-6">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" id="selectAll">
+                            </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faculty</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -30,9 +39,12 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($prepisi as $prepis)
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($prepisi as $prepis)
                         <tr class="hover:bg-gray-50 transition-colors duration-150 ease-in-out">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <input type="checkbox" class="prepis-checkbox" value="{{ $prepis->id }}">
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
@@ -47,19 +59,17 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $prepis->fakultet->naziv }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $prepis->datum->format('d.m.Y') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <a href="{{ route('prepis.show', $prepis->id) }}" class="hover:opacity-80 transition-opacity">
-                                    @php
-                                        $status = $prepis->derived_status;
-                                        $colorClass = match($status) {
-                                            'odobren' => 'bg-green-100 text-green-800',
-                                            'odbijen' => 'bg-red-100 text-red-800',
-                                            default => 'bg-yellow-100 text-yellow-800',
-                                        };
-                                    @endphp
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
-                                        {{ ucfirst($status) }}
-                                    </span>
-                                </a>
+                                @php
+                                    $status = $prepis->derived_status;
+                                    $colorClass = match($status) {
+                                        'odobren' => 'bg-green-100 text-green-800',
+                                        'odbijen' => 'bg-red-100 text-red-800',
+                                        default => 'bg-yellow-100 text-yellow-800',
+                                    };
+                                @endphp
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $colorClass }}">
+                                    {{ ucfirst($status) }}
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-2">
@@ -76,11 +86,47 @@
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+
+    <script>
+        const selectAll = document.getElementById('selectAll');
+        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+ 
+        selectAll.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.prepis-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+document.getElementById('deleteSelectedBtn').addEventListener('click', function() {
+    const selected = Array.from(document.querySelectorAll('.prepis-checkbox:checked')).map(cb => cb.value);
+    if(selected.length && confirm('Are you sure you want to delete selected prepisi?')) {
+        fetch("{{ route('prepis.bulkDelete') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ ids: selected })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) location.reload();
+            else alert(data.message);
+        });
+    }
+});
+document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.prepis-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+});
+
+
+
+
+    </script>
+   
 </x-app-layout>

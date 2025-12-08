@@ -114,4 +114,17 @@ class PrepisController extends Controller
         $prepis = Prepis::with(['student', 'fakultet', 'agreements.fitPredmet', 'agreements.straniPredmet'])->findOrFail($id);
         return view('prepis.show', compact('prepis'));
     }
+
+public function bulkDelete(Request $request)
+{
+    $ids = $request->input('ids', []); // <— ovako Laravel čita JSON iz fetch
+    if ($ids && is_array($ids)) {
+        PrepisAgreement::whereIn('prepis_id', $ids)->delete();
+        Prepis::whereIn('id', $ids)->delete();
+        return response()->json(['success' => true]);
+    }
+    return response()->json(['success' => false, 'message' => 'No prepisi selected.']);
+}
+
+
 }

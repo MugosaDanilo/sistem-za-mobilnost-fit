@@ -66,4 +66,16 @@ class StudentController extends Controller
     return redirect()->route('students.index')
       ->with('success', 'Student deleted successfully!');
   }
+
+  public function bulkDelete(Request $request)
+{
+    $ids = $request->ids;
+    if ($ids && is_array($ids)) {
+        \App\Models\Student::whereIn('id', $ids)->delete();
+        return redirect()->route('students.index')->with('success', 'Selected students deleted successfully.');
+    }
+    return redirect()->route('students.index')->with('error', 'No students selected.');
+}
+
+
 }

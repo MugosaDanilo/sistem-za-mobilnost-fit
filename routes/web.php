@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UniverzitetController;
 
 
+
+
 Route::get('/', function () {
     $user = Auth::user();
 
@@ -31,6 +33,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('adminDashboardShow');
 
+
     Route::get('/mobilnost', [MobilityController::class, 'index'])->name('admin.mobility');
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('admin.mobility.upload');
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('admin.mobility.export');
@@ -48,6 +51,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
 
     Route::get('/students', [App\Http\Controllers\StudentController::class, 'index'])->name('students.index');
     Route::post('/students', [App\Http\Controllers\StudentController::class, 'store'])->name('students.store');
+    Route::delete('/students/bulk-delete', [App\Http\Controllers\StudentController::class, 'bulkDelete'])->name('students.bulkDelete');
     Route::put('/students/{id}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
 
@@ -57,12 +61,17 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/univerzitet', [UniverzitetController::class, 'store'])->name('univerzitet.store');
     Route::get('/univerzitet/{id}/edit', [UniverzitetController::class, 'edit'])->name('univerzitet.edit');
     Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
-    Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
+Route::delete('/univerzitet/bulk-delete', [UniverzitetController::class, 'bulkDelete'])->name('univerzitet.bulkDelete');
+Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
+
+
+Route::post('/prepis/bulk-delete', [\App\Http\Controllers\PrepisController::class, 'bulkDelete'])->name('prepis.bulkDelete');
 
     Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
 
     Route::get('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'index'])->name('fakulteti.index');
     Route::post('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
+Route::delete('/fakulteti/bulk-delete', [App\Http\Controllers\FakultetController::class, 'bulkDelete'])->name('fakulteti.bulkDelete');
     Route::put('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');
     Route::delete('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
 

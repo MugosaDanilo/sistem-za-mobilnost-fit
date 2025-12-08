@@ -97,5 +97,14 @@ public function destroy($id)
     }
 }
 
+public function bulkDelete(Request $request)
+{
+    $ids = explode(',', $request->ids); // pretvori string u niz ID-jeva
+    if(!empty($ids)) {
+        Univerzitet::whereIn('id', $ids)->delete();
+        return redirect()->back()->with('success', 'Selected universities deleted successfully.');
+    }
+    return redirect()->back()->with('error', 'No universities selected.');
+}
 
 }

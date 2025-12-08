@@ -67,4 +67,28 @@ class FakultetController extends Controller
 
         return redirect()->route('fakulteti.index')->with('success', 'Fakultet uspješno obrisan!');
     }
+
+  
+
+public function bulkDelete(Request $request)
+{
+     $ids = $request->ids;
+
+    if (!$ids || !is_array($ids)) {
+        return redirect()->back()->with('error', 'Nije odabran nijedan fakultet za brisanje.');
+    }
+
+    try {
+        Fakultet::whereIn('id', $ids)->delete();
+        return redirect()->back()->with('success', 'Odabrani fakulteti su uspješno obrisani.');
+    } catch (\Illuminate\Database\QueryException $e) {
+        if ($e->getCode() == 23000) { // foreign key constraint
+            return redirect()->back()->with('error', 'Neki fakulteti ne mogu biti obrisani jer imaju povezane predmete ili mobilnosti.');
+        }
+        return redirect()->back()->with('error', 'Došlo je do greške prilikom brisanja fakulteta.');
+    }
+}
+
+
+
 }

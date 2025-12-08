@@ -18,4 +18,11 @@ class Fakultet extends Model
     {
         return $this->hasMany(Predmet::class);
     }
+
+ public function mobilnosti()
+{
+    return $this->hasMany(\App\Models\Mobilnost::class, 'fakultet_id');
+}
+
+
 }
