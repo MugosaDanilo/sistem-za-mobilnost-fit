@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LearningAgreement extends Model
 {
+    use HasFactory;
+
     protected $table = 'learning_agreements';
-    
+
     protected $fillable = [
         'mobilnost_id',
         'fit_predmet_id',

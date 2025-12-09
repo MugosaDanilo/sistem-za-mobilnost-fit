@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UniverzitetController;
 
-
 Route::get('/', function () {
     $user = Auth::user();
 
@@ -51,7 +50,6 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::put('/students/{id}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
 
-
     Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
     Route::get('/univerzitet/create', [UniverzitetController::class, 'create'])->name('univerzitet.create');
     Route::post('/univerzitet', [UniverzitetController::class, 'store'])->name('univerzitet.store');
@@ -88,5 +86,9 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::post('/prepis-agreement/{id}/accept', [App\Http\Controllers\PrepisAgreementController::class, 'accept'])->name('prepis-agreement.accept');
     Route::post('/prepis-agreement/{id}/reject', [App\Http\Controllers\PrepisAgreementController::class, 'reject'])->name('prepis-agreement.reject');
 });
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__ . '/auth.php';

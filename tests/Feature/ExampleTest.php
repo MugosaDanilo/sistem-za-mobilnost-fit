@@ -3,5 +3,7 @@
 it('returns a successful response', function () {
     $response = $this->get('/');
 
-    $response->assertStatus(200);
+    // Pošto neulogovanog šalje na login:
+    $response->assertStatus(302);
+    $response->assertRedirect(route('login'));
 });

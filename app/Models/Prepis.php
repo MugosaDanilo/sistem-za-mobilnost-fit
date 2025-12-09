@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Prepis extends Model
 {
+    use HasFactory;
+
     protected $table = 'prepisi';
 
     protected $fillable = [
@@ -42,7 +45,7 @@ class Prepis extends Model
         $agreements = $this->agreements;
 
         if ($agreements->isEmpty()) {
-            return 'u procesu'; 
+            return 'u procesu';
         }
 
         if ($agreements->contains('status', 'odbijen')) {

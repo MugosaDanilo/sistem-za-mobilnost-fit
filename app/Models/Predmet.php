@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Predmet extends Model
 {
+    use HasFactory;
+
     protected $table = 'predmeti';
 
     protected $fillable = ['naziv', 'ects', 'semestar', 'fakultet_id'];
@@ -14,6 +17,7 @@ class Predmet extends Model
     {
         return $this->belongsTo(Fakultet::class);
     }
+
     public function profesori()
     {
         return $this->belongsToMany(User::class, 'profesor_predmet', 'predmet_id', 'profesor_id');
