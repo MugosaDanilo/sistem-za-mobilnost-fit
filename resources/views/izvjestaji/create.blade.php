@@ -45,7 +45,7 @@
                 <div class="text-center">
                     <div class="text-4xl font-bold text-orange-500 mb-3"></div>
                     <h3 class="text-xl font-semibold text-gray-800">Univerziteti</h3>
-                    <p class="text-gray-600 mt-2">Pregled svih registrovanih univerziteta</p>
+                    <p class="text-gray-600 mt-2">Pregleeeed svih registrovanih univerziteta</p>
                 </div>
             </div>
         </a>
