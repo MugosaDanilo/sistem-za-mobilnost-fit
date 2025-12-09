@@ -10,7 +10,7 @@
         <a href="{{ route('izvjestaji.show', 'studenti') }}" class="block">
             <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer h-full">
                 <div class="text-center">
-                    <div class="text-4xl font-bold text-blue-500 mb-3">👥</div>
+                    <div class="text-4xl font-bold text-blue-500 mb-3"></div>
                     <h3 class="text-xl font-semibold text-gray-800">Studenti</h3>
                     <p class="text-gray-600 mt-2">Pregled svih registrovanih studenata</p>
                 </div>
@@ -21,7 +21,7 @@
         <a href="{{ route('izvjestaji.show', 'mobilnosti') }}" class="block">
             <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer h-full">
                 <div class="text-center">
-                    <div class="text-4xl font-bold text-green-500 mb-3">✈️</div>
+                    <div class="text-4xl font-bold text-green-500 mb-3"></div>
                     <h3 class="text-xl font-semibold text-gray-800">Mobilnosti</h3>
                     <p class="text-gray-600 mt-2">Pregled svih mobilnosti studenata</p>
                 </div>
@@ -32,7 +32,7 @@
         <a href="{{ route('izvjestaji.show', 'fakulteti') }}" class="block">
             <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer h-full">
                 <div class="text-center">
-                    <div class="text-4xl font-bold text-purple-500 mb-3">🏛️</div>
+                    <div class="text-4xl font-bold text-purple-500 mb-3"></div>
                     <h3 class="text-xl font-semibold text-gray-800">Fakulteti</h3>
                     <p class="text-gray-600 mt-2">Pregled svih registrovanih fakulteta</p>
                 </div>
@@ -43,7 +43,7 @@
         <a href="{{ route('izvjestaji.show', 'univerziteti') }}" class="block">
             <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer h-full">
                 <div class="text-center">
-                    <div class="text-4xl font-bold text-orange-500 mb-3">🎓</div>
+                    <div class="text-4xl font-bold text-orange-500 mb-3"></div>
                     <h3 class="text-xl font-semibold text-gray-800">Univerziteti</h3>
                     <p class="text-gray-600 mt-2">Pregled svih registrovanih univerziteta</p>
                 </div>
