@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UniverzitetController;
+use App\Http\Controllers\IzvjestajController;
 
 Route::get('/dbtest', function () {
     try {
@@ -84,7 +85,8 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::delete('/predmeti/{id}', [\App\Http\Controllers\PredmetController::class, 'destroy'])->name('predmeti.destroy');
 
     Route::resource('studenti', \App\Http\Controllers\StudentController::class)->names('studenti');
-});
+
+    Route::resource('izvjestaji', IzvjestajController::class)->names('izvjestaji');
 
 Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'profesorDashboard'])->name('profesorDashboardShow');
