@@ -42,7 +42,17 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FIT Subject</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foreign Subject</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ECTS</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
+                                <th class="relative group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                 Grade
+                                @if($mobilnost->fakultet->uputstvo_za_ocjene)
+                                 <span class="ml-1 text-blue-500 cursor-pointer">ℹ️</span>
+
+                                <div class="absolute left-0 mt-2 w-64 bg-white p-3 rounded-lg shadow-lg border border-gray-200 
+                                   text-gray-700 text-xs hidden group-hover:block z-50">
+                                {!! nl2br(e($mobilnost->fakultet->uputstvo_za_ocjene)) !!}
+                                      </div>
+                                   @endif
+                                      </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
