@@ -1,10 +1,9 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Izvještaji</h2>
+    </x-slot>
 
-@section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Izvještaji</h1>
-    </div>
+    <div class="container mx-auto px-4 py-6">
 
     @if ($message = Session::get('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
@@ -61,5 +60,5 @@
             </div>
         </div>
     </div>
-</div>
-@endsection
+    </div>
+</x-app-layout>

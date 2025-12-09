@@ -1,12 +1,13 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ $data['naslov'] ?? 'Izvještaj' }}</h2>
+    </x-slot>
 
-@section('content')
-<div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-4 py-6">
     <div class="mb-6">
         <a href="{{ route('izvjestaji.index') }}" class="text-blue-500 hover:text-blue-700 mb-4 inline-block">
             ← Nazad na Izvještaje
         </a>
-        <h1 class="text-3xl font-bold text-gray-800">{{ $data['naslov'] ?? 'Izvještaj' }}</h1>
     </div>
 
     <div class="bg-white rounded-lg shadow-md p-6">
@@ -75,4 +76,4 @@
         }
     }
 </style>
-@endsection
+</x-app-layout>

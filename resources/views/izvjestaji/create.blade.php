@@ -1,10 +1,9 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Odaberite Izvještaj</h2>
+    </x-slot>
 
-@section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Odaberite Izvještaj</h1>
-    </div>
+    <div class="container mx-auto px-4 py-6">
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Izvještaj o Studentima -->
@@ -57,5 +56,5 @@
             Nazad
         </a>
     </div>
-</div>
-@endsection
+    </div>
+</x-app-layout>
