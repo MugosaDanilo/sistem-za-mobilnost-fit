@@ -20,24 +20,24 @@
 
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Korisnici</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Users</h1>
             <button id="addUserBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                Dodaj korisnika
+                Add User
             </button>
         </div>
 
         <div class="mb-4">
-            <input 
-                type="text" 
-                id="searchUser" 
-                placeholder="Pretrazi.." 
+            <input
+                type="text"
+                id="searchUser"
+                placeholder="Search..."
                 class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
             >
         </div>
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Lista Korisnika</h2>
+                <h2 class="text-lg font-semibold text-gray-800">User List</h2>
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($users) }} Total</span>
             </div>
 
@@ -45,7 +45,6 @@
                 <table class="min-w-full divide-y divide-gray-200" id="userTable">
                     <thead class="bg-gray-50">
                         <tr>
-
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
@@ -54,7 +53,8 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="userTableBody">
                         @foreach ($users as $user)
-                            <tr class="user-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($user->id . ' ' . $user->name . ' ' . $user->email . ' ' . (($user->type == 0) ? 'admin' : 'profesor')) }}">
+                            <tr class="user-row hover:bg-gray-50 transition-colors duration-150 ease-in-out"
+                                data-search="{{ strtolower($user->id . ' ' . $user->name . ' ' . $user->email . ' ' . (((int)$user->type === 0) ? 'admin' : 'professor')) }}">
 
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
@@ -66,44 +66,47 @@
                                         </div>
                                     </div>
                                 </td>
+
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
+
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                @if ((int)$user->type === 0)
-                                    Admin
-                                @elseif((int)$user->type === 1)
-                                    Profesor
-                                @endif
-                           </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-2">
-                                    <button
-                                        onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}')"
-                                        class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
-                                        Edit
-                                    </button>
-
-                                    @if((int)$user->type === 1)
-                                        <a href="{{ route('users.subjects.index', $user->id) }}"
-                                           class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md transition-colors inline-block">
-                                            Subjects
-                                        </a>
+                                    @if ((int)$user->type === 0)
+                                        Admin
+                                    @elseif((int)$user->type === 1)
+                                        Professor
                                     @endif
+                                </td>
 
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                          onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
-                                            Delete
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <button
+                                            onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', {{ (int)$user->type }})"
+                                            class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
+                                            Edit
                                         </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+
+                                        @if((int)$user->type === 1)
+                                            <a href="{{ route('users.subjects.index', $user->id) }}"
+                                               class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md transition-colors inline-block">
+                                                Subjects
+                                            </a>
+                                        @endif
+
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                              onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
 
             </div>
         </div>
@@ -113,7 +116,7 @@
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
             <h2 id="modalTitle" class="text-xl font-semibold mb-4">Add User</h2>
 
-            <form id="userForm" action="{{ route('users.store') }}" method="POST" >
+            <form id="userForm" action="{{ route('users.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="id" id="userId">
 
@@ -138,16 +141,16 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="password" class="block text-gray-700 font-medium mb-1">Password</label>
-                      <input type="password" id="password_confirmation" name="password_confirmation"
+                    <label for="password_confirmation" class="block text-gray-700 font-medium mb-1">Confirm Password</label>
+                    <input type="password" id="password_confirmation" name="password_confirmation"
                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium mb-1">User Type</label>
-                    <select name="type" class="border p-2 w-full">
+                    <select id="type" name="type" class="border p-2 w-full">
                         <option value="0">Admin</option>
-                        <option value="1">Profesor</option>
+                        <option value="1">Professor</option>
                     </select>
                 </div>
 
@@ -165,8 +168,6 @@
         </div>
     </div>
 
-
-
     <script>
         const modal = document.getElementById('userModal');
         const addUserBtn = document.getElementById('addUserBtn');
@@ -177,7 +178,12 @@
         addUserBtn.addEventListener('click', () => {
             form.action = "{{ route('users.store') }}";
             form.reset();
+
+            const existingMethod = form.querySelector('input[name="_method"]');
+            if (existingMethod) existingMethod.remove();
+
             document.getElementById('password').required = true;
+
             title.textContent = 'Add User';
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -188,49 +194,48 @@
             modal.classList.remove('flex');
         });
 
-    function openEditModal(id, name, email) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        title.textContent = 'Edit User';
-        form.action = `/admin/users/${id}`;
-        form.method = 'POST';
+        function openEditModal(id, name, email, type) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
 
-        const existingMethod = form.querySelector('input[name="_method"]');
-        if (existingMethod) existingMethod.remove();
+            title.textContent = 'Edit User';
+            form.action = `/admin/users/${id}`;
+            form.method = 'POST';
 
-        const methodInput = document.createElement('input');
-        methodInput.type = 'hidden';
-        methodInput.name = '_method';
-        methodInput.value = 'PUT';
-        form.appendChild(methodInput);
+            const existingMethod = form.querySelector('input[name="_method"]');
+            if (existingMethod) existingMethod.remove();
 
-        document.getElementById('userId').value = id;
-        document.getElementById('name').value = name;
-        document.getElementById('email').value = email;
-        document.getElementById('password').required = false;
-    }
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'PUT';
+            form.appendChild(methodInput);
 
+            document.getElementById('userId').value = id;
+            document.getElementById('name').value = name;
+            document.getElementById('email').value = email;
+            document.getElementById('type').value = String(type);
+
+            document.getElementById('password').required = false;
+            document.getElementById('password').value = '';
+            document.getElementById('password_confirmation').value = '';
+        }
     </script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('searchUser');
-        const rows = document.querySelectorAll('.user-row');
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchUser');
+            const rows = document.querySelectorAll('.user-row');
 
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            
-            rows.forEach(row => {
-                const searchText = row.getAttribute('data-search');
-                if (searchText.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+
+                rows.forEach(row => {
+                    const searchText = row.getAttribute('data-search');
+                    row.style.display = searchText.includes(searchTerm) ? '' : 'none';
+                });
             });
         });
-    });
     </script>
-
 
 </x-app-layout>

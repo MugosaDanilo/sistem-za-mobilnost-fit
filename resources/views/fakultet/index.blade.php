@@ -129,7 +129,7 @@
                     <select id="addUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                         <option value="">Choose a University</option>
                         @foreach($univerziteti as $u)
-                            <option value="{{ $u->id }}">{{ $u->name }}</option>
+                            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -186,7 +186,7 @@
                     <select id="editUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                         <option value="">Choose a University</option>
                         @foreach($univerziteti as $u)
-                            <option value="{{ $u->id }}">{{ $u->name }}</option>
+                            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
                         @endforeach
                     </select>
                 </div>
