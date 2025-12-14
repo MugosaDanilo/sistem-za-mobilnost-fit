@@ -20,20 +20,20 @@
 
   <div class="py-10 max-w-7xl mx-auto px-6">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Studenti</h1>
+      <h1 class="text-3xl font-bold text-gray-900">Students</h1>
       <button id="addStudentBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-        Dodaj studenta
+        Add Student
       </button>
     </div>
 
     <div class="mb-4">
-      <input type="text" id="searchStudent" placeholder="Pretrazi.."
+      <input type="text" id="searchStudent" placeholder="Search.."
         class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
     </div>
 
     <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
       <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-        <h2 class="text-lg font-semibold text-gray-800">Lista Studenata</h2>
+        <h2 class="text-lg font-semibold text-gray-800">Student List</h2>
         <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($students) }}
           Total</span>
       </div>
@@ -42,12 +42,12 @@
         <table class="min-w-full divide-y divide-gray-200" id="studentTable">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ime i Prezime
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">First and Last Name
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Indeks</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Index</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Godina</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivo</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Level</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -109,31 +109,31 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="mb-4">
-            <label for="ime" class="block text-gray-700 font-medium mb-1">Ime</label>
+            <label for="ime" class="block text-gray-700 font-medium mb-1">First Name</label>
             <input type="text" id="ime" name="ime"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
           </div>
 
           <div class="mb-4">
-            <label for="prezime" class="block text-gray-700 font-medium mb-1">Prezime</label>
+            <label for="prezime" class="block text-gray-700 font-medium mb-1">Last Name</label>
             <input type="text" id="prezime" name="prezime"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
           </div>
 
           <div class="mb-4">
-            <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Broj Indeksa</label>
+            <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Index Number</label>
             <input type="text" id="br_indexa" name="br_indexa"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
           </div>
 
           <div class="mb-4">
-            <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Datum Rodjenja</label>
+            <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Date of Birth</label>
             <input type="date" id="datum_rodjenja" name="datum_rodjenja"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
           </div>
 
           <div class="mb-4">
-            <label for="telefon" class="block text-gray-700 font-medium mb-1">Telefon</label>
+            <label for="telefon" class="block text-gray-700 font-medium mb-1">Phone</label>
             <input type="text" id="telefon" name="telefon"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
           </div>
@@ -145,22 +145,22 @@
           </div>
 
           <div class="mb-4">
-            <label for="godina_studija" class="block text-gray-700 font-medium mb-1">Godina Studija</label>
+            <label for="godina_studija" class="block text-gray-700 font-medium mb-1">Year of Study</label>
             <input type="number" id="godina_studija" name="godina_studija"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
           </div>
 
           <div class="mb-4">
-            <label for="jmbg" class="block text-gray-700 font-medium mb-1">JMBG</label>
+            <label for="jmbg" class="block text-gray-700 font-medium mb-1">Personal ID Number</label>
             <input type="text" id="jmbg" name="jmbg"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
           </div>
 
           <div class="mb-4 md:col-span-2">
-            <label for="nivo_studija_id" class="block text-gray-700 font-medium mb-1">Nivo Studija</label>
+            <label for="nivo_studija_id" class="block text-gray-700 font-medium mb-1">Level of Study</label>
             <select id="nivo_studija_id" name="nivo_studija_id"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-              <option value="">Odaberite nivo studija</option>
+              <option value="">Select level of study</option>
               @foreach($nivoStudija as $nivo)
                 <option value="{{ $nivo->id }}">{{ $nivo->naziv }}</option>
               @endforeach

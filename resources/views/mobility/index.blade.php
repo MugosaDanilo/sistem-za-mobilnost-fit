@@ -21,7 +21,7 @@
                     <div class="relative">
                         <input type="text" 
                             id="student_search" 
-                            placeholder="Pretraži studenta..." 
+                            placeholder="Search student..." 
                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             autocomplete="off">
                         
@@ -29,7 +29,7 @@
                         </div>
 
                         <select id="student_id" name="student_id" class="hidden">
-                            <option value="">-- Odaberite studenta --</option>
+                            <option value="">-- Select a student --</option>
                             @foreach($students as $student)
                                 <option value="{{ $student->id }}"
                                     {{ old('student_id') == $student->id ? 'selected' : '' }}
@@ -45,11 +45,11 @@
 
 
                 <div class="flex flex-col gap-4 mb-6">
-                    <label for="fakultet_id" class="font-semibold">Fakultet</label>
+                    <label for="fakultet_id" class="font-semibold">Faculty</label>
                     <div class="relative">
                         <input type="text" 
                             id="fakultet_search" 
-                            placeholder="Pretraži fakultet..." 
+                            placeholder="Search faculty..." 
                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             autocomplete="off">
                         
@@ -57,7 +57,7 @@
                         </div>
 
                         <select id="fakultet_id" name="fakultet_id" class="hidden">
-                            <option value="">-- Odaberite fakultet --</option>
+                            <option value="">-- Select a faculty --</option>
                             @foreach($fakulteti as $fakultet)
                                 @if($fakultet->naziv !== 'FIT')
                                     <option value="{{ $fakultet->id }}" 
@@ -74,13 +74,13 @@
 
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="flex flex-col gap-2">
-                        <label for="datum_pocetka" class="font-semibold">Datum početka</label>
+                        <label for="datum_pocetka" class="font-semibold">Start date</label>
                         <input type="date" id="datum_pocetka" name="datum_pocetka" 
                             value="{{ old('datum_pocetka') }}"
                             class="border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label for="datum_kraja" class="font-semibold">Datum kraja</label>
+                        <label for="datum_kraja" class="font-semibold">End date</label>
                         <input type="date" id="datum_kraja" name="datum_kraja" 
                             value="{{ old('datum_kraja') }}"
                             class="border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -190,7 +190,7 @@
                 div.dataset.name = subject;
                 div.textContent = subject;
 
-                div.addEventListener('click', () => toggleLink(div)); // linkovanje sa lijevom stranom
+                div.addEventListener('click', () => toggleLink(div)); // linking with the left side
                 availableSubjectsContainer.appendChild(div);
             });
         });
@@ -358,19 +358,19 @@
             const fakultet = fakultetSelect.options[fakultetSelect.selectedIndex]?.dataset.naziv || '';
 
             if (!ime || !prezime || !fakultet) {
-                alert('Molimo unesite ime, prezime i fakultet prije eksportovanja.');
+                alert('Please enter the first name, last name, and faculty before exporting.');
                 return;
             }
 
             if (!brojIndeksa) {
-                alert('Molimo unesite broj indeksa prije nastavka.');
+                alert('Please enter the index number before continuing.');
                 return;
             }
 
             const hasAnyLinks = Object.values(links).some(set => set.size > 0);
 
             if (!hasAnyLinks) {
-                alert('Molimo povežite barem jedan predmet prije eksportovanja.');
+                alert('Please link at least one subject before exporting.');
                 return;
             }
 
@@ -425,19 +425,19 @@
         const fakultet = fakultetSelect.options[fakultetSelect.selectedIndex]?.dataset.naziv || '';
       
         if (!ime || !prezime || !fakultet) {
-            alert('Molimo unesite ime, prezime i fakultet prije cuvanja.');
+            alert('Please enter the first name, last name, and faculty before saving.');
             return;
         }
 
         if (!brojIndeksa) {
-            alert('Molimo unesite broj indeksa prije nastavka.');
+            alert('Please enter the index number before continuing.');
             return;
         }
 
         const hasAnyLinks = Object.values(links).some(set => set.size > 0);
 
         if (!hasAnyLinks) {
-            alert('Molimo povežite barem jedan predmet prije eksportovanja.');
+            alert('Please link at least one subject before exporting.');
             return;
         }
 
@@ -450,7 +450,7 @@
         const datumKraja = document.getElementById('datum_kraja')?.value;
 
         if (!datumPocetka || !datumKraja) {
-            alert('Molimo unesite datume mobilnosti.');
+            alert('Please enter the mobility dates.');
             return;
         }
 
@@ -532,7 +532,7 @@
         if (results.length === 0) {
             const noResults = document.createElement('div');
             noResults.className = 'px-4 py-2 text-gray-500 italic';
-            noResults.textContent = 'Nema rezultata';
+            noResults.textContent = 'No results';
             studentSearchResults.appendChild(noResults);
         } else {
             results.forEach(student => {
@@ -603,7 +603,7 @@
         if (results.length === 0) {
             const noResults = document.createElement('div');
             noResults.className = 'px-4 py-2 text-gray-500 italic';
-            noResults.textContent = 'Nema rezultata';
+            noResults.textContent = 'No results';
             fakultetSearchResults.appendChild(noResults);
         } else {
             results.forEach(faculty => {

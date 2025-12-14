@@ -25,9 +25,9 @@
         </div>
 
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Predmeti - {{ $fakultet->naziv }}</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Subjects - {{ $fakultet->naziv }}</h1>
             <button id="addSubjectBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                Dodaj Predmet
+                Add Subject
             </button>
         </div>
 
@@ -35,14 +35,14 @@
             <input 
                 type="text" 
                 id="searchSubject" 
-                placeholder="Pretraži.." 
+                placeholder="Search.." 
                 class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
             >
         </div>
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Lista Predmeta</h2>
+                <h2 class="text-lg font-semibold text-gray-800">Subject List</h2>
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($predmeti) }} Total</span>
             </div>
 
@@ -50,10 +50,10 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naziv</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ECTS</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Semestar</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Akcije</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Semester</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -70,14 +70,14 @@
                                             data-naziv="{{ $p->naziv }}"
                                             data-ects="{{ $p->ects }}"
                                             data-semestar="{{ $p->semestar }}">
-                                            Izmijeni
+                                            Edit
                                         </button>
-                                        <form action="{{ route('predmeti.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Da li ste sigurni koje odbrisati ovaj predmet?')">
+                                        <form action="{{ route('predmeti.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this subject?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" 
                                                     class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
-                                                Obriši
+                                                Delete
                                             </button>
                                         </form>
                                     </div>
@@ -93,14 +93,14 @@
     <!-- Add Subject Modal -->
     <div id="addSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-screen">
-            <h2 class="text-xl font-semibold mb-4">Dodaj Predmet</h2>
+            <h2 class="text-xl font-semibold mb-4">Add Subject</h2>
 
             <form action="{{ route('predmeti.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="fakultet_id" value="{{ $fakultet->id }}">
 
                 <div class="mb-4">
-                    <label for="addName" class="block text-gray-700 font-medium mb-1">Naziv</label>
+                    <label for="addName" class="block text-gray-700 font-medium mb-1">Name</label>
                     <input type="text" id="addName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                 </div>
 
@@ -110,16 +110,16 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="addSemester" class="block text-gray-700 font-medium mb-1">Semestar</label>
+                    <label for="addSemester" class="block text-gray-700 font-medium mb-1">Semester</label>
                     <input type="number" id="addSemester" name="semestar" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
                 </div>
 
                 <div class="flex justify-end space-x-2">
                     <button type="button" id="cancelAddModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
-                        Otkaži
+                        Cancel
                     </button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
-                        Sačuvaj
+                        Save
                     </button>
                 </div>
             </form>
@@ -129,7 +129,7 @@
     <!-- Edit Subject Modal -->
     <div id="editSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-screen">
-            <h2 class="text-xl font-semibold mb-4">Izmijeni Predmet</h2>
+            <h2 class="text-xl font-semibold mb-4">Edit Subject</h2>
 
             <form id="editSubjectForm" method="POST">
                 @csrf
@@ -139,7 +139,7 @@
                 <input type="hidden" name="fakultet_id" value="{{ $fakultet->id }}">
 
                 <div class="mb-4">
-                    <label for="editName" class="block text-gray-700 font-medium mb-1">Naziv</label>
+                    <label for="editName" class="block text-gray-700 font-medium mb-1">Name</label>
                     <input type="text" id="editName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                 </div>
 
@@ -149,16 +149,16 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="editSemester" class="block text-gray-700 font-medium mb-1">Semestar</label>
+                    <label for="editSemester" class="block text-gray-700 font-medium mb-1">Semester</label>
                     <input type="number" id="editSemester" name="semestar" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
                 </div>
 
                 <div class="flex justify-end space-x-2">
                     <button type="button" id="cancelEditModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
-                        Otkaži
+                        Cancel
                     </button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
-                        Sačuvaj Izmjene
+                        Save Changes
                     </button>
                 </div>
             </form>

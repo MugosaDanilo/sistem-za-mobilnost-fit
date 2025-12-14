@@ -17,9 +17,9 @@
 
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Fakulteti</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Faculty</h1>
             <button id="addFacultyBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                Dodaj Fakultet
+                Add Faculty
             </button>
         </div>
 
@@ -27,14 +27,14 @@
             <input 
                 type="text" 
                 id="searchFaculty" 
-                placeholder="Pretraži.." 
+                placeholder="Search.." 
                 class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
             >
         </div>
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Lista Fakulteta</h2>
+                <h2 class="text-lg font-semibold text-gray-800">List of Faculties</h2>
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($fakulteti) }} Total</span>
             </div>
 
@@ -42,18 +42,18 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naziv</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefon</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Web</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Univerzitet</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Akcije</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">University</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                         </tr>
                     </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($fakulteti as $f)
                         <tr class="faculty-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($f->naziv . ' ' . $f->email . ' ' . $f->univerzitet->naziv) }}">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $f->naziv }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $f->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->email }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->telefon }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -61,7 +61,7 @@
                                     <a href="{{ $f->web }}" target="_blank" class="text-blue-600 hover:underline">{{ $f->web }}</a>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->univerzitet->naziv }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->univerzitet->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center space-x-2">
                                     <button
@@ -73,17 +73,17 @@
                                         data-web="{{ $f->web }}"
                                         data-uputstvo="{{ $f->uputstvo_za_ocjene }}"
                                         data-univerzitet="{{ $f->univerzitet_id }}">
-                                        Izmijeni
+                                        Change
                                     </button>
                                     <a href="{{ route('fakulteti.predmeti.index', $f->id) }}" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md transition-colors">
-                                        Predmeti
+                                        Faculty subjects
                                     </a>
-                                    <form action="{{ route('fakulteti.destroy', $f->id) }}" method="POST" onsubmit="return confirm('Da li ste sigurni?')">
+                                    <form action="{{ route('fakulteti.destroy', $f->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 
                                                 class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
-                                            Obriši
+                                            Delete
                                         </button>
                                     </form>
                                 </div>
@@ -97,16 +97,15 @@
         </div>
     </div>
 
-    <!-- Add Faculty Modal -->
     <div id="addFacultyModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-screen">
-            <h2 class="text-xl font-semibold mb-4">Dodaj Fakultet</h2>
+            <h2 class="text-xl font-semibold mb-4">Add Faculty</h2>
 
             <form action="{{ route('fakulteti.store') }}" method="POST">
                 @csrf
 
                 <div class="mb-4">
-                    <label for="addName" class="block text-gray-700 font-medium mb-1">Naziv</label>
+                    <label for="addName" class="block text-gray-700 font-medium mb-1">Name</label>
                     <input type="text" id="addName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                 </div>
 
@@ -116,7 +115,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="addPhone" class="block text-gray-700 font-medium mb-1">Telefon</label>
+                    <label for="addPhone" class="block text-gray-700 font-medium mb-1">Phone</label>
                     <input type="text" id="addPhone" name="telefon" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                 </div>
 
@@ -126,36 +125,35 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="addUniversity" class="block text-gray-700 font-medium mb-1">Univerzitet</label>
+                    <label for="addUniversity" class="block text-gray-700 font-medium mb-1">University</label>
                     <select id="addUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                        <option value="">Izaberite univerzitet</option>
+                        <option value="">Choose a University</option>
                         @foreach($univerziteti as $u)
-                            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
+                            <option value="{{ $u->id }}">{{ $u->name }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="mb-4">
-                    <label for="addInstructions" class="block text-gray-700 font-medium mb-1">Uputstvo za ocjene</label>
+                    <label for="addInstructions" class="block text-gray-700 font-medium mb-1">Guidelines for grades</label>
                     <textarea id="addInstructions" name="uputstvo_za_ocjene" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-2">
                     <button type="button" id="cancelAddModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
-                        Otkaži
+                        Cancel
                     </button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
-                        Sačuvaj
+                        Save
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Edit Faculty Modal -->
     <div id="editFacultyModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-screen">
-            <h2 class="text-xl font-semibold mb-4">Izmijeni Fakultet</h2>
+            <h2 class="text-xl font-semibold mb-4">Change Faculty</h2>
 
             <form id="editFacultyForm" method="POST">
                 @csrf
@@ -164,7 +162,7 @@
                 <input type="hidden" name="id" id="editFacultyId">
 
                 <div class="mb-4">
-                    <label for="editName" class="block text-gray-700 font-medium mb-1">Naziv</label>
+                    <label for="editName" class="block text-gray-700 font-medium mb-1">Name</label>
                     <input type="text" id="editName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                 </div>
 
@@ -174,7 +172,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="editPhone" class="block text-gray-700 font-medium mb-1">Telefon</label>
+                    <label for="editPhone" class="block text-gray-700 font-medium mb-1">Phone</label>
                     <input type="text" id="editPhone" name="telefon" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                 </div>
 
@@ -184,26 +182,26 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="editUniversity" class="block text-gray-700 font-medium mb-1">Univerzitet</label>
+                    <label for="editUniversity" class="block text-gray-700 font-medium mb-1">University</label>
                     <select id="editUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                        <option value="">Izaberite univerzitet</option>
+                        <option value="">Choose a University</option>
                         @foreach($univerziteti as $u)
-                            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
+                            <option value="{{ $u->id }}">{{ $u->name }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="mb-4">
-                    <label for="editInstructions" class="block text-gray-700 font-medium mb-1">Uputstvo za ocjene</label>
+                    <label for="editInstructions" class="block text-gray-700 font-medium mb-1">Guidelines for grades</label>
                     <textarea id="editInstructions" name="uputstvo_za_ocjene" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-2">
                     <button type="button" id="cancelEditModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
-                        Otkaži
+                        Cancel
                     </button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
-                        Sačuvaj Izmjene
+                        Save Changes
                     </button>
                 </div>
             </form>
@@ -212,7 +210,7 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Add Modal Logic
+        
         const addModal = document.getElementById('addFacultyModal');
         const addBtn = document.getElementById('addFacultyBtn');
         const cancelAdd = document.getElementById('cancelAddModal');
@@ -227,7 +225,6 @@
             addModal.classList.remove('flex');
         });
 
-        // Edit Modal Logic
         const editModal = document.getElementById('editFacultyModal');
         const cancelEdit = document.getElementById('cancelEditModal');
         const editForm = document.getElementById('editFacultyForm');
