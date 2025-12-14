@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UniverzitetController;
+use App\Http\Controllers\PredmetController;
 
 
 Route::get('/', function () {
@@ -22,6 +23,7 @@ Route::get('/', function () {
     };
 })->middleware(['auth', 'verified']);
 
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -29,8 +31,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('adminAuth')->prefix('admin')->group(function () {
+
+    
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('adminDashboardShow');
 
+    
     Route::get('/mobilnost', [MobilityController::class, 'index'])->name('admin.mobility');
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('admin.mobility.upload');
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('admin.mobility.export');
@@ -41,17 +46,19 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/mobility/{id}/export-word', [MobilityController::class, 'exportWord'])->name('admin.mobility.export-word');
     Route::delete('/mobilnost/{id}', [MobilityController::class, 'destroy'])->name('admin.mobility.destroy');
 
-    Route::get('/users/', [UserController::class, 'index'])->name('users.index');
-    Route::post('/users/', [UserController::class, 'store'])->name('users.store');
+    
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+
 
     Route::get('/students', [App\Http\Controllers\StudentController::class, 'index'])->name('students.index');
     Route::post('/students', [App\Http\Controllers\StudentController::class, 'store'])->name('students.store');
     Route::put('/students/{id}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
 
-
+    
     Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
     Route::get('/univerzitet/create', [UniverzitetController::class, 'create'])->name('univerzitet.create');
     Route::post('/univerzitet', [UniverzitetController::class, 'store'])->name('univerzitet.store');
@@ -59,25 +66,37 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
     Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
 
-    Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
+    Route::resource('prepisi', App\Http\Controllers\PrepisController::class)->names('prepis');
 
-    Route::get('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'index'])->name('fakulteti.index');
-    Route::post('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
-    Route::put('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');
-    Route::delete('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
+    Route::get('/fakulteti', [App\Http\Controllers\FakultetController::class, 'index'])->name('fakulteti.index');
+    Route::post('/fakulteti', [App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
+    Route::put('/fakulteti/{id}', [App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');
+    Route::delete('/fakulteti/{id}', [App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
 
-    Route::get('/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'index'])->name('fakulteti.predmeti.index');
+    
+    Route::get('/fakulteti/{fakultet}/predmeti', [PredmetController::class, 'index'])
+        ->name('fakulteti.predmeti.index');
 
-    Route::get('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'index'])->name('users.subjects.index');
-    Route::post('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'store'])->name('users.subjects.store');
-    Route::delete('/users/{id}/subjects/{predmet_id}', [App\Http\Controllers\ProfesorPredmetController::class, 'destroy'])->name('users.subjects.destroy');
+    
+    Route::post('/fakulteti/{fakultet}/predmeti/import-csv', [PredmetController::class, 'importCsv'])
+        ->name('fakulteti.predmeti.importCsv');
 
-    Route::post('/predmeti', [\App\Http\Controllers\PredmetController::class, 'store'])->name('predmeti.store');
-    Route::put('/predmeti/{id}', [\App\Http\Controllers\PredmetController::class, 'update'])->name('predmeti.update');
-    Route::delete('/predmeti/{id}', [\App\Http\Controllers\PredmetController::class, 'destroy'])->name('predmeti.destroy');
+    
+    Route::post('/predmeti', [PredmetController::class, 'store'])->name('predmeti.store');
+    Route::put('/predmeti/{id}', [PredmetController::class, 'update'])->name('predmeti.update');
+    Route::delete('/predmeti/{id}', [PredmetController::class, 'destroy'])->name('predmeti.destroy');
+
+   
+    Route::get('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'index'])
+        ->name('users.subjects.index');
+    Route::post('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'store'])
+        ->name('users.subjects.store');
+    Route::delete('/users/{id}/subjects/{predmet_id}', [App\Http\Controllers\ProfesorPredmetController::class, 'destroy'])
+        ->name('users.subjects.destroy');
 });
 
 Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
+
     Route::get('/dashboard', [DashboardController::class, 'profesorDashboard'])->name('profesorDashboardShow');
 
     Route::get('/mobilnost', [MobilityController::class, 'index'])->name('profesor.mobility');
@@ -85,8 +104,10 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('profesor.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('profesor.mobility.save');
 
-    Route::post('/prepis-agreement/{id}/accept', [App\Http\Controllers\PrepisAgreementController::class, 'accept'])->name('prepis-agreement.accept');
-    Route::post('/prepis-agreement/{id}/reject', [App\Http\Controllers\PrepisAgreementController::class, 'reject'])->name('prepis-agreement.reject');
+    Route::post('/prepis-agreement/{id}/accept', [App\Http\Controllers\PrepisAgreementController::class, 'accept'])
+        ->name('prepis-agreement.accept');
+    Route::post('/prepis-agreement/{id}/reject', [App\Http\Controllers\PrepisAgreementController::class, 'reject'])
+        ->name('prepis-agreement.reject');
 });
 
 require __DIR__ . '/auth.php';

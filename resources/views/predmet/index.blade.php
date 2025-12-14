@@ -24,18 +24,33 @@
             </a>
         </div>
 
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mb-6 gap-4 flex-wrap">
             <h1 class="text-3xl font-bold text-gray-900">Subjects - {{ $fakultet->naziv }}</h1>
-            <button id="addSubjectBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                Add Subject
-            </button>
+
+            <div class="flex items-center gap-3 flex-wrap">
+                {{-- CSV Import --}}
+                <form action="{{ route('fakulteti.predmeti.importCsv', $fakultet->id) }}"
+                      method="POST"
+                      enctype="multipart/form-data"
+                      class="flex items-center gap-3">
+                    @csrf
+                    <input type="file" name="csv" accept=".csv,text/csv" required class="border rounded p-2">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                        Import CSV
+                    </button>
+                </form>
+
+                <button id="addSubjectBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                    Add Subject
+                </button>
+            </div>
         </div>
 
         <div class="mb-4">
-            <input 
-                type="text" 
-                id="searchSubject" 
-                placeholder="Search.." 
+            <input
+                type="text"
+                id="searchSubject"
+                placeholder="Search.."
                 class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
             >
         </div>
@@ -72,10 +87,11 @@
                                             data-semestar="{{ $p->semestar }}">
                                             Edit
                                         </button>
+
                                         <form action="{{ route('predmeti.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this subject?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" 
+                                            <button type="submit"
                                                     class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
                                                 Delete
                                             </button>
@@ -134,7 +150,7 @@
             <form id="editSubjectForm" method="POST">
                 @csrf
                 @method('PUT')
-                
+
                 <input type="hidden" name="id" id="editSubjectId">
                 <input type="hidden" name="fakultet_id" value="{{ $fakultet->id }}">
 
@@ -187,6 +203,9 @@
         const cancelEdit = document.getElementById('cancelEditModal');
         const editForm = document.getElementById('editSubjectForm');
 
+        // Template URL za update rutu ("/admin/predmeti/:id")
+        const updateUrlTemplate = @json(route('predmeti.update', ['id' => '__ID__']));
+
         document.querySelectorAll('.openEditModal').forEach(button => {
             button.addEventListener('click', () => {
                 const id = button.getAttribute('data-id');
@@ -195,7 +214,8 @@
                 document.getElementById('editEcts').value = button.getAttribute('data-ects');
                 document.getElementById('editSemester').value = button.getAttribute('data-semestar');
 
-                editForm.action = `{{ route('predmeti.store') }}/${id}`;
+                editForm.action = updateUrlTemplate.replace('__ID__', id);
+
                 editModal.classList.remove('hidden');
                 editModal.classList.add('flex');
             });
@@ -212,14 +232,10 @@
 
         searchInput.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase().trim();
-            
+
             rows.forEach(row => {
                 const searchText = row.getAttribute('data-search');
-                if (searchText.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = searchText.includes(searchTerm) ? '' : 'none';
             });
         });
     });
