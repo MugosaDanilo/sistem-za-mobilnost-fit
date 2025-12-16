@@ -61,6 +61,10 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
 
     Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
 
+    // Izvjestaji (reports) - yearly statistics
+    Route::get('/izvjestaji', [\App\Http\Controllers\IzvjestajiController::class, 'index'])->name('izvjestaji.index');
+    Route::get('/izvjestaji/export/{type}', [\App\Http\Controllers\IzvjestajiController::class, 'export'])->name('izvjestaji.export');
+
     Route::get('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'index'])->name('fakulteti.index');
     Route::post('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
     Route::put('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');

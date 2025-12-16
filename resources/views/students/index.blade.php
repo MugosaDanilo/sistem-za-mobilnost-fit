@@ -156,6 +156,23 @@
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
           </div>
 
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-1">Pol</label>
+            <div class="flex items-center space-x-6">
+              <label class="inline-flex items-center">
+                <input type="radio" name="pol" id="pol_muski" value="1" checked
+                  class="form-radio text-blue-600" />
+                <span class="ml-2 text-gray-700">Muški</span>
+              </label>
+
+              <label class="inline-flex items-center">
+                <input type="radio" name="pol" id="pol_zenski" value="0"
+                  class="form-radio text-blue-600" />
+                <span class="ml-2 text-gray-700">Ženski</span>
+              </label>
+            </div>
+          </div>
+
           <div class="mb-4 md:col-span-2">
             <label for="nivo_studija_id" class="block text-gray-700 font-medium mb-1">Nivo Studija</label>
             <select id="nivo_studija_id" name="nivo_studija_id"
@@ -231,6 +248,14 @@
       document.getElementById('godina_studija').value = student.godina_studija;
       document.getElementById('jmbg').value = student.jmbg;
       document.getElementById('nivo_studija_id').value = student.nivo_studija_id;
+      // Set pol radio (student.pol may be 0/1 or boolean)
+      const polMuski = document.getElementById('pol_muski');
+      const polZenski = document.getElementById('pol_zenski');
+      if (student.pol == 1) {
+        polMuski.checked = true;
+      } else {
+        polZenski.checked = true;
+      }
     }
   </script>
 

@@ -28,6 +28,7 @@ class StudentController extends Controller
       'godina_studija' => 'required|integer',
       'jmbg' => 'required|string|size:13|unique:studenti,jmbg',
       'nivo_studija_id' => 'required|exists:nivo_studija,id',
+      'pol' => 'required|boolean',
     ]);
 
     Student::create($validated);
@@ -50,6 +51,7 @@ class StudentController extends Controller
       'godina_studija' => 'required|integer',
       'jmbg' => 'required|string|size:13|unique:studenti,jmbg,' . $id,
       'nivo_studija_id' => 'required|exists:nivo_studija,id',
+      'pol' => 'required|boolean',
     ]);
 
     $student->update($validated);
