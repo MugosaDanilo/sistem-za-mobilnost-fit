@@ -187,7 +187,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Prepare data from PHP into JS
+  // Pripremi podatke za grafikone
   const studentsData = {!! json_encode($students->map(function($r){ return ['year'=>$r->year,'total'=>$r->total]; })) !!};
   const prepisiData = {!! json_encode($prepisi->map(function($r){ return ['year'=>$r->year,'total'=>$r->total]; })) !!};
   const mobilnostiData = {!! json_encode($mobilnosti->map(function($r){ return [
@@ -216,7 +216,7 @@
         scales: { y: { beginAtZero: true } },
         datasets: {
           bar: {
-            // width controls: lower value = thinner bars
+            // width controls kozmetika za bar
             barThickness: 20,
             maxBarThickness: 20,
             categoryPercentage: 0.6,
@@ -248,7 +248,7 @@
     }]);
   })();
 
-  // Students gender doughnut
+  // Students gender
   (function(){
     const labels = studentsByGender.map(d => d.pol == 1 ? 'Muško' : 'Žensko');
     const data = studentsByGender.map(d => d.total);
@@ -258,7 +258,7 @@
 
   // Students nivo bar
   (function(){
-    // Ensure both levels always present: Osnovne and Master (0 if missing)
+    // Isti level na chartu: Osnovne and Master (0 if missing)
     const nivoMap = {};
     studentsByNivo.forEach(d => { nivoMap[d.label] = d.total; });
     const labels = ['Osnovne', 'Master'];
@@ -270,7 +270,7 @@
     }
   })();
 
-  // Prepisi chart
+  // Prepisi grafik
   (function(){
     const labels = prepisiData.map(d => d.year);
     const totals = prepisiData.map(d => d.total);
@@ -281,7 +281,7 @@
     }]);
   })();
 
-  // Mobilnost chart (grouped musko/zensko)
+  // Mobilnost chart (grupisano musko/zensko)
   (function(){
     const labels = mobilnostiData.map(d => d.year);
     const musko = mobilnostiData.map(d => d.musko);
@@ -308,7 +308,7 @@
 <script>
   function submitWithAnchor(form, anchorId){
     try{
-      // store current scroll position so we can restore after reload
+      // zapamti skroll poziciju
       sessionStorage.setItem('reports-scroll', window.scrollY || window.pageYOffset || 0);
       var action = form.action || window.location.pathname + window.location.search;
       action = action.split('#')[0] + '#' + anchorId;
@@ -319,10 +319,10 @@
 
   function submitFormClean(form){
     try{
-      // remove any fragment from URL so subsequent submits don't jump to a section
+      // izbrisi iz actiona
       var action = form.action || window.location.pathname + window.location.search;
       form.action = action.split('#')[0];
-      // store scroll so user returns to same spot
+      //  prikazi skroll poziciju
       sessionStorage.setItem('reports-scroll', window.scrollY || window.pageYOffset || 0);
     }catch(e){ }
     form.submit();
