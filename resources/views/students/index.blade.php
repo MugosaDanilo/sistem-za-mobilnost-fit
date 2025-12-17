@@ -21,9 +21,10 @@
   <div class="py-10 max-w-7xl mx-auto px-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-3xl font-bold text-gray-900">Studenti</h1>
-      <button id="addStudentBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+      <a href="{{ route('students.create') }}"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
         Dodaj studenta
-      </button>
+      </a>
     </div>
 
     <div class="mb-4">
@@ -74,10 +75,10 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex space-x-2">
-                    <button onclick="openEditModal({{ json_encode($student) }})"
+                    <a href="{{ route('students.edit', $student->id) }}"
                       class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
                       Edit
-                    </button>
+                    </a>
 
                     <form action="{{ route('students.destroy', $student->id) }}" method="POST"
                       onsubmit="return confirm('Are you sure you want to delete this student?')">
@@ -98,160 +99,5 @@
       </div>
     </div>
   </div>
-
-  <div id="studentModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-      <h2 id="modalTitle" class="text-xl font-semibold mb-4">Add Student</h2>
-
-      <form id="studentForm" action="{{ route('students.store') }}" method="POST">
-        @csrf
-        <input type="hidden" name="id" id="studentId">
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="mb-4">
-            <label for="ime" class="block text-gray-700 font-medium mb-1">Ime</label>
-            <input type="text" id="ime" name="ime"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-          </div>
-
-          <div class="mb-4">
-            <label for="prezime" class="block text-gray-700 font-medium mb-1">Prezime</label>
-            <input type="text" id="prezime" name="prezime"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-          </div>
-
-          <div class="mb-4">
-            <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Broj Indeksa</label>
-            <input type="text" id="br_indexa" name="br_indexa"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-          </div>
-
-          <div class="mb-4">
-            <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Datum Rodjenja</label>
-            <input type="date" id="datum_rodjenja" name="datum_rodjenja"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-          </div>
-
-          <div class="mb-4">
-            <label for="telefon" class="block text-gray-700 font-medium mb-1">Telefon</label>
-            <input type="text" id="telefon" name="telefon"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-          </div>
-
-          <div class="mb-4">
-            <label for="email" class="block text-gray-700 font-medium mb-1">Email</label>
-            <input type="email" id="email" name="email"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-          </div>
-
-          <div class="mb-4">
-            <label for="godina_studija" class="block text-gray-700 font-medium mb-1">Godina Studija</label>
-            <input type="number" id="godina_studija" name="godina_studija"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-          </div>
-
-          <div class="mb-4">
-            <label for="jmbg" class="block text-gray-700 font-medium mb-1">JMBG</label>
-            <input type="text" id="jmbg" name="jmbg"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-          </div>
-
-          <div class="mb-4 md:col-span-2">
-            <label for="nivo_studija_id" class="block text-gray-700 font-medium mb-1">Nivo Studija</label>
-            <select id="nivo_studija_id" name="nivo_studija_id"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-              <option value="">Odaberite nivo studija</option>
-              @foreach($nivoStudija as $nivo)
-                <option value="{{ $nivo->id }}">{{ $nivo->naziv }}</option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-
-        <div class="flex justify-end space-x-2 mt-4">
-          <button type="button" id="cancelModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
-            Cancel
-          </button>
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
-            Save
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    const modal = document.getElementById('studentModal');
-    const addStudentBtn = document.getElementById('addStudentBtn');
-    const cancelModal = document.getElementById('cancelModal');
-    const form = document.getElementById('studentForm');
-    const title = document.getElementById('modalTitle');
-
-    addStudentBtn.addEventListener('click', () => {
-      form.action = "{{ route('students.store') }}";
-      form.reset();
-
-      // Remove method spoofing if it exists
-      const existingMethod = form.querySelector('input[name="_method"]');
-      if (existingMethod) existingMethod.remove();
-
-      title.textContent = 'Add Student';
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    });
-
-    cancelModal.addEventListener('click', () => {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    });
-
-    function openEditModal(student) {
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      title.textContent = 'Edit Student';
-      form.action = `/admin/students/${student.id}`;
-
-      // Add method spoofing for PUT
-      const existingMethod = form.querySelector('input[name="_method"]');
-      if (existingMethod) existingMethod.remove();
-
-      const methodInput = document.createElement('input');
-      methodInput.type = 'hidden';
-      methodInput.name = '_method';
-      methodInput.value = 'PUT';
-      form.appendChild(methodInput);
-
-      document.getElementById('studentId').value = student.id;
-      document.getElementById('ime').value = student.ime;
-      document.getElementById('prezime').value = student.prezime;
-      document.getElementById('br_indexa').value = student.br_indexa;
-      document.getElementById('datum_rodjenja').value = student.datum_rodjenja;
-      document.getElementById('telefon').value = student.telefon;
-      document.getElementById('email').value = student.email;
-      document.getElementById('godina_studija').value = student.godina_studija;
-      document.getElementById('jmbg').value = student.jmbg;
-      document.getElementById('nivo_studija_id').value = student.nivo_studija_id;
-    }
-  </script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const searchInput = document.getElementById('searchStudent');
-      const rows = document.querySelectorAll('.student-row');
-
-      searchInput.addEventListener('input', function () {
-        const searchTerm = this.value.toLowerCase().trim();
-
-        rows.forEach(row => {
-          const searchText = row.getAttribute('data-search');
-          if (searchText.includes(searchTerm)) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
-      });
-    });
-  </script>
 
 </x-app-layout>

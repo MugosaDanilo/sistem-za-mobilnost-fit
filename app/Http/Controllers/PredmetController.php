@@ -10,8 +10,9 @@ class PredmetController extends Controller
 {
     public function index(Fakultet $fakultet)
     {
-        $predmeti = $fakultet->predmeti; // Get subjects for this faculty
-        return view('predmet.index', compact('predmeti', 'fakultet'));
+        $predmeti = $fakultet->predmeti()->with('nivoStudija')->get();
+        $nivoStudija = \App\Models\NivoStudija::all();
+        return view('predmet.index', compact('predmeti', 'fakultet', 'nivoStudija'));
     }
 
     public function store(Request $request)
@@ -21,6 +22,7 @@ class PredmetController extends Controller
             'ects' => 'required|integer|min:1',
             'semestar' => 'required|integer|min:1',
             'fakultet_id' => 'required|exists:fakulteti,id',
+            'nivo_studija_id' => 'required|exists:nivo_studija,id',
         ]);
 
         Predmet::create($validated);
@@ -37,6 +39,7 @@ class PredmetController extends Controller
             'ects' => 'required|integer|min:1',
             'semestar' => 'required|integer|min:1',
             'fakultet_id' => 'required|exists:fakulteti,id',
+            'nivo_studija_id' => 'required|exists:nivo_studija,id',
         ]);
 
         $predmet->update($validated);
