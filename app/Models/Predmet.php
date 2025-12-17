@@ -8,7 +8,14 @@ class Predmet extends Model
 {
     protected $table = 'predmeti';
 
-    protected $fillable = ['naziv', 'ects', 'semestar', 'fakultet_id'];
+    protected $fillable = [
+        'naziv',
+        'semestar',
+        'ects',
+        'fakultet_id',
+        'profesor_id',
+        'nivo_studija_id'
+    ];
 
     public function fakultet()
     {
@@ -17,5 +24,15 @@ class Predmet extends Model
     public function profesori()
     {
         return $this->belongsToMany(User::class, 'profesor_predmet', 'predmet_id', 'profesor_id');
+    }
+
+    public function nivoStudija()
+    {
+        return $this->belongsTo(NivoStudija::class);
+    }
+
+    public function studenti()
+    {
+        return $this->belongsToMany(Student::class, 'student_predmet', 'predmet_id', 'student_id')->withPivot('grade');
     }
 }

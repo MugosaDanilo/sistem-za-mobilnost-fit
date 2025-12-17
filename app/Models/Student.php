@@ -34,4 +34,9 @@ class Student extends Model
     {
         return $this->hasMany(Mobilnost::class, 'student_id');
     }
+
+    public function predmeti()
+    {
+        return $this->belongsToMany(Predmet::class, 'student_predmet', 'student_id', 'predmet_id')->withPivot('grade');
+    }
 }

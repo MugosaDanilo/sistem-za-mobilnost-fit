@@ -25,14 +25,16 @@ class PredmetiSeeder extends Seeder
         $this->loadCoursesFromFit($filePath, $coursesFit);
 
         $unimed = Fakultet::where('naziv', 'FIT')->first();
+        $osnovne = \App\Models\NivoStudija::where('naziv', 'Osnovne')->first();
 
         foreach ($coursesFit as $c) {
 
             Predmet::create([
-                'naziv'    => $c['Naziv predmeta'] ?? '',
-                'ects'     => $c['ECTS'] ?? 0,
+                'naziv' => $c['Naziv predmeta'] ?? '',
+                'ects' => $c['ECTS'] ?? 0,
                 'semestar' => $this->romanToInt($c['Semestar'] ?? ''),
                 'fakultet_id' => $unimed->id,
+                'nivo_studija_id' => $osnovne->id ?? null,
             ]);
         }
 
@@ -53,13 +55,15 @@ class PredmetiSeeder extends Seeder
                     'ects' => $p['ects'],
                     'semestar' => $p['semestar'],
                     'fakultet_id' => $etf->id,
+                    'nivo_studija_id' => $osnovne->id ?? null,
                 ]);
             }
         }
     }
 
 
-    function getElementText($element): string {
+    function getElementText($element): string
+    {
         $text = '';
 
         if ($element instanceof Text) {
@@ -72,7 +76,8 @@ class PredmetiSeeder extends Seeder
         return trim($text);
     }
 
-    function loadCoursesFromFit(string $filePath, array &$courses) {
+    function loadCoursesFromFit(string $filePath, array &$courses)
+    {
         $phpWord = IOFactory::load($filePath);
 
         foreach ($phpWord->getSections() as $section) {
@@ -82,7 +87,8 @@ class PredmetiSeeder extends Seeder
                 }
 
                 $rows = $element->getRows();
-                if (count($rows) < 3) continue;
+                if (count($rows) < 3)
+                    continue;
 
                 $tableData = [];
                 foreach ($rows as $row) {
@@ -96,7 +102,8 @@ class PredmetiSeeder extends Seeder
                     }
 
                     // preskoci sumarne redove "ukupno"
-                    if (stripos(implode(' ', $rowData), 'ukupno') !== false) continue;
+                    if (stripos(implode(' ', $rowData), 'ukupno') !== false)
+                        continue;
 
                     $tableData[] = $rowData;
                 }
@@ -106,12 +113,12 @@ class PredmetiSeeder extends Seeder
                         $courses[] = [
                             "Šifra predmeta" => $r[0] ?? '',
                             "Naziv predmeta" => $r[1] ?? '',
-                            "Status"         => $r[2] ?? '',
-                            "Semestar"       => $r[3] ?? 0,
-                            "P"              => $r[4] ?? 0,
-                            "V"              => $r[5] ?? 0,
-                            "L"              => $r[6] ?? 0,
-                            "ECTS"           => $r[7] ?? 0,
+                            "Status" => $r[2] ?? '',
+                            "Semestar" => $r[3] ?? 0,
+                            "P" => $r[4] ?? 0,
+                            "V" => $r[5] ?? 0,
+                            "L" => $r[6] ?? 0,
+                            "ECTS" => $r[7] ?? 0,
                         ];
                     }
                 }

@@ -21,9 +21,10 @@
   <div class="py-10 max-w-7xl mx-auto px-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-3xl font-bold text-gray-900">Studenti</h1>
-      <button id="addStudentBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+      <a href="{{ route('students.create') }}"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
         Dodaj studenta
-      </button>
+      </a>
     </div>
 
     <div class="mb-4">
@@ -74,10 +75,10 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex space-x-2">
-                    <button onclick="openEditModal({{ json_encode($student) }})"
+                    <a href="{{ route('students.edit', $student->id) }}"
                       class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
                       Edit
-                    </button>
+                    </a>
 
                     <form action="{{ route('students.destroy', $student->id) }}" method="POST"
                       onsubmit="return confirm('Are you sure you want to delete this student?')">
