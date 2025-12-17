@@ -1,629 +1,529 @@
 <x-app-layout>
-
-    @if(session('success'))
-        <div class="mb-4 bg-green-100 text-green-800 p-3 rounded-md">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <div class="py-10 max-w-6xl mx-auto px-6">
-        <div class="flex gap-8 items-start">
-
-            @php
-                $hasCourses = !empty(session('courses'));
-            @endphp
-
-            <div class="w-[45%] bg-white border border-gray-200 rounded-xl shadow p-6 transition-all duration-300">
-                <h2 class="text-xl font-semibold mb-4">Information</h2>
-
-                <div class="flex flex-col gap-4 mb-6">
-                    <label for="student_id" class="font-semibold">Student</label>
-                    <div class="relative">
-                        <input type="text" 
-                            id="student_search" 
-                            placeholder="Pretraži studenta..." 
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            autocomplete="off">
-                        
-                        <div id="student_search_results" class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden">
-                        </div>
-
-                        <select id="student_id" name="student_id" class="hidden">
-                            <option value="">-- Odaberite studenta --</option>
-                            @foreach($students as $student)
-                                <option value="{{ $student->id }}"
-                                    {{ old('student_id') == $student->id ? 'selected' : '' }}
-                                    data-ime="{{ $student->ime }}"
-                                    data-prezime="{{ $student->prezime }}"
-                                    data-br_indexa="{{ $student->br_indexa }}">
-                                    {{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
+    {{-- <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Mobility') }}
+    </h2>
+    </x-slot> --}}
 
 
-                <div class="flex flex-col gap-4 mb-6">
-                    <label for="fakultet_id" class="font-semibold">Fakultet</label>
-                    <div class="relative">
-                        <input type="text" 
-                            id="fakultet_search" 
-                            placeholder="Pretraži fakultet..." 
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            autocomplete="off">
-                        
-                        <div id="fakultet_search_results" class="absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden">
-                        </div>
+    <div class="min-h-screen bg-gray-50 py-8">
 
-                        <select id="fakultet_id" name="fakultet_id" class="hidden">
-                            <option value="">-- Odaberite fakultet --</option>
-                            @foreach($fakulteti as $fakultet)
-                                @if($fakultet->naziv !== 'FIT')
-                                    <option value="{{ $fakultet->id }}" 
-                                        {{ old('fakultet_id') == $fakultet->id ? 'selected' : '' }}
-                                        data-naziv="{{ $fakultet->naziv }}">
-                                        {{ $fakultet->naziv }}
-                                    </option>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Mobility Management</h1>
+            </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="flex flex-col gap-2">
-                        <label for="datum_pocetka" class="font-semibold">Datum početka</label>
-                        <input type="date" id="datum_pocetka" name="datum_pocetka" 
-                            value="{{ old('datum_pocetka') }}"
-                            class="border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label for="datum_kraja" class="font-semibold">Datum kraja</label>
-                        <input type="date" id="datum_kraja" name="datum_kraja" 
-                            value="{{ old('datum_kraja') }}"
-                            class="border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    </div>
-                </div>
+            <form id="mobilityForm" action="{{ route('admin.mobility.save') }}" method="POST">
+                @csrf
+                <input type="hidden" name="courses" id="coursesJson">
 
-                <h3 class="text-lg font-semibold mb-3">Subjects</h3>
-                <div id="subjectList" class="subjects-container mb-3"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                <form id="uploadForm" action="{{ route((int)auth()->user()->type === 0 ? 'admin.mobility.upload' : 'profesor.mobility.upload') }}" method="POST" enctype="multipart/form-data" class="add-subject flex items-center gap-2 mt-auto">
-                    @csrf
-                    <input type="hidden" name="ime" id="hiddenIme">
-                    <input type="hidden" name="prezime" id="hiddenPrezime">
-                    <input type="hidden" name="fakultet" id="hiddenFakultet">
-                    <input type="hidden" name="broj_indeksa" id="hiddenBrojIndeksa">
+                    <!-- Left Column: Student Info & Mobility -->
+                    <div class="lg:col-span-2 space-y-6">
 
+                        <!-- Student & Faculty Card -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Student & Faculty
+                                Information</h2>
 
-                    <input type="file" name="word_file" accept=".doc,.docx" class="hidden" id="wordFileInput">
-                    <button type="button" class="btn bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105" onclick="document.getElementById('wordFileInput').click()">
-                        Upload ToR
-                    </button>
-
-                    <button type="button"
-                        class="btn bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105"
-                        id="exportButton">
-                        Export Word
-                    </button>
-
-                    <button type="button"
-                        class="btn bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105"
-                        id="saveButton">
-                        Save LA
-                    </button>
-
-                </form>
-
-                @if($hasCourses)
-                    <div class="grid gap-3 mt-6" id="uploadedSubjects">
-                        @foreach(session('courses') as $course)
-                            @php
-                                $name = is_array($course)
-                                ? ($course['Course'] ?? $course['Naziv'] ?? $course['name'] ?? $course['Subject'] ?? $course['Predmet'] ?? null)
-                                : $course;
-                            @endphp
-                            @if(!empty($name))
-                                <div class="uploaded-subject border border-gray-200 rounded-md bg-gray-50 px-4 py-2 hover:bg-gray-100 transition cursor-pointer" data-name="{{ $name }}">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <span class="subject-title">{{ $name }}</span>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Student Selection -->
+                                <div class="relative">
+                                    <label for="student_search" class="block text-sm font-medium text-gray-700 mb-1">Select Student</label>
+                                    <div class="relative">
+                                        <input type="text" id="student_search" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-4 pr-10 py-2.5 transition-colors" placeholder="Search student..." autocomplete="off">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
                                     </div>
-                                    <div class="linked-pills mt-2 flex flex-wrap gap-2 text-sm"></div>
+                                    <input type="hidden" name="student_id" id="student_id">
+                                    <div id="student_results" class="hidden absolute z-20 mt-1 w-full bg-white shadow-xl max-h-60 rounded-lg py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                    </div>
                                 </div>
-                            @endif
-                        @endforeach
+
+                                <!-- Faculty Selection -->
+                                <div>
+                                    <label for="fakultet_id" class="block text-sm font-medium text-gray-700 mb-1">Host
+                                        Faculty</label>
+                                    <select name="fakultet_id" id="fakultet_id" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                        <option value="">-- Choose Faculty --</option>
+                                        @foreach($fakulteti as $f)
+                                        <option value="{{ $f->id }}">{{ $f->naziv }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Dates -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start
+                                        Date</label>
+                                    <input type="date" name="start_date" id="start_date" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                                <div>
+                                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End
+                                        Date</label>
+                                    <input type="date" name="end_date" id="end_date" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Subjects Card -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2 flex items-center justify-between">
+                                <span>Student Subjects</span>
+                            </h2>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Unpassed Subjects -->
+                                <div class="flex flex-col h-full">
+                                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Unpassed
+                                        (Previous Years)</h3>
+                                    <div id="unpassedSubjectsBox" class="flex-1 min-h-[250px] bg-gray-50 rounded-lg border border-gray-200 p-3 overflow-y-auto space-y-2 transition-all hover:border-gray-300">
+                                        <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
+                                            <svg class="w-8 h-8 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                                </path>
+                                            </svg>
+                                            <span>Select a student to load subjects</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Next Year Subjects -->
+                                <div class="flex flex-col h-full">
+                                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Next Year
+                                        Subjects</h3>
+                                    <div id="nextYearSubjectsBox" class="flex-1 min-h-[250px] bg-gray-50 rounded-lg border border-gray-200 p-3 overflow-y-auto space-y-2 transition-all hover:border-gray-300">
+                                        <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
+                                            <svg class="w-8 h-8 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                                </path>
+                                            </svg>
+                                            <span>Select a student to load subjects</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                @endif
-            </div>
 
-            <div class="w-[55%] bg-white border border-gray-200 rounded-xl shadow p-6">
-                <h2 class="text-xl font-semibold mb-4">Available Subjects</h2>
+                    <!-- Right Column: Available Subjects -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-6 h-[calc(100vh-theme('spacing.12'))] flex flex-col">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Available Subjects</h2>
 
-                <div id="availableSubjects" class="flex flex-col gap-3">
-                  
+                            <div class="mb-4">
+                                <input type="text" id="subjectFilter" placeholder="Filter subjects..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3">
+                            </div>
+
+                            <div id="available-subjects" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                                <div class="p-4 text-center text-gray-500 text-sm">
+                                    Select a host faculty to see available subjects.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
 
+                <!-- Sticky Bottom Actions -->
+                <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-4 px-6 shadow-lg z-30">
+                    <div class="max-w-7xl mx-auto flex justify-end gap-4">
+                        <button type="button" id="btnExport" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                            </svg>
+                            Export to Word
+                        </button>
+                        <button type="button" id="btnSave" class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Save Learning Agreement
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
-    <script>
-        const uploadedCourses = @json(session('courses', []));
-        
-        const fileInput = document.getElementById('wordFileInput');
-        const form = document.getElementById('uploadForm');
-        if (fileInput && form) {
-            fileInput.addEventListener('change', () => {
-                if (fileInput.files.length > 0) form.submit();
-            });
+    {{-- Styles for generated elements --}}
+    <style>
+        .highlight-active {
+            border-color: #6366f1 !important;
+            /* Indigo-500 */
+            background-color: #eef2ff !important;
+            /* Indigo-50 */
+            box-shadow: 0 0 0 1px #6366f1;
         }
 
-        const links = {};
-        let activeLeft = null;
-        const MAX_LINKS = 4;
-
-        const leftCards = Array.from(document.querySelectorAll('.uploaded-subject'));
-        const rightCards =  refreshRightCards();
-
-        const fakultetPredmeti = @json($fakulteti->mapWithKeys(function($fak) {
-            return [$fak->id => $fak->predmeti->pluck('naziv')];
-        }));
-
-        const fakultetSelect = document.getElementById('fakultet_id');
-        const availableSubjectsContainer = document.getElementById('availableSubjects');
-
-        fakultetSelect.addEventListener('change', () => {
-            const fakultetId = fakultetSelect.value;
-            availableSubjectsContainer.innerHTML = ''; 
-
-            for (const key in links) delete links[key];
-            document.querySelectorAll('.linked-pills').forEach(el => el.innerHTML = '');
-            setActiveLeft(null);
-
-            if (!fakultetId || !fakultetPredmeti[fakultetId]) return;
-
-            fakultetPredmeti[fakultetId].forEach(subject => {
-                const div = document.createElement('div');
-                div.className = 'available-subject border border-gray-200 px-4 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition cursor-pointer';
-                div.dataset.name = subject;
-                div.textContent = subject;
-
-                div.addEventListener('click', () => toggleLink(div)); // linkovanje sa lijevom stranom
-                availableSubjectsContainer.appendChild(div);
-            });
-        });
-
-        if (fakultetSelect.value) {
-            fakultetSelect.dispatchEvent(new Event('change'));
+        .pill-item {
+            animation: fadeIn 0.3s ease;
         }
 
-        function refreshRightCards() {
-            return Array.from(document.querySelectorAll('.available-subject'));
-        }
-
-
-
-        function clearActiveBadges() {
-            document.querySelectorAll('.uploaded-subject .active-badge').forEach(el => el.remove());
-        }
-
-        function addActiveBadge(card) {
-            const badge = document.createElement('span');
-            badge.className = 'active-badge absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full bg-blue-600 text-white';
-            badge.textContent = 'Selected';
-            card.style.position = 'relative';
-            card.appendChild(badge);
-        }
-
-        function setActiveLeft(card) {
-            leftCards.forEach(c => c.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'border-blue-500', 'shadow-md'));
-            clearActiveBadges();
-
-            rightCards.forEach(c => c.classList.remove('border-blue-400', 'bg-blue-50'));
-
-            if (!card) {
-                activeLeft = null;
-                return;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
             }
 
-            activeLeft = card;
-            card.classList.add('ring-2', 'ring-blue-500', 'border-blue-500', 'bg-blue-50', 'shadow-md');
-            addActiveBadge(card);
-
-            const leftName = card.dataset.name;
-            const set = links[leftName] || new Set();
-            rightCards.forEach(r => {
-                if (set.has(r.dataset.name)) {
-                    r.classList.add('border-blue-400', 'bg-blue-50');
-                }
-            });
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        function toggleLink(rightCard) {
-            if (!activeLeft) return;
-            const leftName = activeLeft.dataset.name;
-            const rightName = rightCard.dataset.name;
+    </style>
 
-            if (!links[leftName]) links[leftName] = new Set();
+    <script>
+        // State management
+        const currentMappings = {};
+        let activeLeft = null;
 
-            const currentSet = links[leftName];
+        // Pass students to JS for client-side search
+        // (Assuming list isn't massive, otherwise AJAX search is better. 
+        // Given the task, I'll stick to client-side filtering of this list for responsiveness).
+        const localStudents = @json($students);
 
-            if (currentSet.has(rightName)) {
-                currentSet.delete(rightName);
-                rightCard.classList.remove('border-blue-400', 'bg-blue-50');
-            } else {
-                if (currentSet.size >= MAX_LINKS) {
+        document.addEventListener('DOMContentLoaded', () => {
+            const studentSearch = document.getElementById('student_search');
+            const studentResults = document.getElementById('student_results');
+            const studentIdInput = document.getElementById('student_id');
+            const facultySelect = document.getElementById('fakultet_id');
+            const availableSubjectsContainer = document.getElementById('available-subjects');
+            const subjectFilterInput = document.getElementById('subjectFilter');
+
+            // --- 1. Student Search Logic ---
+            studentSearch.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                if (query.length < 1) {
+                    studentResults.classList.add('hidden');
                     return;
                 }
-                currentSet.add(rightName);
-                rightCard.classList.add('border-gray-400', 'bg-blue-50');
-            }
 
-            renderPillsForLeft(activeLeft);
-        }
+                const filtered = localStudents.filter(s =>
+                    s.ime.toLowerCase().includes(query) ||
+                    s.prezime.toLowerCase().includes(query) ||
+                    (s.indeks && s.indeks.includes(query))
+                );
 
-        function renderPillsForLeft(leftCard) {
-            const leftName = leftCard.dataset.name;
-            const pillsWrap = leftCard.querySelector('.linked-pills');
-            if (!pillsWrap) return;
-
-            pillsWrap.innerHTML = '';
-            const set = links[leftName] || new Set();
-            [...set].forEach(name => {
-                const pill = document.createElement('span');
-                pill.className = 'inline-flex items-center gap-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200';
-                pill.textContent = name;
-
-                const x = document.createElement('button');
-                x.type = 'button';
-                x.textContent = '×';
-                x.className = 'leading-none';
-                x.onclick = (e) => {
-                    e.stopPropagation();
-                    links[leftName].delete(name);
-                    const rc = rightCards.find(rc => rc.dataset.name === name);
-                    rc && rc.classList.remove('border-blue-400', 'bg-blue-50');
-                    renderPillsForLeft(leftCard);
-                };
-
-                pill.appendChild(x);
-                pillsWrap.appendChild(pill);
+                renderResults(filtered);
             });
-        }
 
-        leftCards.forEach(card => {
-            card.addEventListener('click', () => {
-                if (activeLeft === card) {
-                    setActiveLeft(null);
-                } else {
-                    setActiveLeft(card);
-                    renderPillsForLeft(card);
+            // Show all on focus if empty
+            studentSearch.addEventListener('focus', function() {
+                if (this.value.trim() === '') {
+                    // optionally show recent or all, for now passing empty query to logic 
+                    // or just showing first 10
+                    renderResults(localStudents.slice(0, 10));
                 }
             });
-        });
 
-        rightCards.forEach(card => {
-            card.addEventListener('click', () => toggleLink(card));
-        });
+            function renderResults(list) {
+                studentResults.innerHTML = '';
+                if (list.length === 0) {
+                    const noRes = document.createElement('div');
+                    noRes.className = 'p-3 text-sm text-gray-500 italic';
+                    noRes.textContent = 'No students found.';
+                    studentResults.appendChild(noRes);
+                    studentResults.classList.remove('hidden');
+                    return;
+                }
 
-
-        fileInput.addEventListener('change', () => {
-            const studentSelect = document.getElementById('student_id');
-            const selectedOption = studentSelect.options[studentSelect.selectedIndex];
-            const fakultetSelect = document.getElementById('fakultet_id');
-
-            document.getElementById('hiddenIme').value = selectedOption?.dataset.ime || '';
-            document.getElementById('hiddenPrezime').value = selectedOption?.dataset.prezime || '';
-            document.getElementById('hiddenFakultet').value = fakultetSelect.options[fakultetSelect.selectedIndex]?.dataset.naziv || '';
-            document.getElementById('hiddenBrojIndeksa').value = selectedOption?.dataset.br_indexa || '';
-            
-            const hiddenStudentId = document.createElement('input');
-            hiddenStudentId.type = 'hidden';
-            hiddenStudentId.name = 'student_id';
-            hiddenStudentId.value = studentSelect.value;
-            form.appendChild(hiddenStudentId);
-
-            const hiddenFakultetId = document.createElement('input');
-            hiddenFakultetId.type = 'hidden';
-            hiddenFakultetId.name = 'fakultet_id';
-            hiddenFakultetId.value = fakultetSelect.value;
-            form.appendChild(hiddenFakultetId);
-
-            const hiddenDatumPocetka = document.createElement('input');
-            hiddenDatumPocetka.type = 'hidden';
-            hiddenDatumPocetka.name = 'datum_pocetka';
-            hiddenDatumPocetka.value = document.getElementById('datum_pocetka')?.value || '';
-            form.appendChild(hiddenDatumPocetka);
-
-            const hiddenDatumKraja = document.createElement('input');
-            hiddenDatumKraja.type = 'hidden';
-            hiddenDatumKraja.name = 'datum_kraja';
-            hiddenDatumKraja.value = document.getElementById('datum_kraja')?.value || '';
-            form.appendChild(hiddenDatumKraja);
-
-            form.submit();
-        });
-
-        document.getElementById('exportButton')?.addEventListener('click', () => {
-            const studentSelect = document.getElementById('student_id');
-            const selectedOption = studentSelect.options[studentSelect.selectedIndex];
-            
-            const ime = selectedOption?.dataset.ime || '';
-            const prezime = selectedOption?.dataset.prezime || '';
-            const brojIndeksa = selectedOption?.dataset.br_indexa || '';
-
-            const fakultetSelect = document.getElementById('fakultet_id');
-            const fakultet = fakultetSelect.options[fakultetSelect.selectedIndex]?.dataset.naziv || '';
-
-            if (!ime || !prezime || !fakultet) {
-                alert('Molimo unesite ime, prezime i fakultet prije eksportovanja.');
-                return;
+                list.forEach(student => {
+                    const div = document.createElement('div');
+                    div.className = 'cursor-pointer hover:bg-gray-100 p-2 border-b last:border-0 border-gray-100 transition-colors';
+                    div.innerHTML = `
+                    <div class="font-medium text-gray-800 text-sm">${student.ime} ${student.prezime}</div>
+                    <div class="text-xs text-gray-500">${student.br_indexa || 'No Index'}</div>
+                `;
+                    div.addEventListener('click', () => {
+                        studentSearch.value = `${student.ime} ${student.prezime}`;
+                        studentIdInput.value = student.id;
+                        studentResults.classList.add('hidden');
+                        fetchStudentSubjects(student.id); // Trigger fetch
+                    });
+                    studentResults.appendChild(div);
+                });
+                studentResults.classList.remove('hidden');
             }
 
-            if (!brojIndeksa) {
-                alert('Molimo unesite broj indeksa prije nastavka.');
-                return;
-            }
-
-            const hasAnyLinks = Object.values(links).some(set => set.size > 0);
-
-            if (!hasAnyLinks) {
-                alert('Molimo povežite barem jedan predmet prije eksportovanja.');
-                return;
-            }
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!studentSearch.contains(e.target) && !studentResults.contains(e.target)) {
+                    studentResults.classList.add('hidden');
+                }
+            });
 
 
-            const plainLinks = {};
-            for (const [key, value] of Object.entries(links)) {
-                plainLinks[key] = Array.from(value);
-            }
+            // --- 2. Subject Fetching Logic (Left Side) ---
+            async function fetchStudentSubjects(studentId) {
+                const unpassedBox = document.getElementById('unpassedSubjectsBox');
+                const nextYearBox = document.getElementById('nextYearSubjectsBox');
 
-            fetch("{{ route((int)auth()->user()->type === 0 ? 'admin.mobility.export' : 'profesor.mobility.export') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                },
-                body: JSON.stringify({
-                    ime,
-                    prezime,
-                    fakultet,
-                    brojIndeksa,
-                    links: plainLinks,
-                    courses: uploadedCourses
-                })
-            })
-            .then(res => {
-                if (!res.ok) throw new Error("Export failed");
-                return res.blob();
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                const safeIme = ime.replace(/[^a-z0-9šđčćž]+/gi, '_');
-                const safePrezime = prezime.replace(/[^a-z0-9šđčćž]+/gi, '_');
-                a.download = `Mobilnost_${safeIme}_${safePrezime}.docx`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            })
-            .catch(err => alert(err.message));
-    });
-
-    document.getElementById('saveButton')?.addEventListener('click', () => {
-        const studentSelect = document.getElementById('student_id');
-        const selectedOption = studentSelect.options[studentSelect.selectedIndex];
-
-        const ime = selectedOption?.dataset.ime || '';
-        const prezime = selectedOption?.dataset.prezime || '';
-        const brojIndeksa = selectedOption?.dataset.br_indexa || '';
-
-        const fakultetSelect = document.getElementById('fakultet_id');
-        const fakultet = fakultetSelect.options[fakultetSelect.selectedIndex]?.dataset.naziv || '';
-      
-        if (!ime || !prezime || !fakultet) {
-            alert('Molimo unesite ime, prezime i fakultet prije cuvanja.');
-            return;
-        }
-
-        if (!brojIndeksa) {
-            alert('Molimo unesite broj indeksa prije nastavka.');
-            return;
-        }
-
-        const hasAnyLinks = Object.values(links).some(set => set.size > 0);
-
-        if (!hasAnyLinks) {
-            alert('Molimo povežite barem jedan predmet prije eksportovanja.');
-            return;
-        }
-
-        const plainLinks = {};
-        for (const [key, value] of Object.entries(links)) {
-            plainLinks[key] = Array.from(value);
-        }
-
-        const datumPocetka = document.getElementById('datum_pocetka')?.value;
-        const datumKraja = document.getElementById('datum_kraja')?.value;
-
-        if (!datumPocetka || !datumKraja) {
-            alert('Molimo unesite datume mobilnosti.');
-            return;
-        }
-
-        const saveRoute = "{{ route((int)auth()->user()->type === 0 ? 'admin.mobility.save' : 'profesor.mobility.save') }}";
-
-        fetch(saveRoute, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": "{{ csrf_token() }}",
-            },
-            body: JSON.stringify({
-                ime,
-                prezime,
-                fakultet_id: fakultetSelect.value, 
-                student_id: studentSelect.value,   
-                broj_indeksa: brojIndeksa,
-                datum_pocetka: datumPocetka,
-                datum_kraja: datumKraja,
-                links: plainLinks,
-                courses: uploadedCourses
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            alert(data.message);
-        })
-        .catch(err => alert("Save failed: " + err));
-    });
-
-    const studentSelect = document.getElementById('student_id');
-    const studentSearchInput = document.getElementById('student_search');
-    const studentSearchResults = document.getElementById('student_search_results');
-    
-    const studentsData = Array.from(studentSelect.options)
-        .filter(option => option.value)
-        .map(option => ({
-            id: option.value,
-            text: option.text,
-            ime: option.dataset.ime,
-            prezime: option.dataset.prezime,
-            br_indexa: option.dataset.br_indexa,
-            element: option
-        }));
-
-    if (studentSelect.value) {
-        const selected = studentsData.find(s => s.id === studentSelect.value);
-        if (selected) {
-            studentSearchInput.value = selected.text;
-        }
-    }
-
-    studentSearchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const filtered = studentsData.filter(student => 
-            student.text.toLowerCase().includes(query)
-        );
-
-        renderSearchResults(filtered);
-    });
-
-    studentSearchInput.addEventListener('focus', () => {
-        const query = studentSearchInput.value.toLowerCase();
-        const filtered = studentsData.filter(student => 
-            student.text.toLowerCase().includes(query)
-        );
-        renderSearchResults(filtered);
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!studentSearchInput.contains(e.target) && !studentSearchResults.contains(e.target)) {
-            studentSearchResults.classList.add('hidden');
-        }
-    });
-
-    function renderSearchResults(results) {
-        studentSearchResults.innerHTML = '';
-        
-        if (results.length === 0) {
-            const noResults = document.createElement('div');
-            noResults.className = 'px-4 py-2 text-gray-500 italic';
-            noResults.textContent = 'Nema rezultata';
-            studentSearchResults.appendChild(noResults);
-        } else {
-            results.forEach(student => {
-                const div = document.createElement('div');
-                div.className = 'px-4 py-2 hover:bg-blue-50 cursor-pointer transition-colors';
-                div.textContent = student.text;
-                
-                div.addEventListener('click', () => {
-                    studentSearchInput.value = student.text;
-                    studentSelect.value = student.id;
-                    studentSelect.dispatchEvent(new Event('change')); 
-                    studentSearchResults.classList.add('hidden');
+                // Loading state
+                [unpassedBox, nextYearBox].forEach(box => {
+                    box.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-indigo-400 animate-pulse">
+                        <svg class="w-6 h-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        <span class="text-xs">Loading subjects...</span>
+                    </div>
+                `;
                 });
 
-                studentSearchResults.appendChild(div);
-            });
-        }
+                try {
+                    const res = await fetch(`{{ route('admin.mobility.student-subjects') }}?student_id=${studentId}`);
+                    if (!res.ok) throw new Error('Network error');
+                    const data = await res.json();
 
-        studentSearchResults.classList.remove('hidden');
-    }
+                    renderSubjectBox(unpassedBox, data.unpassed, 'unpassed');
+                    renderSubjectBox(nextYearBox, data.next_year, 'nextYear');
 
-    const fakultetSelectElement = document.getElementById('fakultet_id');
-    const fakultetSearchInput = document.getElementById('fakultet_search');
-    const fakultetSearchResults = document.getElementById('fakultet_search_results');
-    
-    const facultiesData = Array.from(fakultetSelectElement.options)
-        .filter(option => option.value) // Skip placeholder
-        .map(option => ({
-            id: option.value,
-            text: option.text,
-            naziv: option.dataset.naziv,
-            element: option
-        }));
+                } catch (err) {
+                    console.error(err);
+                    [unpassedBox, nextYearBox].forEach(box => {
+                        box.innerHTML = '<span class="text-red-500 text-sm p-2">Error loading subjects.</span>';
+                    });
+                }
+            }
 
-    if (fakultetSelectElement.value) {
-        const selected = facultiesData.find(f => f.id === fakultetSelectElement.value);
-        if (selected) {
-            fakultetSearchInput.value = selected.text;
-        }
-    }
+            function renderSubjectBox(container, subjects, type) {
+                container.innerHTML = '';
+                if (!subjects || subjects.length === 0) {
+                    container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
+                        <span>No subjects found for this category.</span>
+                    </div>
+                `;
+                    return;
+                }
 
-    fakultetSearchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const filtered = facultiesData.filter(faculty => 
-            faculty.text.toLowerCase().includes(query)
-        );
+                subjects.forEach(subj => {
+                    // Using subject name as key for logic compatibility
+                    const key = subj.naziv;
 
-        renderFacultySearchResults(filtered);
-    });
+                    const div = document.createElement('div');
+                    div.className = 'bg-white border border-gray-200 rounded-md p-3 cursor-pointer hover:shadow-md hover:border-indigo-300 transition-all duration-200 group relative';
+                    div.dataset.name = key;
+                    div.dataset.id = subj.id;
 
-    fakultetSearchInput.addEventListener('focus', () => {
-        const query = fakultetSearchInput.value.toLowerCase();
-        const filtered = facultiesData.filter(faculty => 
-            faculty.text.toLowerCase().includes(query)
-        );
-        renderFacultySearchResults(filtered);
-    });
+                    div.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">${subj.naziv}</span>
+                        <div class="h-2 w-2 rounded-full bg-indigo-100 group-hover:bg-indigo-500 transition-colors"></div>
+                    </div>
+                    <div class="linked-pills mt-2 flex flex-wrap gap-1"></div>
+                `;
 
-    document.addEventListener('click', (e) => {
-        if (!fakultetSearchInput.contains(e.target) && !fakultetSearchResults.contains(e.target)) {
-            fakultetSearchResults.classList.add('hidden');
-        }
-    });
+                    div.addEventListener('click', () => {
+                        // Visual Toggle
+                        if (activeLeft === div) {
+                            setActiveLeft(null);
+                        } else {
+                            setActiveLeft(div);
+                        }
+                    });
 
-    function renderFacultySearchResults(results) {
-        fakultetSearchResults.innerHTML = '';
-        
-        if (results.length === 0) {
-            const noResults = document.createElement('div');
-            noResults.className = 'px-4 py-2 text-gray-500 italic';
-            noResults.textContent = 'Nema rezultata';
-            fakultetSearchResults.appendChild(noResults);
-        } else {
-            results.forEach(faculty => {
-                const div = document.createElement('div');
-                div.className = 'px-4 py-2 hover:bg-blue-50 cursor-pointer transition-colors';
-                div.textContent = faculty.text;
-                
-                div.addEventListener('click', () => {
-                    fakultetSearchInput.value = faculty.text;
-                    fakultetSelectElement.value = faculty.id;
-                    fakultetSelectElement.dispatchEvent(new Event('change')); 
-                    fakultetSearchResults.classList.add('hidden');
+                    // If we already have mappings for this subject (e.g. re-render), restore them
+                    if (currentMappings[key] && currentMappings[key].length > 0) {
+                        renderPills(div);
+                    }
+
+                    container.appendChild(div);
                 });
+            }
 
-                fakultetSearchResults.appendChild(div);
+            function setActiveLeft(el) {
+                // Remove active class from old
+                if (activeLeft) {
+                    activeLeft.classList.remove('highlight-active', 'ring-2', 'ring-indigo-500');
+                }
+                activeLeft = el;
+                if (activeLeft) {
+                    activeLeft.classList.add('highlight-active', 'ring-2', 'ring-indigo-500');
+                }
+            }
+
+            // --- 3. Faculty Filter Subjects (Right Side) ---
+            facultySelect.addEventListener('change', function() {
+                const facultyId = this.value;
+                if (facultyId) {
+                    fetchFacultySubjects(facultyId);
+                } else {
+                    // Clear or show all? Request said "appear when faculty is selected"
+                    // Let's clear or show placeholder
+                    availableSubjectsContainer.innerHTML = '<div class="p-4 text-center text-gray-500 text-sm">Select a faculty to see subjects.</div>';
+                }
             });
-        }
 
-        fakultetSearchResults.classList.remove('hidden');
-    }
+            async function fetchFacultySubjects(facultyId) {
+                availableSubjectsContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-40 text-indigo-400 animate-pulse">
+                     <span class="text-sm">Fetching faculty subjects...</span>
+                </div>
+            `;
+
+                try {
+                    const res = await fetch(`{{ route('admin.mobility.faculty-subjects') }}?fakultet_id=${facultyId}`);
+                    if (!res.ok) throw new Error('Network error');
+                    const subjects = await res.json();
+                    renderAvailableSubjects(subjects);
+                } catch (err) {
+                    console.error(err);
+                    availableSubjectsContainer.innerHTML = '<div class="p-4 text-center text-red-500 text-sm">Error loading subjects.</div>';
+                }
+            }
+
+            function renderAvailableSubjects(subjects) {
+                availableSubjectsContainer.innerHTML = '';
+                if (!subjects || subjects.length === 0) {
+                    availableSubjectsContainer.innerHTML = '<div class="p-4 text-center text-gray-500 text-sm">No subjects found for this faculty.</div>';
+                    return;
+                }
+
+                subjects.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'available-subject group p-3 rounded-lg border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 cursor-pointer transition-all duration-200 mb-2';
+                    div.dataset.id = p.id;
+                    div.dataset.name = p.naziv;
+
+                    div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="font-medium text-gray-700 group-hover:text-indigo-700 text-sm">${p.naziv}</span>
+                        <span class="hidden group-hover:inline-block text-indigo-500">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </span>
+                    </div>
+                `;
+
+                    div.addEventListener('click', () => {
+                        if (!activeLeft) {
+                            alert('Please select a student subject (left side) first.');
+                            return;
+                        }
+                        toggleLink(activeLeft, div);
+                    });
+
+                    availableSubjectsContainer.appendChild(div);
+                });
+            }
+
+
+            // --- 4. Filtering Logic for Right Side (Search input) ---
+            subjectFilterInput.addEventListener('input', function(e) { // changed keyup to input for safety
+                const match = e.target.value.toLowerCase();
+                const items = availableSubjectsContainer.querySelectorAll('.available-subject');
+                items.forEach(item => {
+                    const name = item.dataset.name.toLowerCase();
+                    item.style.display = name.includes(match) ? 'block' : 'none';
+                });
+            });
+
+
+            // --- 5. Linking Logic ---
+            function toggleLink(leftDiv, rightDiv) {
+                const leftName = leftDiv.dataset.name;
+                const rightId = rightDiv.dataset.id;
+                // rightDiv might be newly created, need to grab name correctly
+                const rightName = rightDiv.dataset.name;
+
+                if (!currentMappings[leftName]) {
+                    currentMappings[leftName] = [];
+                }
+
+                const existsIndex = currentMappings[leftName].findIndex(r => r.id === rightId);
+
+                if (existsIndex >= 0) {
+                    // Remove
+                    currentMappings[leftName].splice(existsIndex, 1);
+                } else {
+                    // Add
+                    currentMappings[leftName].push({
+                        id: rightId
+                        , name: rightName
+                    });
+                }
+
+                renderPills(leftDiv);
+            }
+
+            function renderPills(leftDiv) {
+                const container = leftDiv.querySelector('.linked-pills');
+                const leftName = leftDiv.dataset.name;
+                const mappings = currentMappings[leftName] || [];
+
+                container.innerHTML = '';
+                mappings.forEach(m => {
+                    const span = document.createElement('span');
+                    span.className = 'pill-item inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 mr-1 mb-1';
+                    span.innerHTML = `
+                    ${m.name}
+                    <button type="button" class="ml-1 text-indigo-400 hover:text-indigo-600 focus:outline-none">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                    </button>
+                `;
+
+                    span.querySelector('button').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const idx = currentMappings[leftName].findIndex(x => x.id === m.id);
+                        if (idx !== -1) {
+                            currentMappings[leftName].splice(idx, 1);
+                            renderPills(leftDiv);
+                        }
+                    });
+
+                    container.appendChild(span);
+                });
+            }
+
+
+            // --- 6. Submission Logic ---
+            document.getElementById('btnSave').addEventListener('click', () => {
+                submitForm('save');
+            });
+
+            document.getElementById('btnExport').addEventListener('click', () => {
+                submitForm('export');
+            });
+
+            function submitForm(actionStr) {
+                const studentId = studentIdInput.value;
+                if (!studentId) {
+                    alert('Please select a student.');
+                    return;
+                }
+                if (Object.keys(currentMappings).length === 0) {
+                    if (!confirm('No subjects linked. Continue?')) return;
+                }
+
+                // Prepare JSON
+                const payload = {};
+                for (const [subjName, rights] of Object.entries(currentMappings)) {
+                    if (rights.length > 0) {
+                        payload[subjName] = rights.map(r => r.id);
+                    }
+                }
+
+                document.getElementById('coursesJson').value = JSON.stringify(payload);
+
+                const form = document.getElementById('mobilityForm');
+                if (actionStr === 'save') {
+                    form.action = "{{ route('admin.mobility.save') }}";
+                    form.submit();
+                } else {
+                    form.action = "{{ route('admin.mobility.export') }}";
+                    form.submit();
+                }
+            }
+        });
 
     </script>
 </x-app-layout>
