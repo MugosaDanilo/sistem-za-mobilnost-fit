@@ -35,6 +35,8 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('admin.mobility.upload');
     Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('admin.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('admin.mobility.save');
+    Route::get('/mobility/student-subjects', [MobilityController::class, 'getStudentSubjects'])->name('admin.mobility.student-subjects');
+    Route::get('/mobility/faculty-subjects', [MobilityController::class, 'getFacultySubjects'])->name('admin.mobility.faculty-subjects');
     Route::get('/mobility/{id}', [MobilityController::class, 'show'])->name('admin.mobility.show');
     Route::post('/mobility/grade/{id}', [MobilityController::class, 'updateGrade'])->name('admin.mobility.update-grade');
     Route::post('/mobility/{id}/grades', [MobilityController::class, 'updateGrades'])->name('admin.mobility.update-grades');
