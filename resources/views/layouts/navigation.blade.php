@@ -40,6 +40,10 @@
                                 {{ __('Prepisi') }}
                             </x-nav-link>
 
+                            <x-nav-link :href="route('izvjestaji.index')" :active="request()->routeIs('izvjestaji.*')">
+                                {{ __('Izvjestaji') }}
+                            </x-nav-link>
+
                         @elseif((int) $user->type === 1)
                             <x-nav-link :href="route('profesorDashboardShow')"
                                 :active="request()->routeIs('profesorDashboardShow')">
@@ -145,6 +149,10 @@
 
                     <x-responsive-nav-link :href="route('prepis.index')" :active="request()->routeIs('prepis.*')">
                         {{ __('Prepisi') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('izvjestaji.index')" :active="request()->routeIs('izvjestaji.*')">
+                        {{ __('Izvjestaji') }}
                     </x-responsive-nav-link>
 
 
