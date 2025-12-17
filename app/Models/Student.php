@@ -17,7 +17,12 @@ class Student extends Model
         'email',
         'godina_studija',
         'jmbg',
-        'nivo_studija_id'
+        'nivo_studija_id',
+        'pol'
+    ];
+
+    protected $casts = [
+        'pol' => 'boolean',
     ];
 
     public function nivoStudija()
