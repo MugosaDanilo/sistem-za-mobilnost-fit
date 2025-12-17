@@ -47,7 +47,9 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/students', [App\Http\Controllers\StudentController::class, 'index'])->name('students.index');
+    Route::get('/students/create', [App\Http\Controllers\StudentController::class, 'create'])->name('students.create');
     Route::post('/students', [App\Http\Controllers\StudentController::class, 'store'])->name('students.store');
+    Route::get('/students/{id}/edit', [App\Http\Controllers\StudentController::class, 'edit'])->name('students.edit');
     Route::put('/students/{id}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
 
