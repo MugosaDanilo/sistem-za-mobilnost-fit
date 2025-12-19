@@ -18,6 +18,7 @@ return array(
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\DashboardController' => $baseDir . '/app/Http/Controllers/DashboardController.php',
     'App\\Http\\Controllers\\FakultetController' => $baseDir . '/app/Http/Controllers/FakultetController.php',
+    'App\\Http\\Controllers\\IzvjestajiController' => $baseDir . '/app/Http/Controllers/IzvjestajiController.php',
     'App\\Http\\Controllers\\MobilityController' => $baseDir . '/app/Http/Controllers/MobilityController.php',
     'App\\Http\\Controllers\\PredmetController' => $baseDir . '/app/Http/Controllers/PredmetController.php',
     'App\\Http\\Controllers\\PrepisAgreementController' => $baseDir . '/app/Http/Controllers/PrepisAgreementController.php',

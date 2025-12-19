@@ -42,6 +42,31 @@ class PrepisController extends Controller
         return view('prepis.create', compact('studenti', 'fakulteti', 'predmeti', 'existingAgreements', 'existingAgreementsForeign'));
     }
 
+    public function professorMatch()
+    {
+        $profesori = \App\Models\User::where('type', 1)->with('predmeti')->get();
+        $fakulteti = Fakultet::all();
+        $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id')->get();
+
+        $existingAgreements = PrepisAgreement::select('fit_predmet_id', 'strani_predmet_id')
+            ->distinct()
+            ->get()
+            ->groupBy('fit_predmet_id')
+            ->map(function ($items) {
+                return $items->pluck('strani_predmet_id');
+            });
+
+        $existingAgreementsForeign = PrepisAgreement::select('fit_predmet_id', 'strani_predmet_id')
+            ->distinct()
+            ->get()
+            ->groupBy('strani_predmet_id')
+            ->map(function ($items) {
+                return $items->pluck('fit_predmet_id');
+            });
+
+        return view('prepis.professor_match', compact('profesori', 'fakulteti', 'predmeti', 'existingAgreements', 'existingAgreementsForeign'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([

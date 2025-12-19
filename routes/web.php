@@ -63,6 +63,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
     Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
 
+    Route::get('prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'professorMatch'])->name('prepis.professor-match');
     Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
 
     // Izvjestaji (reports) - yearly statistics
