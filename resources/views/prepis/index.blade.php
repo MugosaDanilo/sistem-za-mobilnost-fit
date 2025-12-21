@@ -8,9 +8,14 @@
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Prepis Management</h1>
-            <a href="{{ route('prepis.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                Add Prepis
-            </a>
+            <div class="flex space-x-4">
+                <a href="{{ route('prepis.professor-match') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                    Match professor with subject
+                </a>
+                <a href="{{ route('prepis.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                    Add Prepis
+                </a>
+            </div>
         </div>
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">

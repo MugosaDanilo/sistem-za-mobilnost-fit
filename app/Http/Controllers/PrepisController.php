@@ -146,4 +146,13 @@ class PrepisController extends Controller
         $prepis = Prepis::with(['student', 'fakultet', 'agreements.fitPredmet', 'agreements.straniPredmet'])->findOrFail($id);
         return view('prepis.show', compact('prepis'));
     }
+
+    public function professorMatch()
+    {
+        $professors = \App\Models\User::where('type', 1)->get();
+        $fakulteti = Fakultet::all();
+        $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id')->get();
+
+        return view('prepis.professor_match', compact('professors', 'fakulteti', 'predmeti'));
+    }
 }
