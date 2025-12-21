@@ -28,7 +28,14 @@
 
                 <div class="mb-4">
                     <label class="block mb-1 font-medium">Country</label>
-                    <input type="text" name="drzava" value="{{ old('drzava') }}" class="border rounded px-3 py-2 w-full" required>
+                    <select name="drzava" class="border rounded px-3 py-2 w-full" required>
+                        <option value="">Select a country</option>
+                        @foreach($countries as $country)
+                            <option value="{{ $country }}" {{ old('drzava') === $country ? 'selected' : '' }}>
+                                {{ $country }}
+                            </option>
+                        @endforeach
+                    </select>
                     @error('drzava')<div class="text-red-600 mt-1">{{ $message }}</div>@enderror
                 </div>
 

@@ -19,6 +19,7 @@ class IzvjestajiController extends Controller
         $filterNivo = $request->get('nivo');
         $filterYear = $request->get('year');
         $filterFakultet = $request->get('fakultet');
+        $filterDrzava = $request->get('drzava');
 
         if ($driver === 'sqlite') {
             $studentsQuery = Student::selectRaw("strftime('%Y', created_at) as year, COUNT(*) as total");
@@ -126,7 +127,13 @@ class IzvjestajiController extends Controller
         $nivoOptions = NivoStudija::orderBy('id')->get();
 
         // Build detailed mobilnosti stats using PHP to be DB-agnostic
-        $mobilnostiRaw = Mobilnost::with('student.nivoStudija')->get();
+        $mobilnostiRaw = Mobilnost::with('student.nivoStudija', 'fakultet.univerzitet')
+            ->when($filterDrzava, function($q) use ($filterDrzava) {
+                return $q->whereHas('fakultet.univerzitet', function($subq) use ($filterDrzava) {
+                    $subq->where('drzava', $filterDrzava);
+                });
+            })
+            ->get();
 
         $mobilnostiAgg = [];
         foreach ($mobilnostiRaw as $m) {
@@ -134,9 +141,14 @@ class IzvjestajiController extends Controller
             if (!$date) continue;
 
             $year = \Carbon\Carbon::parse($date)->format('Y');
-            if (!isset($mobilnostiAgg[$year])) {
-                $mobilnostiAgg[$year] = [
+            // Include drzava in the grouping key
+            $drzava = $m->fakultet && $m->fakultet->univerzitet ? $m->fakultet->univerzitet->drzava : 'Nepoznato';
+            $key = $year . '|' . $drzava;
+            
+            if (!isset($mobilnostiAgg[$key])) {
+                $mobilnostiAgg[$key] = [
                     'year' => $year,
+                    'drzava' => $drzava,
                     'total' => 0,
                     'musko' => 0,
                     'zensko' => 0,
@@ -145,35 +157,42 @@ class IzvjestajiController extends Controller
                 ];
             }
 
-            $mobilnostiAgg[$year]['total']++;
+            $mobilnostiAgg[$key]['total']++;
 
             $student = $m->student;
             if ($student) {
                 // pol: boolean where 1 = musko, 0 = zensko
                 if ($student->pol) {
-                    $mobilnostiAgg[$year]['musko']++;
+                    $mobilnostiAgg[$key]['musko']++;
                 } else {
-                    $mobilnostiAgg[$year]['zensko']++;
+                    $mobilnostiAgg[$key]['zensko']++;
                 }
 
                 $nivo = $student->nivoStudija->naziv ?? null;
                 if ($nivo && mb_stripos($nivo, 'master') !== false) {
-                    $mobilnostiAgg[$year]['master']++;
+                    $mobilnostiAgg[$key]['master']++;
                 } else {
-                    $mobilnostiAgg[$year]['osnovne']++;
+                    $mobilnostiAgg[$key]['osnovne']++;
                 }
             }
         }
 
         // Convert to sorted array
-        $mobilnosti = collect($mobilnostiAgg)->sortBy('year')->values()->map(function ($r) {
+        $mobilnosti = collect($mobilnostiAgg)->sortBy(function($x) { return $x['year'] . $x['drzava']; })->values()->map(function ($r) {
             $r['procenat_musko'] = $r['total'] > 0 ? round(($r['musko'] / $r['total']) * 100, 2) : 0;
             $r['procenat_zensko'] = $r['total'] > 0 ? round(($r['zensko'] / $r['total']) * 100, 2) : 0;
             return (object) $r;
         });
 
         $fakulteti = Fakultet::orderBy('naziv')->get();
-        return view('izvjestaji.index', compact('students', 'prepisi', 'mobilnosti', 'studentsByGender', 'byNivo', 'cumulative', 'nivoOptions', 'filterNivo', 'filterYear', 'fakulteti', 'filterFakultet'));
+        
+        // Get all unique countries from universities
+        $drzave = DB::table('univerziteti')
+            ->distinct()
+            ->orderBy('drzava')
+            ->pluck('drzava');
+        
+        return view('izvjestaji.index', compact('students', 'prepisi', 'mobilnosti', 'studentsByGender', 'byNivo', 'cumulative', 'nivoOptions', 'filterNivo', 'filterYear', 'fakulteti', 'filterFakultet', 'drzave', 'filterDrzava'));
     }
 
     public function export(Request $request, $type)
@@ -184,6 +203,7 @@ class IzvjestajiController extends Controller
         $filterNivo = $request->get('nivo');
         $filterYear = $request->get('year');
         $filterFakultet = $request->get('fakultet');
+        $filterDrzava = $request->get('drzava');
 
         if ($driver === 'sqlite') {
             $studentsQuery = Student::selectRaw("strftime('%Y', created_at) as year, COUNT(*) as total");
@@ -227,16 +247,26 @@ class IzvjestajiController extends Controller
             $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { return (object)$x; });
         }
 
-        $mobilnostiRaw = Mobilnost::with('student.nivoStudija')->get();
+        $mobilnostiRaw = Mobilnost::with('student.nivoStudija', 'fakultet.univerzitet')
+            ->when($filterDrzava, function($q) use ($filterDrzava) {
+                return $q->whereHas('fakultet.univerzitet', function($subq) use ($filterDrzava) {
+                    $subq->where('drzava', $filterDrzava);
+                });
+            })
+            ->get();
         $mobilnostiAgg = [];
         foreach ($mobilnostiRaw as $m) {
             $date = $m->datum_pocetka ?? $m->created_at ?? null;
             if (!$date) continue;
 
             $year = \Carbon\Carbon::parse($date)->format('Y');
-            if (!isset($mobilnostiAgg[$year])) {
-                $mobilnostiAgg[$year] = [
+            $drzava = $m->fakultet && $m->fakultet->univerzitet ? $m->fakultet->univerzitet->drzava : 'Nepoznato';
+            $key = $year . '|' . $drzava;
+            
+            if (!isset($mobilnostiAgg[$key])) {
+                $mobilnostiAgg[$key] = [
                     'year' => $year,
+                    'drzava' => $drzava,
                     'total' => 0,
                     'musko' => 0,
                     'zensko' => 0,
@@ -245,26 +275,26 @@ class IzvjestajiController extends Controller
                 ];
             }
 
-            $mobilnostiAgg[$year]['total']++;
+            $mobilnostiAgg[$key]['total']++;
             $student = $m->student;
             if ($student) {
                 $pol = (bool) ($student->pol ?? false);
                 if ($pol) {
-                    $mobilnostiAgg[$year]['musko']++;
+                    $mobilnostiAgg[$key]['musko']++;
                 } else {
-                    $mobilnostiAgg[$year]['zensko']++;
+                    $mobilnostiAgg[$key]['zensko']++;
                 }
 
                 $nivo = $student->nivoStudija->naziv ?? null;
                 if ($nivo && mb_stripos($nivo, 'master') !== false) {
-                    $mobilnostiAgg[$year]['master']++;
+                    $mobilnostiAgg[$key]['master']++;
                 } else {
-                    $mobilnostiAgg[$year]['osnovne']++;
+                    $mobilnostiAgg[$key]['osnovne']++;
                 }
             }
         }
 
-        $mobilnosti = collect($mobilnostiAgg)->sortBy('year')->values()->map(function ($r) {
+        $mobilnosti = collect($mobilnostiAgg)->sortBy(function($x) { return $x['year'] . $x['drzava']; })->values()->map(function ($r) {
             $r['procenat_musko'] = $r['total'] > 0 ? round(($r['musko'] / $r['total']) * 100, 2) : 0;
             $r['procenat_zensko'] = $r['total'] > 0 ? round(($r['zensko'] / $r['total']) * 100, 2) : 0;
             return (object) $r;
