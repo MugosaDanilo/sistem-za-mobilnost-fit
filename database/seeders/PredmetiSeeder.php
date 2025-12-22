@@ -20,7 +20,8 @@ class PredmetiSeeder extends Seeder
     public function run(): void
     {
         $coursesFit = [];
-        $filePath = storage_path('app/predmeti/1. NPP-osnovne.docx');
+        $coursesFit = [];
+        $filePath = storage_path('app/predmeti/nove npp osnovne.docx');
 
         $this->loadCoursesFromFit($filePath, $coursesFit);
 
@@ -31,7 +32,8 @@ class PredmetiSeeder extends Seeder
 
             Predmet::create([
                 'naziv' => $c['Naziv predmeta'] ?? '',
-                'ects' => $c['ECTS'] ?? 0,
+                'naziv_engleski' => $c['Naziv predmeta(Eng)'] ?? null,
+                'ects' => (int) ($c['ECTS'] ?? 0),
                 'semestar' => $this->romanToInt($c['Semestar'] ?? ''),
                 'fakultet_id' => $unimed->id,
                 'nivo_studija_id' => $osnovne->id ?? null,
@@ -79,6 +81,7 @@ class PredmetiSeeder extends Seeder
     function loadCoursesFromFit(string $filePath, array &$courses)
     {
         $phpWord = IOFactory::load($filePath);
+        $lastIdxMap = [];
 
         foreach ($phpWord->getSections() as $section) {
             foreach ($section->getElements() as $element) {
@@ -87,11 +90,14 @@ class PredmetiSeeder extends Seeder
                 }
 
                 $rows = $element->getRows();
-                if (count($rows) < 3)
+                if (count($rows) < 1) 
                     continue;
 
+                $headerIndex = -1;
+                $idxMap = [];
                 $tableData = [];
-                foreach ($rows as $row) {
+
+                foreach ($rows as $rowIndex => $row) {
                     $rowData = [];
                     foreach ($row->getCells() as $cell) {
                         $cellText = '';
@@ -101,25 +107,77 @@ class PredmetiSeeder extends Seeder
                         $rowData[] = trim($cellText);
                     }
 
-                    // preskoci sumarne redove "ukupno"
-                    if (stripos(implode(' ', $rowData), 'ukupno') !== false)
-                        continue;
+                 
+                    if ($headerIndex === -1) {
+                        $keys = array_map('mb_strtolower', $rowData);
+                        $keys = array_map(function($k) { return trim(str_replace("\n", "", $k)); }, $keys);
+                        
+                        $nazivIdx = -1;
+                        $ectsIdx = -1;
+                        
+                        foreach($rowData as $i => $colName) {
+                            $cleanName = mb_strtolower(trim(str_replace(["\n", "\r"], "", $colName)));
+                            if (str_contains($cleanName, 'naziv predmeta') && !str_contains($cleanName, '(eng)')) {
+                                $nazivIdx = $i;
+                            }
+                            if (str_contains($cleanName, 'ects')) {
+                                $ectsIdx = $i;
+                            }
+                        }
 
-                    $tableData[] = $rowData;
+                        if ($nazivIdx !== -1 && $ectsIdx !== -1) {
+                            $headerIndex = $rowIndex;
+                            
+                            foreach($rowData as $i => $colName) {
+                                $cleanName = trim(str_replace(["\n", "\r"], "", $colName));
+                                if (stripos($cleanName, 'Naziv predmeta') !== false && stripos($cleanName, '(Eng)') === false) {
+                                    $idxMap['Naziv predmeta'] = $i;
+                                } elseif (stripos($cleanName, 'Naziv predmeta(Eng)') !== false || stripos($cleanName, 'Naziv predmeta (Eng)') !== false) {
+                                    $idxMap['Naziv predmeta(Eng)'] = $i;
+                                } elseif (stripos($cleanName, 'Šifra') !== false || stripos($cleanName, 'Sifra') !== false) {
+                                    $idxMap['Šifra predmeta'] = $i;
+                                } elseif (stripos($cleanName, 'Status') !== false) {
+                                    $idxMap['Status'] = $i;
+                                } elseif (stripos($cleanName, 'Semestar') !== false) {
+                                     $idxMap['Semestar'] = $i;
+                                } elseif (stripos($cleanName, 'ECTS') !== false) {
+                                    $idxMap['ECTS'] = $i;
+                                }
+                            }
+                            $lastIdxMap = $idxMap;
+                            continue; 
+                        }
+                    }
+
+                    
+                    $isHeaderRow = ($headerIndex !== -1 && $rowIndex === $headerIndex);
+                    
+                    if (!$isHeaderRow) {
+                        if (stripos(implode(' ', $rowData), 'ukupno') !== false)
+                            continue;
+
+                        if (count(array_filter($rowData)) < 2) 
+                            continue;
+
+                        $tableData[] = $rowData;
+                    }
+                }
+
+                $currentMap = !empty($idxMap) ? $idxMap : $lastIdxMap;
+
+                if (empty($currentMap)) {
+                     continue; 
                 }
 
                 foreach ($tableData as $r) {
-                    if (!empty($r[0]) && !empty($r[1]) && is_numeric(end($r))) {
-                        $courses[] = [
-                            "Šifra predmeta" => $r[0] ?? '',
-                            "Naziv predmeta" => $r[1] ?? '',
-                            "Status" => $r[2] ?? '',
-                            "Semestar" => $r[3] ?? 0,
-                            "P" => $r[4] ?? 0,
-                            "V" => $r[5] ?? 0,
-                            "L" => $r[6] ?? 0,
-                            "ECTS" => $r[7] ?? 0,
-                        ];
+                    if (isset($currentMap['Naziv predmeta']) && isset($r[$currentMap['Naziv predmeta']]) && !empty($r[$currentMap['Naziv predmeta']])) {
+                        
+                        $item = [];
+                        foreach($currentMap as $key => $idx) {
+                            $item[$key] = $r[$idx] ?? '';
+                        }
+                        
+                        $courses[] = $item;
                     }
                 }
             }
