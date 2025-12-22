@@ -22,59 +22,38 @@ class IzvjestajiController extends Controller
         $filterDrzava = $request->get('drzava');
 
         if ($driver === 'sqlite') {
-            $studentsQuery = Student::selectRaw("strftime('%Y', created_at) as year, COUNT(*) as total");
-            if ($filterNivo) $studentsQuery->where('nivo_studija_id', $filterNivo);
-            if ($filterYear) $studentsQuery->whereRaw("strftime('%Y', created_at) = ?", [$filterYear]);
-            $students = $studentsQuery->groupBy('year')->orderBy('year')->get();
-
-            // Also get gender breakdown per year
-            $studentsWithGender = Student::selectRaw("strftime('%Y', created_at) as year, pol, COUNT(*) as total");
-            if ($filterNivo) $studentsWithGender->where('nivo_studija_id', $filterNivo);
-            if ($filterYear) $studentsWithGender->whereRaw("strftime('%Y', created_at) = ?", [$filterYear]);
-            $genderPerYear = $studentsWithGender->groupBy('year', 'pol')->orderBy('year')->get();
-
-            $prepisRaw = Prepis::with('fakultet')
-                ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
-                ->get();
-            $prepisiAgg = [];
-            foreach ($prepisRaw as $p) {
-                $year = \Carbon\Carbon::parse($p->datum)->format('Y');
-                $fakultetNaziv = $p->fakultet->naziv ?? 'Nepoznato';
-                $key = $year . '|' . $fakultetNaziv;
-                if (!isset($prepisiAgg[$key])) {
-                    $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'total' => 0];
-                }
-                $prepisiAgg[$key]['total']++;
-            }
-            $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { return (object)$x; });
+            $yearSql = "strftime('%Y', created_at)";
+        } elseif ($driver === 'pgsql') {
+            $yearSql = "EXTRACT(YEAR FROM created_at)";
         } else {
-            // assume MySQL / MariaDB / Postgres with YEAR() support
-            $studentsQuery = Student::selectRaw('YEAR(created_at) as year, COUNT(*) as total');
-            if ($filterNivo) $studentsQuery->where('nivo_studija_id', $filterNivo);
-            if ($filterYear) $studentsQuery->whereRaw('YEAR(created_at) = ?', [$filterYear]);
-            $students = $studentsQuery->groupBy('year')->orderBy('year')->get();
-
-            // Also get gender breakdown per year
-            $studentsWithGender = Student::selectRaw('YEAR(created_at) as year, pol, COUNT(*) as total');
-            if ($filterNivo) $studentsWithGender->where('nivo_studija_id', $filterNivo);
-            if ($filterYear) $studentsWithGender->whereRaw('YEAR(created_at) = ?', [$filterYear]);
-            $genderPerYear = $studentsWithGender->groupBy('year', 'pol')->orderBy('year')->get();
-
-            $prepisRaw = Prepis::with('fakultet')
-                ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
-                ->get();
-            $prepisiAgg = [];
-            foreach ($prepisRaw as $p) {
-                $year = \Carbon\Carbon::parse($p->datum)->format('Y');
-                $fakultetNaziv = $p->fakultet->naziv ?? 'Nepoznato';
-                $key = $year . '|' . $fakultetNaziv;
-                if (!isset($prepisiAgg[$key])) {
-                    $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'total' => 0];
-                }
-                $prepisiAgg[$key]['total']++;
-            }
-            $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { return (object)$x; });
+            $yearSql = "YEAR(created_at)";
         }
+
+        $studentsQuery = Student::selectRaw("$yearSql as year, COUNT(*) as total");
+        if ($filterNivo) $studentsQuery->where('nivo_studija_id', $filterNivo);
+        if ($filterYear) $studentsQuery->whereRaw("$yearSql = ?", [$filterYear]);
+        $students = $studentsQuery->groupBy('year')->orderBy('year')->get();
+
+        // Also get gender breakdown per year
+        $studentsWithGender = Student::selectRaw("$yearSql as year, pol, COUNT(*) as total");
+        if ($filterNivo) $studentsWithGender->where('nivo_studija_id', $filterNivo);
+        if ($filterYear) $studentsWithGender->whereRaw("$yearSql = ?", [$filterYear]);
+        $genderPerYear = $studentsWithGender->groupBy('year', 'pol')->orderBy('year')->get();
+
+        $prepisRaw = Prepis::with('fakultet')
+            ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
+            ->get();
+        $prepisiAgg = [];
+        foreach ($prepisRaw as $p) {
+            $year = \Carbon\Carbon::parse($p->datum)->format('Y');
+            $fakultetNaziv = $p->fakultet->naziv ?? 'Nepoznato';
+            $key = $year . '|' . $fakultetNaziv;
+            if (!isset($prepisiAgg[$key])) {
+                $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'total' => 0];
+            }
+            $prepisiAgg[$key]['total']++;
+        }
+        $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { return (object)$x; });
 
         // Merge gender data into students
         $students = $students->map(function ($row) use ($genderPerYear) {
@@ -86,26 +65,15 @@ class IzvjestajiController extends Controller
         });
 
         // students by gender (respect filters)
-        if ($driver === 'sqlite') {
-            $genderQ = Student::selectRaw("pol as pol, COUNT(*) as total");
-            if ($filterNivo) $genderQ->where('nivo_studija_id', $filterNivo);
-            if ($filterYear) $genderQ->whereRaw("strftime('%Y', created_at) = ?", [$filterYear]);
-            $studentsByGender = $genderQ->groupBy('pol')->get();
-        } else {
-            $genderQ = Student::selectRaw('pol as pol, COUNT(*) as total');
-            if ($filterNivo) $genderQ->where('nivo_studija_id', $filterNivo);
-            if ($filterYear) $genderQ->whereRaw('YEAR(created_at) = ?', [$filterYear]);
-            $studentsByGender = $genderQ->groupBy('pol')->get();
-        }
+        $genderQ = Student::selectRaw('pol as pol, COUNT(*) as total');
+        if ($filterNivo) $genderQ->where('nivo_studija_id', $filterNivo);
+        if ($filterYear) $genderQ->whereRaw("$yearSql = ?", [$filterYear]);
+        $studentsByGender = $genderQ->groupBy('pol')->get();
 
         // students by nivo studija
         $byNivoQuery = Student::selectRaw('nivo_studija_id, COUNT(*) as total');
         if ($filterYear) {
-            if ($driver === 'sqlite') {
-                $byNivoQuery->whereRaw("strftime('%Y', created_at) = ?", [$filterYear]);
-            } else {
-                $byNivoQuery->whereRaw('YEAR(created_at) = ?', [$filterYear]);
-            }
+            $byNivoQuery->whereRaw("$yearSql = ?", [$filterYear]);
         }
         if ($filterNivo) {
             $byNivoQuery->where('nivo_studija_id', $filterNivo);
@@ -206,46 +174,32 @@ class IzvjestajiController extends Controller
         $filterDrzava = $request->get('drzava');
 
         if ($driver === 'sqlite') {
-            $studentsQuery = Student::selectRaw("strftime('%Y', created_at) as year, COUNT(*) as total");
-            if ($filterNivo) $studentsQuery->where('nivo_studija_id', $filterNivo);
-            if ($filterYear) $studentsQuery->whereRaw("strftime('%Y', created_at) = ?", [$filterYear]);
-            $students = $studentsQuery->groupBy('year')->orderBy('year')->get();
-
-            $prepisRaw = Prepis::with('fakultet')
-                ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
-                ->get();
-            $prepisiAgg = [];
-            foreach ($prepisRaw as $p) {
-                $year = \Carbon\Carbon::parse($p->datum)->format('Y');
-                $fakultetNaziv = $p->fakultet->naziv ?? 'Nepoznato';
-                $key = $year . '|' . $fakultetNaziv;
-                if (!isset($prepisiAgg[$key])) {
-                    $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'total' => 0];
-                }
-                $prepisiAgg[$key]['total']++;
-            }
-            $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { return (object)$x; });
+            $yearSql = "strftime('%Y', created_at)";
+        } elseif ($driver === 'pgsql') {
+            $yearSql = "EXTRACT(YEAR FROM created_at)";
         } else {
-            $studentsQuery = Student::selectRaw('YEAR(created_at) as year, COUNT(*) as total');
-            if ($filterNivo) $studentsQuery->where('nivo_studija_id', $filterNivo);
-            if ($filterYear) $studentsQuery->whereRaw('YEAR(created_at) = ?', [$filterYear]);
-            $students = $studentsQuery->groupBy('year')->orderBy('year')->get();
-
-            $prepisRaw = Prepis::with('fakultet')
-                ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
-                ->get();
-            $prepisiAgg = [];
-            foreach ($prepisRaw as $p) {
-                $year = \Carbon\Carbon::parse($p->datum)->format('Y');
-                $fakultetNaziv = $p->fakultet->naziv ?? 'Nepoznato';
-                $key = $year . '|' . $fakultetNaziv;
-                if (!isset($prepisiAgg[$key])) {
-                    $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'total' => 0];
-                }
-                $prepisiAgg[$key]['total']++;
-            }
-            $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { return (object)$x; });
+            $yearSql = "YEAR(created_at)";
         }
+
+        $studentsQuery = Student::selectRaw("$yearSql as year, COUNT(*) as total");
+        if ($filterNivo) $studentsQuery->where('nivo_studija_id', $filterNivo);
+        if ($filterYear) $studentsQuery->whereRaw("$yearSql = ?", [$filterYear]);
+        $students = $studentsQuery->groupBy('year')->orderBy('year')->get();
+
+        $prepisRaw = Prepis::with('fakultet')
+            ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
+            ->get();
+        $prepisiAgg = [];
+        foreach ($prepisRaw as $p) {
+            $year = \Carbon\Carbon::parse($p->datum)->format('Y');
+            $fakultetNaziv = $p->fakultet->naziv ?? 'Nepoznato';
+            $key = $year . '|' . $fakultetNaziv;
+            if (!isset($prepisiAgg[$key])) {
+                $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'total' => 0];
+            }
+            $prepisiAgg[$key]['total']++;
+        }
+        $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { return (object)$x; });
 
         $mobilnostiRaw = Mobilnost::with('student.nivoStudija', 'fakultet.univerzitet')
             ->when($filterDrzava, function($q) use ($filterDrzava) {
