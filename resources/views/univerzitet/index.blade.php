@@ -95,10 +95,19 @@
                 <input type="text" id="editName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             </div>
 
-            <div class="mb-4">
-                <label for="editCountry" class="block text-gray-700 font-medium mb-1">Country</label>
-                <input type="text" id="editCountry" name="drzava" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-            </div>
+                <div class="mb-4">
+                    <label class="block mb-1 font-medium">Country</label>
+                    <select id="editCountry" name="drzava" class="border rounded px-3 py-2 w-full" required>
+                        <option value="">Select a country</option>
+                        @foreach($countries as $country)
+                            <option value="{{ $country }}" {{ old('drzava') === $country ? 'selected' : '' }}>
+                                {{ $country }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('drzava')<div class="text-red-600 mt-1">{{ $message }}</div>@enderror
+                </div>
+
 
             <div class="mb-4">
                 <label for="editCity" class="block text-gray-700 font-medium mb-1">City</label>
@@ -136,7 +145,12 @@
 
             <div class="mb-4">
                 <label for="addCountry" class="block text-gray-700 font-medium mb-1">Country</label>
-                <input type="text" id="addCountry" name="drzava" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                <select id="addCountry" name="drzava" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                    <option value="">Select a country</option>
+                    @foreach($countries as $country)
+                        <option value="{{ $country }}">{{ $country }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="mb-4">
@@ -197,8 +211,10 @@
         const addModal = document.getElementById('addUniversityModal');
         const addBtn = document.getElementById('addUniversityBtn');
         const cancelAdd = document.getElementById('cancelAddModal');
+        const addForm = document.getElementById('addUniversityForm');
 
         addBtn.addEventListener('click', () => {
+            addForm.reset();
             addModal.classList.remove('hidden');
             addModal.classList.add('flex');
         });
@@ -206,6 +222,7 @@
         cancelAdd.addEventListener('click', () => {
             addModal.classList.add('hidden');
             addModal.classList.remove('flex');
+            addForm.reset();
         });
     });
 

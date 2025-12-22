@@ -139,6 +139,22 @@
       <!-- Mobilnost -->
       <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 p-4 relative">
         <h2 class="text-lg font-semibold mb-3">Mobilnost</h2>
+        
+        <form method="GET" class="mb-4 flex items-center gap-3" id="mobilnostFilterForm">
+          <input type="hidden" name="year" value="{{ $filterYear ?? '' }}">
+          <input type="hidden" name="nivo" value="{{ $filterNivo ?? '' }}">
+          <input type="hidden" name="fakultet" value="{{ $filterFakultet ?? '' }}">
+          <div>
+            <label class="block text-xs text-gray-600">Država</label>
+            <select name="drzava" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm appearance-none bg-no-repeat bg-right">
+              <option value="">Sve</option>
+              @foreach($drzave as $d)
+                <option value="{{ $d }}" @if($filterDrzava == $d) selected @endif>{{ $d }}</option>
+              @endforeach
+            </select>
+          </div>
+        </form>
+        
         <div class="mb-4 h-40">
           <canvas id="mobilnostChart" class="w-full h-full"></canvas>
         </div>
@@ -147,6 +163,7 @@
             <thead>
               <tr>
                 <th class="py-2 px-2">Godina</th>
+                <th class="py-2 px-2">Država</th>
                 <th class="py-1 px-2 w-10 text-center">Ukupno</th>
                 <th class="py-1 px-2 w-10 text-center">Muško</th>
                 <th class="py-1 px-2 w-16 text-center">Žensko</th>
@@ -160,6 +177,7 @@
               @forelse($mobilnosti as $row)
                 <tr>
                   <td class="py-1 px-2 text-center">{{ $row->year }}</td>
+                  <td class="py-1 px-2 text-center">{{ $row->drzava }}</td>
                   <td class="py-1 px-2 text-center">{{ $row->total }}</td>
                   <td class="py-1 px-2 text-center">{{ $row->musko }}</td>
                   <td class="py-1 px-2 text-center">{{ $row->zensko }}</td>

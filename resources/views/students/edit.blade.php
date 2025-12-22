@@ -71,6 +71,23 @@
             @error('jmbg') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
+          <div class="mb-4">
+            <label class="block text-gray-700 font-medium mb-1">Pol</label>
+            <div class="flex items-center space-x-6">
+              <label class="inline-flex items-center">
+                <input type="radio" name="pol" id="pol_muski" value="1" checked
+                  class="form-radio text-blue-600" />
+                <span class="ml-2 text-gray-700">Muški</span>
+              </label>
+
+              <label class="inline-flex items-center">
+                <input type="radio" name="pol" id="pol_zenski" value="0"
+                  class="form-radio text-blue-600" />
+                <span class="ml-2 text-gray-700">Ženski</span>
+              </label>
+            </div>
+          </div>
+
           <div class="mb-4 md:col-span-2">
             <div class="mb-4">
               <label class="block text-gray-700 font-medium mb-2">Study Level</label>
