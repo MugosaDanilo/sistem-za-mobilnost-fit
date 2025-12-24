@@ -6,13 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::table('studenti', function (Blueprint $table) {
-            $table->boolean('pol')->default(false)->after('jmbg');
+            $table->string('pol')->default('musko')->after('jmbg');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('studenti', function (Blueprint $table) {

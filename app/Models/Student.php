@@ -22,7 +22,6 @@ class Student extends Model
     ];
 
     protected $casts = [
-        'pol' => 'boolean',
     ];
 
     public function nivoStudija()

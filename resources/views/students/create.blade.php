@@ -71,19 +71,17 @@
 
           <div class="mb-4">
             <label class="block text-gray-700 font-medium mb-1">Pol</label>
-            <div class="flex items-center space-x-6">
               <label class="inline-flex items-center">
-                <input type="radio" name="pol" id="pol_muski" value="1" checked
+                <input type="radio" name="pol" id="pol_muski" value="musko" checked
                   class="form-radio text-blue-600" />
                 <span class="ml-2 text-gray-700">Muški</span>
               </label>
 
               <label class="inline-flex items-center">
-                <input type="radio" name="pol" id="pol_zenski" value="0"
+                <input type="radio" name="pol" id="pol_zenski" value="zensko"
                   class="form-radio text-blue-600" />
                 <span class="ml-2 text-gray-700">Ženski</span>
               </label>
-            </div>
           </div>
 
 

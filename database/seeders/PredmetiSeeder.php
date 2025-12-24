@@ -12,6 +12,8 @@ use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Element\TextRun;
 use PhpOffice\PhpWord\Element\Text;
 
+use App\Services\SubjectImportService;
+
 class PredmetiSeeder extends Seeder
 {
     /**
@@ -19,11 +21,10 @@ class PredmetiSeeder extends Seeder
      */
     public function run(): void
     {
-        $coursesFit = [];
-        $coursesFit = [];
-        $filePath = storage_path('app/predmeti/nove npp osnovne.docx');
+       $importer = new SubjectImportService();
+       $filePath = storage_path('app/predmeti/nove npp osnovne.docx');
 
-        $this->loadCoursesFromFit($filePath, $coursesFit);
+       $coursesFit = $importer->loadCoursesFromFit($filePath);
 
         $unimed = Fakultet::where('naziv', 'FIT')->first();
         $osnovne = \App\Models\NivoStudija::where('naziv', 'Osnovne')->first();
@@ -34,7 +35,7 @@ class PredmetiSeeder extends Seeder
                 'naziv' => $c['Naziv predmeta'] ?? '',
                 'naziv_engleski' => $c['Naziv predmeta(Eng)'] ?? null,
                 'ects' => (int) ($c['ECTS'] ?? 0),
-                'semestar' => $this->romanToInt($c['Semestar'] ?? ''),
+                'semestar' => $importer->romanToInt($c['Semestar'] ?? ''),
                 'fakultet_id' => $unimed->id,
                 'nivo_studija_id' => $osnovne->id ?? null,
             ]);
@@ -62,181 +63,4 @@ class PredmetiSeeder extends Seeder
             }
         }
     }
-
-
-    function getElementText($element): string
-    {
-        $text = '';
-
-        if ($element instanceof Text) {
-            $text .= $element->getText();
-        } elseif ($element instanceof TextRun) {
-            foreach ($element->getElements() as $child) {
-                $text .= $this->getElementText($child) . ' ';
-            }
-        }
-        return trim($text);
-    }
-
-    function loadCoursesFromFit(string $filePath, array &$courses)
-    {
-        $phpWord = IOFactory::load($filePath);
-        $lastIdxMap = [];
-        $lastHeaderCount = 0;
-
-        foreach ($phpWord->getSections() as $section) {
-            foreach ($section->getElements() as $element) {
-                if (!($element instanceof Table)) {
-                    continue;
-                }
-
-                $rows = $element->getRows();
-                if (count($rows) < 1) 
-                    continue;
-
-                $headerIndex = -1;
-                $idxMap = [];
-                $tableData = [];
-                $headerCount = 0;
-
-                foreach ($rows as $rowIndex => $row) {
-                    $rowData = [];
-                    foreach ($row->getCells() as $cell) {
-                        $cellText = '';
-                        foreach ($cell->getElements() as $cellElement) {
-                            $cellText .= $this->getElementText($cellElement) . ' ';
-                        }
-                        $rowData[] = trim($cellText);
-                    }
-
-                 
-                    if ($headerIndex === -1) {
-                        $keys = array_map('mb_strtolower', $rowData);
-                        $keys = array_map(function($k) { return trim(str_replace("\n", "", $k)); }, $keys);
-                        
-                        $nazivIdx = -1;
-                        $ectsIdx = -1;
-                        
-                        foreach($rowData as $i => $colName) {
-                            $cleanName = mb_strtolower(trim(str_replace(["\n", "\r"], "", $colName)));
-                            if (str_contains($cleanName, 'naziv predmeta') && !str_contains($cleanName, '(eng)')) {
-                                $nazivIdx = $i;
-                            }
-                            if (str_contains($cleanName, 'ects')) {
-                                $ectsIdx = $i;
-                            }
-                        }
-
-                        if ($nazivIdx !== -1 && $ectsIdx !== -1) {
-                            $headerIndex = $rowIndex;
-                            $headerCount = count($rowData);
-                            
-                            foreach($rowData as $i => $colName) {
-                                $cleanName = trim(str_replace(["\n", "\r"], "", $colName));
-                                if (stripos($cleanName, 'Naziv predmeta') !== false && stripos($cleanName, '(Eng)') === false) {
-                                    $idxMap['Naziv predmeta'] = $i;
-                                } elseif (stripos($cleanName, 'Naziv predmeta(Eng)') !== false || stripos($cleanName, 'Naziv predmeta (Eng)') !== false) {
-                                    $idxMap['Naziv predmeta(Eng)'] = $i;
-                                } elseif (stripos($cleanName, 'Šifra') !== false || stripos($cleanName, 'Sifra') !== false) {
-                                    $idxMap['Šifra predmeta'] = $i;
-                                } elseif (stripos($cleanName, 'Status') !== false) {
-                                    $idxMap['Status'] = $i;
-                                } elseif (stripos($cleanName, 'Semestar') !== false) {
-                                     $idxMap['Semestar'] = $i;
-                                } elseif (stripos($cleanName, 'ECTS') !== false) {
-                                    $idxMap['ECTS'] = $i;
-                                } elseif (stripos($cleanName, 'casova') !== false || stripos($cleanName, 'sati') !== false || stripos($cleanName, 'hours') !== false) {
-                                     $idxMap['SplitColumn'] = $i;
-                                }
-                            }
-                            $lastIdxMap = $idxMap;
-                            $lastHeaderCount = $headerCount;
-                            continue; 
-                        }
-                    }
-
-                    
-                    $isHeaderRow = ($headerIndex !== -1 && $rowIndex === $headerIndex);
-                    
-                    if (!$isHeaderRow) {
-                        if (stripos(implode(' ', $rowData), 'ukupno') !== false)
-                            continue;
-
-                        if (count(array_filter($rowData)) < 2) 
-                            continue;
-
-                        $tableData[] = $rowData;
-                    }
-                }
-
-                $currentMap = !empty($idxMap) ? $idxMap : $lastIdxMap;
-                $currentHeaderCount = !empty($idxMap) ? $headerCount : $lastHeaderCount;
-                // Detect likely split column if not already in map (heuristic based on 'casova' or 'sati')
-                // Ideally this should be done during header detection, but we rely on $idxMap.
-                // We'll trust the header detection loop below to have populated 'SplitColumn' if we add it there.
-                
-                if (empty($currentMap)) {
-                     continue; 
-                }
-
-                $splitColIdx = $currentMap['SplitColumn'] ?? -1;
-
-                foreach ($tableData as $r) {
-                    if (isset($currentMap['Naziv predmeta']) && isset($r[$currentMap['Naziv predmeta']]) && !empty($r[$currentMap['Naziv predmeta']])) {
-                        
-                        $item = [];
-                        $shift = 0;
-                        if ($currentHeaderCount > 0 && count($r) > $currentHeaderCount) {
-                            $shift = count($r) - $currentHeaderCount;
-                        }
-
-                        foreach($currentMap as $key => $idx) {
-                            if ($key === 'SplitColumn') continue;
-
-                            $targetIdx = $idx;
-                            
-                            // Robust Logic: Only shift if we identified a split column AND this column is to the right of it.
-                            // Fallback: If no split column identified but shift exists, assume 'ECTS' (if at end) needs shifting.
-                            if ($shift > 0) {
-                                if ($splitColIdx !== -1) {
-                                    if ($idx > $splitColIdx) {
-                                        $targetIdx += $shift;
-                                    }
-                                } elseif ($key === 'ECTS') {
-                                    // Fallback for previous behavior if split column detection failed
-                                    // Heuristic: ECTS is usually last.
-                                    $targetIdx += $shift; 
-                                }
-                            }
-
-                            $item[$key] = $r[$targetIdx] ?? '';
-                        }
-                        
-                        $courses[] = $item;
-                    }
-                }
-            }
-        }
-    }
-
-    function romanToInt(?string $roman): int
-    {
-        $map = [
-            'I' => 1,
-            'II' => 2,
-            'III' => 3,
-            'IV' => 4,
-            'V' => 5,
-            'VI' => 6,
-            'VII' => 7,
-            'VIII' => 8,
-            'IX' => 9,
-            'X' => 10,
-        ];
-
-        $roman = trim($roman ?? '');
-
-        return $map[$roman] ?? 0;
-    }
-
 }

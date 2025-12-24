@@ -268,7 +268,11 @@
 
   // Students gender
   (function(){
-    const labels = studentsByGender.map(d => d.pol == 1 ? 'Muško' : 'Žensko');
+    const labels = studentsByGender.map(d => {
+       if(d.pol === 'musko') return 'Muško';
+       if(d.pol === 'zensko') return 'Žensko';
+       return d.pol; // fallback
+    });
     const data = studentsByGender.map(d => d.total);
     const ctx = document.getElementById('studentsGenderChart').getContext('2d');
     new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data, backgroundColor: ['#2563eb','#ef4444'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });

@@ -16,27 +16,120 @@ class StudentSeeder extends Seeder
         $master = NivoStudija::where('naziv', 'Master')->first();
 
         Student::create([
-            'ime' => 'Marko',
-            'prezime' => 'Marković',
-            'br_indexa' => 'IB12345',
+            'ime' => 'Danilo',
+            'prezime' => 'Mugosa',
+            'br_indexa' => '52-23',
             'datum_rodjenja' => '2000-12-12',
             'telefon' => '061111111',
-            'email' => 'marko@example.com',
+            'email' => 'danilomugosa@example.com',
             'godina_studija' => 3,
-            'jmbg' => '1234567890123',
+            'jmbg' => '1234567890121',
             'nivo_studija_id' => $osnovne->id,
+            'pol' => 'musko',
         ]);
 
         Student::create([
-            'ime' => 'Ana',
-            'prezime' => 'Ilić',
-            'br_indexa' => 'IM54321',
-            'datum_rodjenja' => '1998-06-20',
-            'telefon' => '061222222',
-            'email' => 'ana@example.com',
+            'ime' => 'Emir',
+            'prezime' => 'Muhovic',
+            'br_indexa' => '09-23',
+            'datum_rodjenja' => '2000-12-12',
+            'telefon' => '061111111',
+            'email' => 'emirmuhovic@example.com',
+            'godina_studija' => 3,
+            'jmbg' => '1234567890122',
+            'nivo_studija_id' => $osnovne->id,
+            'pol' => 'musko',
+        ]);
+
+        Student::create([
+            'ime' => 'Luka',
+            'prezime' => 'Vujacic',
+            'br_indexa' => '109-22',
+            'datum_rodjenja' => '2000-12-12',
+            'telefon' => '061111111',
+            'email' => 'lukavujacic@example.com',
+            'godina_studija' => 3,
+            'jmbg' => '1234567890123',
+            'nivo_studija_id' => $osnovne->id,
+            'pol' => 'musko',
+        ]);
+
+        Student::create([
+            'ime' => 'Luka',
+            'prezime' => 'Vojinovic',
+            'br_indexa' => '43-23',
+            'datum_rodjenja' => '2000-12-12',
+            'telefon' => '061111111',
+            'email' => 'lukavojinovic@example.com',
+            'godina_studija' => 3,
+            'jmbg' => '1234567890124',
+            'nivo_studija_id' => $osnovne->id,
+            'pol' => 'musko',
+        ]);
+
+        Student::create([
+            'ime' => 'Sanja',
+            'prezime' => 'Radulovic',
+            'br_indexa' => '32-16',
+            'datum_rodjenja' => '2000-12-12',
+            'telefon' => '061111111',
+            'email' => 'sanjaradulovic@example.com',
+            'godina_studija' => 3,
+            'jmbg' => '1234567890125',
+            'nivo_studija_id' => $osnovne->id,
+            'pol' => 'zensko',
+        ]);
+
+        Student::create([
+            'ime' => 'Damjan',
+            'prezime' => 'Latinovic',
+            'br_indexa' => '100-23',
+            'datum_rodjenja' => '2000-12-12',
+            'telefon' => '061111111',
+            'email' => 'damjanlatinovic@example.com',
+            'godina_studija' => 3,
+            'jmbg' => '1234567890126',
+            'nivo_studija_id' => $osnovne->id,
+            'pol' => 'musko',
+        ]);
+
+        Student::create([
+            'ime' => 'Vlado',
+            'prezime' => 'Vojinovic',
+            'br_indexa' => '22-22',
+            'datum_rodjenja' => '2000-12-12',
+            'telefon' => '061111111',
+            'email' => 'vladovojinovic@example.com',
+            'godina_studija' => 3,
+            'jmbg' => '1234567890127',
+            'nivo_studija_id' => $osnovne->id,
+            'pol' => 'musko',
+        ]);
+
+        Student::create([
+            'ime' => 'Marko',
+            'prezime' => 'Markovic',
+            'br_indexa' => '22-20',
+            'datum_rodjenja' => '2000-12-12',
+            'telefon' => '061111111',
+            'email' => 'markomarkovic@example.com',
             'godina_studija' => 2,
-            'jmbg' => '9876543210987',
-            'nivo_studija_id' => $master->id,
+            'jmbg' => '1234567890128',
+            'nivo_studija_id' => $osnovne->id,
+            'pol' => 'musko',
+        ]);
+
+        Student::create([
+            'ime' => 'Janko',
+            'prezime' => 'Jankovic',
+            'br_indexa' => '22-19',
+            'datum_rodjenja' => '2000-12-12',
+            'telefon' => '061111111',
+            'email' => 'jankojankovic@example.com',
+            'godina_studija' => 2,
+            'jmbg' => '1234567890129',
+            'nivo_studija_id' => $osnovne->id,
+            'pol' => 'musko',
         ]);
     }
 }

@@ -57,8 +57,8 @@ class IzvjestajiController extends Controller
 
         // Merge gender data into students
         $students = $students->map(function ($row) use ($genderPerYear) {
-            $musko = $genderPerYear->where('year', $row->year)->where('pol', 1)->sum('total');
-            $zensko = $genderPerYear->where('year', $row->year)->where('pol', 0)->sum('total');
+            $musko = $genderPerYear->where('year', $row->year)->where('pol', 'musko')->sum('total');
+            $zensko = $genderPerYear->where('year', $row->year)->where('pol', 'zensko')->sum('total');
             $row->musko = $musko;
             $row->zensko = $zensko;
             return $row;
@@ -129,8 +129,8 @@ class IzvjestajiController extends Controller
 
             $student = $m->student;
             if ($student) {
-                // pol: boolean where 1 = musko, 0 = zensko
-                if ($student->pol) {
+                // pol: string 'musko' or 'zensko'
+                if ($student->pol === 'musko') {
                     $mobilnostiAgg[$key]['musko']++;
                 } else {
                     $mobilnostiAgg[$key]['zensko']++;
@@ -232,8 +232,8 @@ class IzvjestajiController extends Controller
             $mobilnostiAgg[$key]['total']++;
             $student = $m->student;
             if ($student) {
-                $pol = (bool) ($student->pol ?? false);
-                if ($pol) {
+                $pol = $student->pol; // 'musko' or 'zensko'
+                if ($pol === 'musko') {
                     $mobilnostiAgg[$key]['musko']++;
                 } else {
                     $mobilnostiAgg[$key]['zensko']++;

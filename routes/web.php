@@ -67,7 +67,6 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::get('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'professorMatch'])->name('prepis.professor-match');
     Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
 
-    // Izvjestaji (reports) - yearly statistics
     Route::get('/izvjestaji', [\App\Http\Controllers\IzvjestajiController::class, 'index'])->name('izvjestaji.index');
     Route::get('/izvjestaji/export/{type}', [\App\Http\Controllers\IzvjestajiController::class, 'export'])->name('izvjestaji.export');
 
@@ -75,7 +74,8 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
     Route::put('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');
     Route::delete('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
-
+    
+    Route::post('/fakulteti/{fakultet}/predmeti/import', [\App\Http\Controllers\PredmetController::class, 'import'])->name('fakulteti.predmeti.import');
     Route::get('/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'index'])->name('fakulteti.predmeti.index');
 
     Route::get('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'index'])->name('users.subjects.index');

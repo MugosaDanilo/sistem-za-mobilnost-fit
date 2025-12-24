@@ -26,10 +26,36 @@
 
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Predmeti - {{ $fakultet->naziv }}</h1>
-            <button id="addSubjectBtn"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                Dodaj Predmet
-            </button>
+            <div class="flex items-center space-x-2">
+                <button id="addSubjectBtn"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                    Dodaj Predmet
+                </button>
+                @if(Str::contains($fakultet->naziv, ['FIT', 'Mediteran']))
+                    <button id="importSubjectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                        Import Subjects (Word)
+                    </button>
+                @endif
+            </div>
+        </div>
+
+        <!-- Import Modal -->
+        <div id="importSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Import Subjects from Word</h2>
+                <form action="{{ route('fakulteti.predmeti.import', $fakultet->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                         <label class="block text-gray-700 font-medium mb-1">Upload .docx File</label>
+                         <input type="file" name="file" accept=".docx" required class="w-full border p-2 rounded">
+                         <p class="text-sm text-gray-500 mt-1">Expected format: Tables with 'Naziv predmeta', 'ECTS', 'Semestar'.</p>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" id="cancelImportModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">Cancel</button>
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">Import</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div class="mb-4">
@@ -229,6 +255,23 @@
             cancelAdd.addEventListener('click', () => {
                 addModal.classList.add('hidden');
                 addModal.classList.remove('flex');
+            });
+
+            // Import Modal Logic
+            const importModal = document.getElementById('importSubjectModal');
+            const importBtn = document.getElementById('importSubjectBtn');
+            const cancelImport = document.getElementById('cancelImportModal');
+
+            if (importBtn) {
+                importBtn.addEventListener('click', () => {
+                    importModal.classList.remove('hidden');
+                    importModal.classList.add('flex');
+                });
+            }
+
+            cancelImport.addEventListener('click', () => {
+                importModal.classList.add('hidden');
+                importModal.classList.remove('flex');
             });
 
             // Edit Modal Logic

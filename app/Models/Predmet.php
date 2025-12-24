@@ -14,7 +14,8 @@ class Predmet extends Model
         'ects',
         'fakultet_id',
         'profesor_id',
-        'nivo_studija_id'
+        'nivo_studija_id',
+        'naziv_engleski',
     ];
 
     public function fakultet()

@@ -37,7 +37,7 @@ class StudentController extends Controller
       'godina_studija' => 'required|integer',
       'jmbg' => 'required|string|size:13|unique:studenti,jmbg',
       'nivo_studija_id' => 'required|exists:nivo_studija,id',
-      'pol' => 'required|boolean',
+      'pol' => 'required|string|in:musko,zensko',
       'predmeti' => 'array',
       'predmeti.*' => 'array', // Each item in predmeti should be an array (e.g., ['grade' => 7])
       'predmeti.*.grade' => 'nullable|integer|min:6|max:10', // Validate grades if present
@@ -84,7 +84,7 @@ class StudentController extends Controller
       'godina_studija' => 'required|integer',
       'jmbg' => 'required|string|size:13|unique:studenti,jmbg,' . $id,
       'nivo_studija_id' => 'required|exists:nivo_studija,id',
-      'pol' => 'required|boolean',
+      'pol' => 'required|string|in:musko,zensko',
       'predmeti' => 'array',
       'predmeti.*' => 'array', // Each item in predmeti should be an array (e.g., ['grade' => 7])
       'predmeti.*.grade' => 'nullable|integer|min:6|max:10', // Validate grades if present
