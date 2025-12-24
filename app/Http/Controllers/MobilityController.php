@@ -406,6 +406,11 @@ class MobilityController extends Controller
         ]);
 
         $la = LearningAgreement::findOrFail($id);
+        
+        if ($la->mobilnost->is_locked) {
+            return response()->json(['message' => 'Mobility is locked. Cannot update grades.'], 403);
+        }
+
         $la->update(['ocjena' => $request->ocjena]);
 
         return response()->json(['message' => 'Ocjena uspješno ažurirana.']);
@@ -419,6 +424,10 @@ class MobilityController extends Controller
         ]);
 
         $mobilnost = Mobilnost::findOrFail($id);
+
+        if ($mobilnost->is_locked) {
+            return response()->json(['message' => 'Mobility is locked. Cannot update grades.'], 403);
+        }
 
         foreach ($request->grades as $laId => $grade) {
             $la = LearningAgreement::where('mobilnost_id', $mobilnost->id)->where('id', $laId)->first();
@@ -634,5 +643,13 @@ class MobilityController extends Controller
             ->get(['id', 'naziv']);
 
         return response()->json($subjects);
+    }
+
+    public function lock($id)
+    {
+        $mobilnost = Mobilnost::findOrFail($id);
+        $mobilnost->update(['is_locked' => true]);
+        
+        return redirect()->back()->with('success', 'Mobility locked successfully.');
     }
 }

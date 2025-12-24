@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Mobilnost extends Model
 {
     protected $table = 'mobilnosti';
-    protected $fillable = ['datum_pocetka', 'datum_kraja', 'student_id', 'fakultet_id'];
+    protected $fillable = ['datum_pocetka', 'datum_kraja', 'student_id', 'fakultet_id', 'is_locked'];
 
     public function student()
     {

@@ -82,6 +82,7 @@ class PredmetiSeeder extends Seeder
     {
         $phpWord = IOFactory::load($filePath);
         $lastIdxMap = [];
+        $lastHeaderCount = 0;
 
         foreach ($phpWord->getSections() as $section) {
             foreach ($section->getElements() as $element) {
@@ -96,6 +97,7 @@ class PredmetiSeeder extends Seeder
                 $headerIndex = -1;
                 $idxMap = [];
                 $tableData = [];
+                $headerCount = 0;
 
                 foreach ($rows as $rowIndex => $row) {
                     $rowData = [];
@@ -127,6 +129,7 @@ class PredmetiSeeder extends Seeder
 
                         if ($nazivIdx !== -1 && $ectsIdx !== -1) {
                             $headerIndex = $rowIndex;
+                            $headerCount = count($rowData);
                             
                             foreach($rowData as $i => $colName) {
                                 $cleanName = trim(str_replace(["\n", "\r"], "", $colName));
@@ -142,9 +145,12 @@ class PredmetiSeeder extends Seeder
                                      $idxMap['Semestar'] = $i;
                                 } elseif (stripos($cleanName, 'ECTS') !== false) {
                                     $idxMap['ECTS'] = $i;
+                                } elseif (stripos($cleanName, 'casova') !== false || stripos($cleanName, 'sati') !== false || stripos($cleanName, 'hours') !== false) {
+                                     $idxMap['SplitColumn'] = $i;
                                 }
                             }
                             $lastIdxMap = $idxMap;
+                            $lastHeaderCount = $headerCount;
                             continue; 
                         }
                     }
@@ -164,17 +170,46 @@ class PredmetiSeeder extends Seeder
                 }
 
                 $currentMap = !empty($idxMap) ? $idxMap : $lastIdxMap;
-
+                $currentHeaderCount = !empty($idxMap) ? $headerCount : $lastHeaderCount;
+                // Detect likely split column if not already in map (heuristic based on 'casova' or 'sati')
+                // Ideally this should be done during header detection, but we rely on $idxMap.
+                // We'll trust the header detection loop below to have populated 'SplitColumn' if we add it there.
+                
                 if (empty($currentMap)) {
                      continue; 
                 }
+
+                $splitColIdx = $currentMap['SplitColumn'] ?? -1;
 
                 foreach ($tableData as $r) {
                     if (isset($currentMap['Naziv predmeta']) && isset($r[$currentMap['Naziv predmeta']]) && !empty($r[$currentMap['Naziv predmeta']])) {
                         
                         $item = [];
+                        $shift = 0;
+                        if ($currentHeaderCount > 0 && count($r) > $currentHeaderCount) {
+                            $shift = count($r) - $currentHeaderCount;
+                        }
+
                         foreach($currentMap as $key => $idx) {
-                            $item[$key] = $r[$idx] ?? '';
+                            if ($key === 'SplitColumn') continue;
+
+                            $targetIdx = $idx;
+                            
+                            // Robust Logic: Only shift if we identified a split column AND this column is to the right of it.
+                            // Fallback: If no split column identified but shift exists, assume 'ECTS' (if at end) needs shifting.
+                            if ($shift > 0) {
+                                if ($splitColIdx !== -1) {
+                                    if ($idx > $splitColIdx) {
+                                        $targetIdx += $shift;
+                                    }
+                                } elseif ($key === 'ECTS') {
+                                    // Fallback for previous behavior if split column detection failed
+                                    // Heuristic: ECTS is usually last.
+                                    $targetIdx += $shift; 
+                                }
+                            }
+
+                            $item[$key] = $r[$targetIdx] ?? '';
                         }
                         
                         $courses[] = $item;
