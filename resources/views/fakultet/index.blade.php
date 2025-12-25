@@ -53,15 +53,15 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($fakulteti as $f)
                         <tr class="faculty-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($f->naziv . ' ' . $f->email . ' ' . $f->univerzitet->naziv) }}">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $f->naziv }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->email }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->telefon }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $f->naziv }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ $f->email }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ $f->telefon }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
                                 @if($f->web)
                                     <a href="{{ $f->web }}" target="_blank" class="text-blue-600 hover:underline">{{ $f->web }}</a>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $f->univerzitet->naziv }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ $f->univerzitet->naziv }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center space-x-2">
                                     <button
