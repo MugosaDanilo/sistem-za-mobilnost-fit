@@ -19,7 +19,7 @@
 
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="mb-6">
-            <a href="{{ route('fakulteti.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+            <a href="{{ route('faculty.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
                 &larr; Back to Faculty Management
             </a>
         </div>

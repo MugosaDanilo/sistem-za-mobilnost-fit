@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UniverzitetController;
 use App\Http\Controllers\TooltipController;
 
-
 Route::get('/', function () {
     $user = Auth::user();
 
@@ -32,26 +31,22 @@ Route::middleware('auth')->group(function () {
 Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('adminDashboardShow');
 
-    Route::get('/mobilnost', [MobilityController::class, 'index'])->name('admin.mobility');
-    Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('admin.mobility.upload');
-    Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('admin.mobility.export');
+    Route::get('/mobility', [MobilityController::class, 'index'])->name('admin.mobility');
+    Route::post('/mobility', [MobilityController::class, 'upload'])->name('admin.mobility.upload');
+    Route::post('/mobility/export', [MobilityController::class, 'export'])->name('admin.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('admin.mobility.save');
     Route::get('/mobility/{id}', [MobilityController::class, 'show'])->name('admin.mobility.show');
     Route::post('/mobility/grade/{id}', [MobilityController::class, 'updateGrade'])->name('admin.mobility.update-grade');
     Route::post('/mobility/{id}/grades', [MobilityController::class, 'updateGrades'])->name('admin.mobility.update-grades');
     Route::post('/mobility/{id}/export-word', [MobilityController::class, 'exportWord'])->name('admin.mobility.export-word');
-    Route::delete('/mobilnost/{id}', [MobilityController::class, 'destroy'])->name('admin.mobility.destroy');
+    Route::delete('/mobility/{id}', [MobilityController::class, 'destroy'])->name('admin.mobility.destroy');
 
-  Route::get('/admin/tooltip', [TooltipController::class, 'index'])
-    ->name('tooltip.index');
-Route::post('/admin/tooltip/upload', [TooltipController::class, 'upload'])
-    ->name('tooltip.upload');
-Route::post('/admin/tooltip/overwrite', [TooltipController::class, 'overwrite'])
-    ->name('tooltip.overwrite');
+    Route::get('/tooltip', [TooltipController::class, 'index'])->name('tooltip.index');
+    Route::post('/tooltip/upload', [TooltipController::class, 'upload'])->name('tooltip.upload');
+    Route::post('/tooltip/overwrite', [TooltipController::class, 'overwrite'])->name('tooltip.overwrite');
 
-
-    Route::get('/users/', [UserController::class, 'index'])->name('users.index');
-    Route::post('/users/', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
@@ -60,38 +55,40 @@ Route::post('/admin/tooltip/overwrite', [TooltipController::class, 'overwrite'])
     Route::put('/students/{id}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
 
+  Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
+Route::get('/univerzitet/create', [UniverzitetController::class, 'create'])->name('univerzitet.create');
+Route::post('/univerzitet', [UniverzitetController::class, 'store'])->name('univerzitet.store');
+Route::get('/univerzitet/{id}/edit', [UniverzitetController::class, 'edit'])->name('univerzitet.edit');
+Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
+Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
 
-    Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
-    Route::get('/univerzitet/create', [UniverzitetController::class, 'create'])->name('univerzitet.create');
-    Route::post('/univerzitet', [UniverzitetController::class, 'store'])->name('univerzitet.store');
-    Route::get('/univerzitet/{id}/edit', [UniverzitetController::class, 'edit'])->name('univerzitet.edit');
-    Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
-    Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
 
-    Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
+    Route::resource('prepis', \App\Http\Controllers\PrepisController::class)->names('prepis');
 
-    Route::get('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'index'])->name('fakulteti.index');
-    Route::post('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
-    Route::put('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');
-    Route::delete('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
 
-    Route::get('/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'index'])->name('fakulteti.predmeti.index');
+Route::get('/faculty', [\App\Http\Controllers\FakultetController::class, 'index'])->name('faculty.index');
+Route::post('/faculty', [\App\Http\Controllers\FakultetController::class, 'store'])->name('faculty.store');
+Route::put('/faculty/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('faculty.update');
+Route::delete('/faculty/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('faculty.destroy');
+
+Route::get('/faculty/{faculty}/subjects', [\App\Http\Controllers\PredmetController::class, 'index'])->name('faculty.subjects.index');
+
 
     Route::get('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'index'])->name('users.subjects.index');
     Route::post('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'store'])->name('users.subjects.store');
-    Route::delete('/users/{id}/subjects/{predmet_id}', [App\Http\Controllers\ProfesorPredmetController::class, 'destroy'])->name('users.subjects.destroy');
+    Route::delete('/users/{id}/subjects/{subject_id}', [App\Http\Controllers\ProfesorPredmetController::class, 'destroy'])->name('users.subjects.destroy');
 
-    Route::post('/predmeti', [\App\Http\Controllers\PredmetController::class, 'store'])->name('predmeti.store');
-    Route::put('/predmeti/{id}', [\App\Http\Controllers\PredmetController::class, 'update'])->name('predmeti.update');
-    Route::delete('/predmeti/{id}', [\App\Http\Controllers\PredmetController::class, 'destroy'])->name('predmeti.destroy');
+    Route::post('/subjects', [\App\Http\Controllers\PredmetController::class, 'store'])->name('subjects.store');
+    Route::put('/subjects/{id}', [\App\Http\Controllers\PredmetController::class, 'update'])->name('subjects.update');
+    Route::delete('/subjects/{id}', [\App\Http\Controllers\PredmetController::class, 'destroy'])->name('subjects.destroy');
 });
 
 Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'profesorDashboard'])->name('profesorDashboardShow');
 
-    Route::get('/mobilnost', [MobilityController::class, 'index'])->name('profesor.mobility');
-    Route::post('/mobilnost', [MobilityController::class, 'upload'])->name('profesor.mobility.upload');
-    Route::post('/mobilnost/export', [MobilityController::class, 'export'])->name('profesor.mobility.export');
+    Route::get('/mobility', [MobilityController::class, 'index'])->name('profesor.mobility');
+    Route::post('/mobility', [MobilityController::class, 'upload'])->name('profesor.mobility.upload');
+    Route::post('/mobility/export', [MobilityController::class, 'export'])->name('profesor.mobility.export');
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('profesor.mobility.save');
 
     Route::post('/prepis-agreement/{id}/accept', [App\Http\Controllers\PrepisAgreementController::class, 'accept'])->name('prepis-agreement.accept');

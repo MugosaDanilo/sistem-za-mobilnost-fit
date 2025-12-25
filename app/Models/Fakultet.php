@@ -8,6 +8,10 @@ class Fakultet extends Model
 {
     protected $table = 'fakulteti';
     protected $fillable = ['naziv', 'email', 'telefon', 'web', 'uputstvo_za_ocjene', 'univerzitet_id'];
+    /** @test */
+    protected $casts = [
+    'uputstvo_za_ocjene' => 'string',
+];
 
     public function univerzitet()
     {
@@ -18,4 +22,7 @@ class Fakultet extends Model
     {
         return $this->hasMany(Predmet::class);
     }
+
+
+
 }

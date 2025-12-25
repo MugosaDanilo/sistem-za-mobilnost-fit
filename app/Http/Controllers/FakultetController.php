@@ -6,14 +6,16 @@ use Illuminate\Http\Request;
 use App\Models\Fakultet;
 use App\Models\Univerzitet;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class FakultetController extends Controller
 {
     public function index()
     {
-        $fakulteti = Fakultet::with('univerzitet')->get();
-        $univerziteti = Univerzitet::all(); // For the dropdown in modal
-        return view('fakultet.index', compact('fakulteti', 'univerziteti'));
+        $faculties = Fakultet::with('univerzitet')->get();
+        $universities = Univerzitet::all();
+
+        return view('faculty.index', compact('faculties', 'universities'));
     }
 
     public function store(Request $request)
@@ -23,48 +25,60 @@ class FakultetController extends Controller
             'email' => 'required|email|max:255|unique:fakulteti,email',
             'telefon' => 'required|string|max:255',
             'web' => 'nullable|string|max:255',
-            'uputstvo_za_ocjene' => 'nullable|string',
+            'uputstvo_za_ocjene' => 'required|file|mimes:doc,docx,txt|max:2048',
             'univerzitet_id' => 'required|exists:univerziteti,id',
-        ], [
-            'email.unique' => 'Fakultet sa ovim emailom već postoji.',
-            'univerzitet_id.exists' => 'Izabrani univerzitet ne postoji.',
         ]);
+
+        if ($request->hasFile('uputstvo_za_ocjene')) {
+            $file = $request->file('uputstvo_za_ocjene');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/faculty_instructions', $filename);
+            $validated['uputstvo_za_ocjene'] = $filename;
+        }
 
         Fakultet::create($validated);
 
-        return redirect()->back()->with('success', 'Fakultet uspješno dodat!');
+        return redirect()->back()->with('success', 'Faculty added successfully!');
     }
 
     public function update(Request $request, $id)
     {
-        $fakultet = Fakultet::findOrFail($id);
+        $faculty = Fakultet::findOrFail($id);
 
         $validated = $request->validate([
             'naziv' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('fakulteti')->ignore($fakultet->id),
-            ],
+            'email' => ['required', 'email', 'max:255', Rule::unique('fakulteti')->ignore($faculty->id)],
             'telefon' => 'required|string|max:255',
             'web' => 'nullable|string|max:255',
-            'uputstvo_za_ocjene' => 'nullable|string',
+            'uputstvo_za_ocjene' => 'nullable|file|mimes:doc,docx,txt|max:2048',
             'univerzitet_id' => 'required|exists:univerziteti,id',
-        ], [
-            'email.unique' => 'Fakultet sa ovim emailom već postoji.',
         ]);
 
-        $fakultet->update($validated);
+        if ($request->hasFile('uputstvo_za_ocjene')) {
+            if ($faculty->uputstvo_za_ocjene && Storage::exists('public/faculty_instructions/' . $faculty->uputstvo_za_ocjene)) {
+                Storage::delete('public/faculty_instructions/' . $faculty->uputstvo_za_ocjene);
+            }
+            $file = $request->file('uputstvo_za_ocjene');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/faculty_instructions', $filename);
+            $validated['uputstvo_za_ocjene'] = $filename;
+        }
 
-        return redirect()->route('fakulteti.index')->with('success', 'Fakultet uspješno ažuriran!');
+        $faculty->update($validated);
+
+        return redirect()->route('faculties.index')->with('success', 'Faculty updated successfully!');
     }
 
     public function destroy($id)
     {
-        $fakultet = Fakultet::findOrFail($id);
-        $fakultet->delete();
+        $faculty = Fakultet::findOrFail($id);
 
-        return redirect()->route('fakulteti.index')->with('success', 'Fakultet uspješno obrisan!');
+        if ($faculty->uputstvo_za_ocjene && Storage::exists('public/faculty_instructions/' . $faculty->uputstvo_za_ocjene)) {
+            Storage::delete('public/faculty_instructions/' . $faculty->uputstvo_za_ocjene);
+        }
+
+        $faculty->delete();
+
+        return redirect()->route('faculties.index')->with('success', 'Faculty deleted successfully!');
     }
 }

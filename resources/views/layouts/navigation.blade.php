@@ -32,7 +32,7 @@
                                 {{ __('Univerzitet') }}
                             </x-nav-link>
 
-                            <x-nav-link :href="route('fakulteti.index')" :active="request()->routeIs('fakulteti.*')">
+                            <x-nav-link :href="route('faculty.index')" :active="request()->routeIs('faculty.*')">
                                 {{ __('Fakulteti') }}
                             </x-nav-link>
 
@@ -139,7 +139,7 @@
                         {{ __('Univerzitet') }}
                     </x-responsive-nav-link>
 
-                    <x-responsive-nav-link :href="route('fakulteti.index')" :active="request()->routeIs('fakulteti.*')">
+                    <x-responsive-nav-link :href="route('faculty.index')" :active="request()->routeIs('faculty.*')">
                         {{ __('Fakulteti') }}
                     </x-responsive-nav-link>
 
