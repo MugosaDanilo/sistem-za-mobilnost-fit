@@ -26,5 +26,14 @@ class UniverzitetSeeder extends Seeder
             'drzava' => 'Crna Gora',
             'grad' => 'Podgorica',
         ]);
+       
+        Univerzitet::create([
+    'naziv' => 'Mälardalen University',
+    'email' => 'studenttorget@mdu.se',
+    'drzava' => 'Švedska',
+    'grad' => 'Västerås',
+]);
+
+
     }
 }

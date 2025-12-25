@@ -16,6 +16,7 @@ class FakultetSeeder extends Seeder
     {
         $ucg = Univerzitet::where('naziv', 'Univerzitet Crna Gora')->first();
         $unimed = Univerzitet::where('naziv', 'Univerzitet Mediteran Crna Gora')->first();
+        $malardalen = Univerzitet::where('naziv', 'Mälardalen University')->first();
 
         Fakultet::create([
             'naziv' => 'ETF',
@@ -34,5 +35,16 @@ class FakultetSeeder extends Seeder
             'uputstvo_za_ocjene' => null,
             'univerzitet_id' => $unimed->id,
         ]);
+
+     Fakultet::create([
+    'naziv' => 'School of Innovation, Design and Engineering (IDT)',
+    'email' => 'idt-international@mdu.se',
+    'telefon' => '+4621101300',
+    'web' => 'https://www.mdu.se/en/malardalen-university/about-mdu/organisation/school-of-innovation-design-and-engineering',
+    'uputstvo_za_ocjene' => null,
+    'univerzitet_id' => $malardalen->id,
+]);
+
+
     }
 }
