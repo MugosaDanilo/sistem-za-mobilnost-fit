@@ -39,7 +39,18 @@ class PrepisController extends Controller
                 return $items->pluck('fit_predmet_id');
             });
 
-        return view('prepis.create', compact('studenti', 'fakulteti', 'predmeti', 'existingAgreements', 'existingAgreementsForeign'));
+        $mappedSubjects = \App\Models\MappingRequestSubject::whereNotNull('fit_predmet_id')
+            ->get()
+            ->pluck('fit_predmet_id', 'strani_predmet_id');
+
+        $mappedSubjectsReverse = \App\Models\MappingRequestSubject::whereNotNull('fit_predmet_id')
+            ->get()
+            ->groupBy('fit_predmet_id')
+            ->map(function ($items) {
+                return $items->pluck('strani_predmet_id');
+            });
+
+        return view('prepis.create', compact('studenti', 'fakulteti', 'predmeti', 'existingAgreements', 'existingAgreementsForeign', 'mappedSubjects', 'mappedSubjectsReverse'));
     }
 
     public function store(Request $request)
@@ -95,7 +106,18 @@ class PrepisController extends Controller
                 return $items->pluck('fit_predmet_id');
             });
 
-        return view('prepis.edit', compact('prepis', 'studenti', 'fakulteti', 'predmeti', 'existingAgreements', 'existingAgreementsForeign'));
+        $mappedSubjects = \App\Models\MappingRequestSubject::whereNotNull('fit_predmet_id')
+            ->get()
+            ->pluck('fit_predmet_id', 'strani_predmet_id');
+
+        $mappedSubjectsReverse = \App\Models\MappingRequestSubject::whereNotNull('fit_predmet_id')
+            ->get()
+            ->groupBy('fit_predmet_id')
+            ->map(function ($items) {
+                return $items->pluck('strani_predmet_id');
+            });
+
+        return view('prepis.edit', compact('prepis', 'studenti', 'fakulteti', 'predmeti', 'existingAgreements', 'existingAgreementsForeign', 'mappedSubjects', 'mappedSubjectsReverse'));
     }
 
     public function update(Request $request, $id)
@@ -154,5 +176,35 @@ class PrepisController extends Controller
         $predmeti = Predmet::select('id', 'naziv', 'ects', 'fakultet_id')->get();
 
         return view('prepis.professor_match', compact('professors', 'fakulteti', 'predmeti'));
+    }
+
+    public function storeProfessorMatch(Request $request)
+    {
+        $request->validate([
+            'fakultet_id' => 'required|exists:fakulteti,id',
+            'matches' => 'required|array',
+            'matches.*.professor_id' => 'required|exists:users,id',
+            'matches.*.subject_id' => 'required|exists:predmeti,id',
+        ]);
+
+        $matches = collect($request->matches);
+        $groupedByProfessor = $matches->groupBy('professor_id');
+
+        foreach ($groupedByProfessor as $professorId => $professorMatches) {
+            $mappingRequest = \App\Models\MappingRequest::create([
+                'professor_id' => $professorId,
+                'fakultet_id' => $request->fakultet_id,
+                'status' => 'pending',
+            ]);
+
+            foreach ($professorMatches as $match) {
+                \App\Models\MappingRequestSubject::create([
+                    'mapping_request_id' => $mappingRequest->id,
+                    'strani_predmet_id' => $match['subject_id'],
+                ]);
+            }
+        }
+
+        return response()->json(['message' => 'Mapping requests sent successfully.']);
     }
 }

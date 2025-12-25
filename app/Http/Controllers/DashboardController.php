@@ -16,13 +16,11 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         
-        $predmetiIds = $user->predmeti->pluck('id');
-
-        $agreements = \App\Models\PrepisAgreement::whereIn('fit_predmet_id', $predmetiIds)
-            ->with(['prepis.student', 'fitPredmet', 'straniPredmet'])
+        $mappingRequests = \App\Models\MappingRequest::where('professor_id', $user->id)
+            ->with(['fakultet', 'subjects.straniPredmet'])
             ->latest()
             ->get();
 
-        return view('dashboard.profesor-dashboard', compact('agreements'));
+        return view('dashboard.profesor-dashboard', compact('mappingRequests'));
     }
 }

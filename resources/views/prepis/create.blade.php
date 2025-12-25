@@ -191,12 +191,14 @@
             const allSubjects = @json($predmeti);
             const existingAgreements = @json($existingAgreements);
             const existingAgreementsForeign = @json($existingAgreementsForeign);
-            
+            const mappedSubjects = @json($mappedSubjects ?? []); // strani_id => fit_id
+            const mappedSubjectsReverse = @json($mappedSubjectsReverse ?? []); // fit_id => [strani_id, ...]
+
             // State
             let state = {
                 fitSubjects: [],
                 foreignSubjects: [],
-                linkedPairs: [],
+                linkedPairs: [], // Array of { fit: Subject, foreign: [Subject, Subject] }
                 pendingFit: null,
                 pendingForeign: null,
                 selectedFacultyId: null
@@ -249,7 +251,7 @@
                 state.fitSubjects
                     .filter(s => s.naziv.toLowerCase().includes(query))
                     .forEach(s => {
-                        const hasMatches = existingAgreements[s.id] && existingAgreements[s.id].length > 0;
+                        const hasMatches = (existingAgreements[s.id] && existingAgreements[s.id].length > 0) || (mappedSubjectsReverse[s.id] && mappedSubjectsReverse[s.id].length > 0);
                         const el = createDraggableItem(s, 'fit', hasMatches);
                         els.fitList.appendChild(el);
                     });
@@ -270,8 +272,9 @@
                 state.foreignSubjects
                     .filter(s => s.naziv.toLowerCase().includes(query))
                     .forEach(s => {
-                        const hasMatches = existingAgreementsForeign[s.id] && existingAgreementsForeign[s.id].length > 0;
-                        const el = createDraggableItem(s, 'foreign', hasMatches);
+                        const hasMatches = (existingAgreementsForeign[s.id] && existingAgreementsForeign[s.id].length > 0) || mappedSubjects[s.id];
+                        const isMapped = mappedSubjects[s.id] ? true : false;
+                        const el = createDraggableItem(s, 'foreign', hasMatches, isMapped);
                         els.foreignList.appendChild(el);
                     });
             }
@@ -280,14 +283,31 @@
                 els.linkedList.innerHTML = '';
                 state.linkedPairs.forEach((pair, index) => {
                     const el = document.createElement('div');
-                    el.className = 'flex items-center justify-between p-3 bg-white border border-gray-200 rounded shadow-sm text-sm';
-                    el.innerHTML = `
-                        <div class="flex-1 grid grid-cols-2 gap-2">
-                            <div class="font-medium text-gray-800 truncate" title="${pair.fit.naziv}">${pair.fit.naziv}</div>
-                            <div class="text-gray-600 truncate" title="${pair.foreign.naziv}">${pair.foreign.naziv}</div>
-                        </div>
-                        <button type="button" class="ml-3 text-red-500 hover:text-red-700 font-bold px-2" onclick="unlinkPair(${index})">&times;</button>
+                    el.className = 'flex flex-col p-3 bg-white border border-gray-200 rounded shadow-sm text-sm';
+                    
+                    // FIT Subject Header
+                    const header = document.createElement('div');
+                    header.className = 'flex justify-between items-center mb-2 pb-2 border-b border-gray-100';
+                    header.innerHTML = `
+                        <span class="font-bold text-gray-800">${pair.fit.naziv} (${pair.fit.ects} ECTS)</span>
+                        <button type="button" class="text-red-500 hover:text-red-700 font-bold px-2" onclick="unlinkGroup(${index})">Remove All</button>
                     `;
+                    el.appendChild(header);
+
+                    // Foreign Subjects List
+                    const list = document.createElement('div');
+                    list.className = 'space-y-1 pl-2';
+                    pair.foreign.forEach((foreign, fIndex) => {
+                        const item = document.createElement('div');
+                        item.className = 'flex justify-between items-center text-gray-600';
+                        item.innerHTML = `
+                            <span>&bull; ${foreign.naziv} (${foreign.ects} ECTS)</span>
+                            <button type="button" class="text-red-400 hover:text-red-600 text-xs" onclick="unlinkForeignFromGroup(${index}, ${fIndex})">&times;</button>
+                        `;
+                        list.appendChild(item);
+                    });
+                    el.appendChild(list);
+
                     els.linkedList.appendChild(el);
                 });
             }
@@ -312,9 +332,9 @@
                 }
             }
 
-            function createDraggableItem(subject, type, hasMatches = false) {
+            function createDraggableItem(subject, type, hasMatches = false, isMapped = false) {
                 const div = document.createElement('div');
-                div.className = 'draggable-item bg-white p-2 rounded border border-gray-200 shadow-sm text-sm hover:border-indigo-400 transition-colors flex justify-between items-center group';
+                div.className = `draggable-item bg-white p-2 rounded border border-gray-200 shadow-sm text-sm hover:border-indigo-400 transition-colors flex justify-between items-center group ${isMapped ? 'bg-green-50 border-green-200' : ''}`;
                 div.draggable = true;
                 div.dataset.id = subject.id;
                 div.dataset.type = type;
@@ -322,6 +342,9 @@
                 // Content
                 const content = document.createElement('span');
                 content.textContent = `${subject.naziv} (${subject.ects} ECTS)`;
+                if (isMapped) {
+                    content.classList.add('text-green-700', 'font-medium');
+                }
                 div.appendChild(content);
 
                 // Automatch Button (Only if matches exist)
@@ -367,12 +390,30 @@
                 renderForeignList();
             }
             
-            function pairExists(fitId, foreignId) {
-                return state.linkedPairs.some(p => p.fit.id == fitId && p.foreign.id == foreignId);
+            function addPair(fitSubject, foreignSubject) {
+                // Check if pair exists
+                const existingGroup = state.linkedPairs.find(p => p.fit.id == fitSubject.id);
+                if (existingGroup) {
+                    if (existingGroup.foreign.some(f => f.id == foreignSubject.id)) {
+                        return false; // Already exists
+                    }
+                    existingGroup.foreign.push(foreignSubject);
+                } else {
+                    state.linkedPairs.push({ fit: fitSubject, foreign: [foreignSubject] });
+                }
+                return true;
             }
 
-            window.unlinkPair = function(index) {
+            window.unlinkGroup = function(index) {
                 state.linkedPairs.splice(index, 1);
+                render();
+            };
+
+            window.unlinkForeignFromGroup = function(groupIndex, foreignIndex) {
+                state.linkedPairs[groupIndex].foreign.splice(foreignIndex, 1);
+                if (state.linkedPairs[groupIndex].foreign.length === 0) {
+                    state.linkedPairs.splice(groupIndex, 1);
+                }
                 render();
             };
 
@@ -387,32 +428,48 @@
                 let matchedCount = 0;
 
                 if (type === 'fit') {
-                    if (!existingAgreements[subject.id]) return;
-                    const foreignIds = existingAgreements[subject.id];
-
-                    foreignIds.forEach(foreignId => {
-                        const foreignSubject = state.foreignSubjects.find(s => s.id == foreignId);
-                        if (foreignSubject) {
-                            if (!pairExists(subject.id, foreignSubject.id)) {
-                                state.linkedPairs.push({ fit: subject, foreign: foreignSubject });
-                                matchedCount++;
+                    // Check mappedSubjectsReverse first
+                    if (mappedSubjectsReverse[subject.id]) {
+                        const foreignIds = mappedSubjectsReverse[subject.id];
+                        foreignIds.forEach(foreignId => {
+                            const foreignSubject = state.foreignSubjects.find(s => s.id == foreignId);
+                            if (foreignSubject) {
+                                if (addPair(subject, foreignSubject)) matchedCount++;
                             }
-                        }
-                    });
-                } else if (type === 'foreign') {
-                    if (!existingAgreementsForeign[subject.id]) return;
-                    const fitIds = existingAgreementsForeign[subject.id];
+                        });
+                    }
 
-                    fitIds.forEach(fitId => {
-                         // Find FIT subject in available list
-                         const fitSubject = state.fitSubjects.find(s => s.id == fitId);
-                         if (fitSubject) {
-                             if (!pairExists(fitSubject.id, subject.id)) {
-                                 state.linkedPairs.push({ fit: fitSubject, foreign: subject });
-                                 matchedCount++;
+                    // Check existing agreements
+                    if (existingAgreements[subject.id]) {
+                        const foreignIds = existingAgreements[subject.id];
+                        foreignIds.forEach(foreignId => {
+                            const foreignSubject = state.foreignSubjects.find(s => s.id == foreignId);
+                            if (foreignSubject) {
+                                if (addPair(subject, foreignSubject)) matchedCount++;
+                            }
+                        });
+                    }
+
+                } else if (type === 'foreign') {
+                    // Check mappedSubjects first
+                    if (mappedSubjects[subject.id]) {
+                        const fitId = mappedSubjects[subject.id];
+                        const fitSubject = state.fitSubjects.find(s => s.id == fitId);
+                        if (fitSubject) {
+                             if (addPair(fitSubject, subject)) matchedCount++;
+                        }
+                    }
+
+                    // Check existing agreements
+                    if (existingAgreementsForeign[subject.id]) {
+                        const fitIds = existingAgreementsForeign[subject.id];
+                        fitIds.forEach(fitId => {
+                             const fitSubject = state.fitSubjects.find(s => s.id == fitId);
+                             if (fitSubject) {
+                                 if (addPair(fitSubject, subject)) matchedCount++;
                              }
-                         }
-                    });
+                        });
+                    }
                 }
 
                 if (matchedCount > 0) {
@@ -424,19 +481,23 @@
 
             function updateFormInputs() {
                 els.formInputs.innerHTML = '';
-                state.linkedPairs.forEach((pair, index) => {
-                    const inputFit = document.createElement('input');
-                    inputFit.type = 'hidden';
-                    inputFit.name = `agreements[${index}][fit_predmet_id]`;
-                    inputFit.value = pair.fit.id;
-                    
-                    const inputForeign = document.createElement('input');
-                    inputForeign.type = 'hidden';
-                    inputForeign.name = `agreements[${index}][strani_predmet_id]`;
-                    inputForeign.value = pair.foreign.id;
+                let index = 0;
+                state.linkedPairs.forEach(group => {
+                    group.foreign.forEach(foreign => {
+                        const inputFit = document.createElement('input');
+                        inputFit.type = 'hidden';
+                        inputFit.name = `agreements[${index}][fit_predmet_id]`;
+                        inputFit.value = group.fit.id;
+                        
+                        const inputForeign = document.createElement('input');
+                        inputForeign.type = 'hidden';
+                        inputForeign.name = `agreements[${index}][strani_predmet_id]`;
+                        inputForeign.value = foreign.id;
 
-                    els.formInputs.appendChild(inputFit);
-                    els.formInputs.appendChild(inputForeign);
+                        els.formInputs.appendChild(inputFit);
+                        els.formInputs.appendChild(inputForeign);
+                        index++;
+                    });
                 });
             }
 
@@ -447,18 +508,23 @@
                 let totalFit = 0;
                 let totalForeign = 0;
 
-                state.linkedPairs.forEach(pair => {
+                state.linkedPairs.forEach(group => {
                     const row = document.createElement('tr');
+                    
+                    // Foreign subjects string
+                    const foreignNames = group.foreign.map(f => f.naziv).join('<br>');
+                    const foreignEcts = group.foreign.map(f => f.ects).reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
+
                     row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left">${pair.fit.naziv}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">${pair.fit.ects}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left">${pair.foreign.naziv}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">${pair.foreign.ects}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left align-top">${group.fit.naziv}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left align-top">${group.fit.ects}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left align-top">${foreignNames}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left align-top">${foreignEcts}</td>
                     `;
                     els.previewTableBody.appendChild(row);
                     
-                    totalFit += parseFloat(pair.fit.ects) || 0;
-                    totalForeign += parseFloat(pair.foreign.ects) || 0;
+                    totalFit += parseFloat(group.fit.ects) || 0;
+                    totalForeign += foreignEcts;
                 });
 
                 els.totalFitEcts.textContent = totalFit;
@@ -513,13 +579,9 @@
                         }
 
                         if (state.pendingFit && state.pendingForeign) {
-                            if (!pairExists(state.pendingFit.id, state.pendingForeign.id)) {
-                                state.linkedPairs.push({ fit: state.pendingFit, foreign: state.pendingForeign });
-                                state.pendingFit = null;
-                                state.pendingForeign = null;
-                            } else {
-                                alert('This pair is already linked.');
-                            }
+                            addPair(state.pendingFit, state.pendingForeign);
+                            state.pendingFit = null;
+                            state.pendingForeign = null;
                         }
 
                         render();
