@@ -248,11 +248,30 @@
                 const query = els.searchFit.value.toLowerCase();
                 els.fitList.innerHTML = '';
                 
+                const hasSelectedFaculty = !!state.selectedFacultyId;
+                const foreignIdsForFaculty = new Set(state.foreignSubjects.map(s => s.id));
+
                 state.fitSubjects
                     .filter(s => s.naziv.toLowerCase().includes(query))
                     .forEach(s => {
-                        const hasMatches = (existingAgreements[s.id] && existingAgreements[s.id].length > 0) || (mappedSubjectsReverse[s.id] && mappedSubjectsReverse[s.id].length > 0);
-                        const el = createDraggableItem(s, 'fit', hasMatches);
+                        let isGreen = false;
+                        let isRed = false;
+
+                        if (hasSelectedFaculty) {
+                            const agreements = existingAgreements[s.id] || [];
+                            const mappings = mappedSubjectsReverse[s.id] || [];
+                            const allLinks = [...agreements, ...mappings];
+                            
+                            // Check if any linked foreign subject is in the current faculty's list
+                            isGreen = allLinks.some(id => foreignIdsForFaculty.has(Number(id)));
+                            isRed = !isGreen;
+                        } else {
+                            // If no faculty selected, use original "has any match" logic for indicator if desired, 
+                            // or neither red nor green.
+                        }
+
+                        // reuse 'isMapped' param for Green, pass new isRed param
+                        const el = createDraggableItem(s, 'fit', isGreen, isGreen, isRed);
                         els.fitList.appendChild(el);
                     });
             }
@@ -332,10 +351,19 @@
                 }
             }
 
-            function createDraggableItem(subject, type, hasMatches = false, isMapped = false) {
+            function createDraggableItem(subject, type, hasMatches = false, isMapped = false, isRed = false) {
                 const div = document.createElement('div');
-                div.className = `draggable-item bg-white p-2 rounded border border-gray-200 shadow-sm text-sm hover:border-indigo-400 transition-colors flex justify-between items-center group ${isMapped ? 'bg-green-50 border-green-200' : ''}`;
-                div.draggable = true;
+                
+                let classes = 'draggable-item bg-white p-2 rounded border border-gray-200 shadow-sm text-sm hover:border-indigo-400 transition-colors flex justify-between items-center group';
+                if (isMapped) {
+                    classes += ' bg-green-50 border-green-200';
+                }
+                if (isRed) {
+                    classes += ' bg-red-50 border-red-200 opacity-75 cursor-not-allowed';
+                }
+
+                div.className = classes;
+                div.draggable = !isRed;
                 div.dataset.id = subject.id;
                 div.dataset.type = type;
                 
@@ -345,10 +373,13 @@
                 if (isMapped) {
                     content.classList.add('text-green-700', 'font-medium');
                 }
+                if (isRed) {
+                    content.classList.add('text-red-700');
+                }
                 div.appendChild(content);
 
-                // Automatch Button (Only if matches exist)
-                if (hasMatches) {
+                // Automatch Button (Only if matches exist and NOT red)
+                if (hasMatches && !isRed) {
                     const btn = document.createElement('button');
                     btn.type = 'button';
                     btn.className = 'automatch-btn hidden group-hover:flex items-center justify-center bg-green-100 hover:bg-green-200 text-green-700 rounded-full p-1 ml-2 transition-colors';
@@ -366,15 +397,23 @@
                     div.appendChild(btn);
                 }
                 
-                div.addEventListener('dragstart', (e) => {
-                    div.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', JSON.stringify({ id: subject.id, type: type }));
-                    e.dataTransfer.effectAllowed = 'move';
-                });
+                // Drag Events
+                if (!isRed) {
+                    div.addEventListener('dragstart', (e) => {
+                        div.classList.add('dragging');
+                        e.dataTransfer.setData('text/plain', JSON.stringify({ id: subject.id, type: type }));
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
 
-                div.addEventListener('dragend', () => {
-                    div.classList.remove('dragging');
-                });
+                    div.addEventListener('dragend', () => {
+                        div.classList.remove('dragging');
+                    });
+                } else {
+                     div.addEventListener('dragstart', (e) => {
+                         e.preventDefault();
+                         return false;
+                     });
+                }
 
                 return div;
             }
