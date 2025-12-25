@@ -65,6 +65,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
 
     Route::get('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'professorMatch'])->name('prepis.professor-match');
+    Route::post('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'storeProfessorMatch'])->name('prepis.professor-match.store');
     Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
 
     Route::get('/izvjestaji', [\App\Http\Controllers\IzvjestajiController::class, 'index'])->name('izvjestaji.index');
@@ -97,6 +98,9 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
 
     Route::post('/prepis-agreement/{id}/accept', [App\Http\Controllers\PrepisAgreementController::class, 'accept'])->name('prepis-agreement.accept');
     Route::post('/prepis-agreement/{id}/reject', [App\Http\Controllers\PrepisAgreementController::class, 'reject'])->name('prepis-agreement.reject');
+
+    Route::get('/mapping-request/{id}', [\App\Http\Controllers\MappingRequestController::class, 'show'])->name('mapping-request.show');
+    Route::post('/mapping-request/{id}', [\App\Http\Controllers\MappingRequestController::class, 'update'])->name('mapping-request.update');
 });
 
 require __DIR__ . '/auth.php';

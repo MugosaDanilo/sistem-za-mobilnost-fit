@@ -62,8 +62,11 @@
 
                                 <!-- Linked List -->
                                 <div class="flex-1 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col">
-                                    <div class="p-3 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                                    <div class="p-3 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
                                         <h4 class="font-semibold text-gray-700">Matched Pairs</h4>
+                                        <button id="send-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-3 rounded shadow transition-colors hidden">
+                                            Send to Professor
+                                        </button>
                                     </div>
                                     <div id="linked-list" class="h-[350px] overflow-y-auto p-2 space-y-2">
                                         <!-- Linked Pairs will be injected here -->
@@ -132,6 +135,7 @@
                 searchProf: document.getElementById('search-prof'),
                 searchSubject: document.getElementById('search-subject'),
                 facultySelect: document.getElementById('fakultet_id'),
+                sendBtn: document.getElementById('send-btn'),
             };
 
             // Initialize Data
@@ -142,6 +146,7 @@
                 setupSearch();
                 setupFacultyChange();
                 setupSearchableDropdowns();
+                setupSendButton();
             }
 
             // --- Rendering ---
@@ -151,6 +156,7 @@
                 renderSubjectList();
                 renderLinkedList();
                 renderDropZone();
+                updateSendButton();
             }
 
             function renderProfList() {
@@ -218,6 +224,14 @@
                 } else {
                     els.dropSlotSubject.textContent = "Subject";
                     els.dropSlotSubject.className = "w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2";
+                }
+            }
+
+            function updateSendButton() {
+                if (state.linkedPairs.length > 0) {
+                    els.sendBtn.classList.remove('hidden');
+                } else {
+                    els.sendBtn.classList.add('hidden');
                 }
             }
 
@@ -395,6 +409,44 @@
                             resultsDiv.classList.add('hidden');
                         }
                     });
+                });
+            }
+
+            function setupSendButton() {
+                els.sendBtn.addEventListener('click', async () => {
+                    if (state.linkedPairs.length === 0) return;
+                    
+                    if (!confirm('Are you sure you want to send these matches to the professors?')) return;
+
+                    const matches = state.linkedPairs.map(p => ({
+                        professor_id: p.prof.id,
+                        subject_id: p.subject.id
+                    }));
+
+                    try {
+                        const response = await fetch('{{ route("prepis.professor-match.store") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                fakultet_id: state.selectedFacultyId,
+                                matches: matches
+                            })
+                        });
+
+                        if (response.ok) {
+                            alert('Requests sent successfully!');
+                            state.linkedPairs = [];
+                            render();
+                        } else {
+                            alert('Failed to send requests. Please try again.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred.');
+                    }
                 });
             }
 
