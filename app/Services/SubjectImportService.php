@@ -112,6 +112,55 @@ class SubjectImportService
         }
 
         return $courses;
+        return $courses;
+    }
+
+    public function loadCoursesGeneric(string $filePath) {
+        $reader = IOFactory::createReaderForFile($filePath);
+        $reader->setReadDataOnly(true);
+        $spreadsheet = $reader->load($filePath);
+        
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheetName = $sheet->getTitle();
+        
+        $rows = $sheet->rangeToArray(
+            'A1:' . $sheet->getHighestDataColumn() . $sheet->getHighestDataRow(),
+            null,
+            true,
+            true,
+            false
+        );
+
+        $requiredHeaders = ['Šifra predmeta', 'Naziv predmeta', 'Semestar', 'ECTS'];
+        $headersMap = $this->findHeaderRow($rows, $requiredHeaders);
+
+        if (!$headersMap) {
+             throw new \Exception("Could not find required headers (" . implode(', ', $requiredHeaders) . ") in '{$sheetName}' sheet.");
+        }
+
+        $headerRowIndex = $headersMap['_rowIndex'];
+        $courses = [];
+
+        foreach ($rows as $rowIndex => $row) {
+            if ($rowIndex <= $headerRowIndex) continue;
+            if (!array_filter($row)) continue;
+
+            $sifraVal = trim($row[$headersMap['Šifra predmeta']] ?? '');
+            $nazivVal = trim($row[$headersMap['Naziv predmeta']] ?? '');
+
+            if ($sifraVal === '' || $nazivVal === '') continue;
+            if ($sifraVal === 'Šifra predmeta' || $nazivVal === 'Naziv predmeta') continue;
+
+            $courses[] = [
+                'Sifra Predmeta' => $sifraVal,
+                'Naziv Predmeta' => $nazivVal,
+                'Naziv Engleski' => null,
+                'Semestar'       => $this->romanToInt($row[$headersMap['Semestar']] ?? ''),
+                'ECTS'           => $row[$headersMap['ECTS']] ?? null,
+            ];
+        }
+
+        return $courses;
     }
 
     private function findHeaderRow(array $rows, array $requiredHeaders): ?array {

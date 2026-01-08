@@ -31,11 +31,9 @@
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
                     Dodaj Predmet
                 </button>
-                @if(Str::contains($fakultet->naziv, ['FIT', 'Mediteran']))
-                    <button id="importSubjectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                        Import Subjects
-                    </button>
-                @endif
+                <button id="importSubjectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                    Import Subjects
+                </button>
             </div>
         </div>
 
@@ -63,7 +61,13 @@
                     <div class="mb-4">
                          <label class="block text-gray-700 font-medium mb-1">Upload .xlsx File</label>
                          <input type="file" name="file" accept=".xlsx, .xls" required class="w-full border p-2 rounded">
-                         <p class="text-sm text-gray-500 mt-1">Expected: Native sheet & English sheet.</p>
+                         <p class="text-sm text-gray-500 mt-1">
+                             @if(Str::contains($fakultet->naziv, ['FIT', 'Fakultet za informacione tehnologije']))
+                                Expected table: Native sheet & English.
+                             @else
+                                Expected headers: 'Šifra predmeta', 'Naziv predmeta', 'ECTS', 'Semestar'.
+                             @endif
+                         </p>
                     </div>
                     
                     <div class="flex justify-end space-x-2">

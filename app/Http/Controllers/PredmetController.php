@@ -66,16 +66,21 @@ class PredmetController extends Controller
         $file = $request->file('file');
         $filePath = $file->getPathname();
         $level = $request->input('level');
+        
+        $fakultet = Fakultet::findOrFail($fakultetId);
 
         $importer = new \App\Services\SubjectImportService();
         try {
-            $courses = $importer->loadCoursesFit($filePath, $level);
+            if (\Illuminate\Support\Str::contains($fakultet->naziv, ['FIT', 'Fakultet za informacione tehnologije'])) {
+                 $courses = $importer->loadCoursesFit($filePath, $level);
+            } else {
+                 $courses = $importer->loadCoursesGeneric($filePath);
+            }
         } catch (\Exception $e) {
              return redirect()->back()->withErrors(['file' => 'Error parsing file: ' . $e->getMessage()]);
         }
-
-        $fakultet = Fakultet::findOrFail($fakultetId);
         
+        // Determine study level ID
         $nivoName = ($level === 'basic') ? 'Osnovne studije' : 'Master studije';
         $nivoStudija = \App\Models\NivoStudija::where('naziv', 'LIKE', $nivoName . '%')
                         ->orWhere('naziv', ($level === 'basic' ? 'Osnovne' : 'Master'))
