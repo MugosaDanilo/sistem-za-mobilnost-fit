@@ -9,6 +9,7 @@ class Predmet extends Model
     protected $table = 'predmeti';
 
     protected $fillable = [
+        'sifra_predmeta',
         'naziv',
         'semestar',
         'ects',

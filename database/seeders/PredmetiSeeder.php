@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Fakultet;
+use App\Models\NivoStudija;
 use App\Models\Predmet;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -21,46 +22,39 @@ class PredmetiSeeder extends Seeder
      */
     public function run(): void
     {
-       $importer = new SubjectImportService();
-       $filePath = storage_path('app/predmeti/nove npp osnovne.docx');
+        $importer = new SubjectImportService();
+        $filePath = storage_path('app/predmeti/FIT_Nastavni_planovi_1.xlsx');
 
-       $coursesFit = $importer->loadCoursesFromFit($filePath);
+        $coursesFitBasic = $importer->loadCoursesFit($filePath, 'basic');
+        $coursesFitMaster = $importer->loadCoursesFit($filePath, 'master');
 
         $unimed = Fakultet::where('naziv', 'FIT')->first();
-        $osnovne = \App\Models\NivoStudija::where('naziv', 'Osnovne')->first();
+        $basic = NivoStudija::where('naziv', 'Osnovne')->first();
+        $master = NivoStudija::where('naziv', 'Master')->first();
 
-        foreach ($coursesFit as $c) {
-
+        //Predmeti za osnovne
+        foreach ($coursesFitBasic as $c) {
             Predmet::create([
-                'naziv' => $c['Naziv predmeta'] ?? '',
-                'naziv_engleski' => $c['Naziv predmeta(Eng)'] ?? null,
+                'sifra_predmeta' => $c['Sifra Predmeta'] ?? '',
+                'naziv' => $c['Naziv Predmeta'] ?? '',
+                'naziv_engleski' => $c['Naziv Engleski'] ?? null,
                 'ects' => (int) ($c['ECTS'] ?? 0),
-                'semestar' => $importer->romanToInt($c['Semestar'] ?? ''),
+                'semestar' => (int)$c['Semestar'],
                 'fakultet_id' => $unimed->id,
-                'nivo_studija_id' => $osnovne->id ?? null,
+                'nivo_studija_id' => $basic->id ?? null,
             ]);
         }
 
-        $etf = Fakultet::where('naziv', 'ETF')->first();
-
-        if ($etf) {
-            $predmeti = [
-                ['naziv' => 'Programiranje 1', 'ects' => 6, 'semestar' => 1],
-                ['naziv' => 'Matematika 1', 'ects' => 5, 'semestar' => 1],
-                ['naziv' => 'Fizika', 'ects' => 4, 'semestar' => 1],
-                ['naziv' => 'Algoritmi i strukture podataka', 'ects' => 6, 'semestar' => 2],
-                ['naziv' => 'Baze podataka', 'ects' => 5, 'semestar' => 2],
-            ];
-
-            foreach ($predmeti as $p) {
-                Predmet::create([
-                    'naziv' => $p['naziv'],
-                    'ects' => $p['ects'],
-                    'semestar' => $p['semestar'],
-                    'fakultet_id' => $etf->id,
-                    'nivo_studija_id' => $osnovne->id ?? null,
-                ]);
-            }
+        foreach ($coursesFitMaster as $c) {
+            Predmet::create([
+                'sifra_predmeta' => $c['Sifra Predmeta'] ?? '',
+                'naziv' => $c['Naziv Predmeta'] ?? '',
+                'naziv_engleski' => $c['Naziv Engleski'] ?? null,
+                'ects' => (int) ($c['ECTS'] ?? 0),
+                'semestar' => (int)$c['Semestar'],
+                'fakultet_id' => $unimed->id,
+                'nivo_studija_id' => $master->id ?? null,
+            ]);
         }
     }
 }
