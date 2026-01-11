@@ -1,8 +1,16 @@
 <x-app-layout>
+    {{-- <x-slot name="header">
+        <h2 class="font-semibold text-xl text-white leading-tight">
+            {{ __('Dashboard') }}
+        </h2>
+    </x-slot> --}}
+
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Mobility Dashboard</h1>
         </div>
+
+
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
@@ -34,16 +42,17 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $mobilnost->fakultet->naziv }}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 font-medium">{{ $mobilnost->fakultet->naziv }}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ \Carbon\Carbon::parse($mobilnost->datum_pocetka)->format('d.m.Y') }} - 
-                                    {{ \Carbon\Carbon::parse($mobilnost->datum_kraja)->format('d.m.Y') }}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500">
+                                        {{ \Carbon\Carbon::parse($mobilnost->datum_pocetka)->format('d.m.Y') }} -
+                                        {{ \Carbon\Carbon::parse($mobilnost->datum_kraja)->format('d.m.Y') }}
+                                    </div>
                                 </td>
-                               
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ route('admin.mobility.show', $mobilnost->id) }}" 
+                                    <a href="{{ route('admin.mobility.show', $mobilnost->id) }}"
                                         class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
                                         Details
                                     </a>
@@ -58,7 +67,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                                <td colspan="4" class="px-6 py-10 text-center text-gray-500">
                                     No mobility records found.
                                 </td>
                             </tr>
