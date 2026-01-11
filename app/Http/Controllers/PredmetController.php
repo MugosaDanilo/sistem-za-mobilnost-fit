@@ -59,77 +59,84 @@ class PredmetController extends Controller
     public function import(Request $request, $fakultetId)
     {
         $request->validate([
-            'file' => 'required|mimes:docx|max:10240', // 10MB max
+            'file' => 'required|mimes:xlsx,xls|max:10240', // 10MB max
+            'level' => 'required|in:basic,master',
         ]);
 
         $file = $request->file('file');
         $filePath = $file->getPathname();
+        $level = $request->input('level');
+        
+        $fakultet = Fakultet::findOrFail($fakultetId);
 
         $importer = new \App\Services\SubjectImportService();
         try {
-            $courses = $importer->loadCoursesFromFit($filePath);
+            if (\Illuminate\Support\Str::contains($fakultet->naziv, ['FIT', 'Fakultet za informacione tehnologije'])) {
+                 $courses = $importer->loadCoursesFit($filePath, $level);
+            } else {
+                 $courses = $importer->loadCoursesGeneric($filePath);
+            }
         } catch (\Exception $e) {
              return redirect()->back()->withErrors(['file' => 'Error parsing file: ' . $e->getMessage()]);
         }
-
-        $fakultet = Fakultet::findOrFail($fakultetId);
-        $osnovne = \App\Models\NivoStudija::where('naziv', 'Osnovne')->first(); // Assuming Import is for Osnovne logic as per seeder
         
+        // Determine study level ID
+        $nivoName = ($level === 'basic') ? 'Osnovne studije' : 'Master studije';
+        $nivoStudija = \App\Models\NivoStudija::where('naziv', 'LIKE', $nivoName . '%')
+                        ->orWhere('naziv', ($level === 'basic' ? 'Osnovne' : 'Master'))
+                        ->first();
+
+        $nivoStudijaId = $nivoStudija?->id;
+
         $count = 0;
-        // Group courses by fingerprint to handle identical duplicates
         $courseGroups = [];
         foreach ($courses as $c) {
-            $key = ($c['Naziv predmeta'] ?? 'Unknown') . '|' . ($importer->romanToInt($c['Semestar'] ?? '')) . '|' . ((int) ($c['ECTS'] ?? 0));
+            $key = ($c['Naziv Predmeta'] ?? 'Unknown') . '|' . ($c['Semestar'] ?? 0) . '|' . ((int) ($c['ECTS'] ?? 0));
             if (!isset($courseGroups[$key])) {
                 $courseGroups[$key] = [];
             }
             $courseGroups[$key][] = $c;
         }
 
-        $count = 0;
         foreach ($courseGroups as $key => $groupCourses) {
-            // Find existing subjects matches for this key
-            // We assume name, semester, ects match.
-            // Safe bet: We want to match existing DB records to File records 1-to-1.
             $first = $groupCourses[0];
-            $name = $first['Naziv predmeta'] ?? 'Unknown';
-            $sem = $importer->romanToInt($first['Semestar'] ?? '');
+            $name = $first['Naziv Predmeta'] ?? 'Unknown';
+            $sem = (int) ($first['Semestar'] ?? 0);
             $ects = (int) ($first['ECTS'] ?? 0);
-            
-            // Get all existing subjects with these Exact attributes
+            $sifra = $first['Sifra Predmeta'] ?? null;
+            $engName = $first['Naziv Engleski'] ?? null;
+
             $existing = Predmet::where('fakultet_id', $fakultet->id)
                                 ->where('naziv', $name)
                                 ->where('semestar', $sem)
                                 ->where('ects', $ects)
                                 ->get();
             
-            // Sync logic:
-            // If File has 3, DB has 1 -> Create 2.
-            // If File has 3, DB has 3 -> Create 0.
-            // If File has 3, DB has 0 -> Create 3.
-            
-            $needed = count($groupCourses) - $existing->count();
-            
-            // Helper to get English name (assuming all duplicates have same English name)
-            $engName = $first['Naziv predmeta(Eng)'] ?? null;
-            
-            // Update EXISTING records with new data (e.g. English name)
             foreach($existing as $exSubject) {
-                $exSubject->update([
+                $updates = [
                     'naziv_engleski' => $engName,
-                    'nivo_studija_id' => $osnovne->id ?? null,
-                ]);
+                    'nivo_studija_id' => $exSubject->nivo_studija_id ?? $nivoStudijaId,
+                ];
+                
+                if (empty($exSubject->sifra_predmeta) && !empty($sifra)) {
+                    $updates['sifra_predmeta'] = $sifra;
+                }
+
+                $exSubject->update($updates);
             }
+
+            $needed = count($groupCourses) - $existing->count();
 
             if ($needed > 0) {
                 for ($i = 0; $i < $needed; $i++) {
                      Predmet::create([
+                        'sifra_predmeta' => $sifra ?? 'Unknown',
                         'naziv' => $name,
                         'fakultet_id' => $fakultet->id,
                         'semestar' => $sem,
                         'ects' => $ects,
                         'naziv_engleski' => $engName,
-                        'nivo_studija_id' => $osnovne->id ?? null,
+                        'nivo_studija_id' => $nivoStudijaId,
                      ]);
                      $count++;
                 }

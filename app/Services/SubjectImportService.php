@@ -2,166 +2,195 @@
 
 namespace App\Services;
 
-use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\Element\Table;
-use PhpOffice\PhpWord\Element\TextRun;
-use PhpOffice\PhpWord\Element\Text;
+use InvalidArgumentException;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class SubjectImportService
 {
-    public function loadCoursesFromFit(string $filePath): array
-    {
-        $courses = [];
-        $phpWord = IOFactory::load($filePath);
-        $lastIdxMap = [];
-        $lastHeaderCount = 0;
+    private const STUDY_SHEETS = [
+        'basic' => ['OSNOVNE STUDIJE', 'Undergraduate'],
+        'master' => ['MASTER STUDIJE', "Master's"],
+    ];
+    
+    public function loadCoursesFit(string $filePath, string $level = 'basic') {
+        if (!isset(self::STUDY_SHEETS[$level])) {
+            throw new InvalidArgumentException("Invalid study level: {$level}");
+        }
 
-        foreach ($phpWord->getSections() as $section) {
-            foreach ($section->getElements() as $element) {
-                if (!($element instanceof Table)) {
-                    continue;
-                }
+        [$nativeSheetName, $englishSheetName] = self::STUDY_SHEETS[$level];
 
-                $rows = $element->getRows();
-                if (count($rows) < 1) 
-                    continue;
+        $reader = IOFactory::createReaderForFile($filePath);
+        $reader->setReadDataOnly(true);
+        $reader->setLoadSheetsOnly([$nativeSheetName, $englishSheetName]);
 
-                $headerIndex = -1;
-                $idxMap = [];
-                $tableData = [];
-                $headerCount = 0;
+        $spreadsheet = $reader->load($filePath);
 
-                foreach ($rows as $rowIndex => $row) {
-                    $rowData = [];
-                    foreach ($row->getCells() as $cell) {
-                        $cellText = '';
-                        foreach ($cell->getElements() as $cellElement) {
-                            $cellText .= $this->getElementText($cellElement) . ' ';
-                        }
-                        $rowData[] = trim($cellText);
-                    }
+        $nativeSheet = $spreadsheet->getSheetByName($nativeSheetName);
+        $englishSheet = $spreadsheet->getSheetByName($englishSheetName);
 
-                    // Header Detection Logic
-                    if ($headerIndex === -1) {
-                        $nazivIdx = -1;
-                        $ectsIdx = -1;
-                        
-                        foreach($rowData as $i => $colName) {
-                            $cleanName = mb_strtolower(trim(str_replace(["\n", "\r"], "", $colName)));
-                            if (str_contains($cleanName, 'naziv predmeta') && !str_contains($cleanName, '(eng)')) {
-                                $nazivIdx = $i;
-                            }
-                            if (str_contains($cleanName, 'ects')) {
-                                $ectsIdx = $i;
-                            }
-                        }
+        $nativeRows = $nativeSheet->rangeToArray(
+            'A1:' . $nativeSheet->getHighestDataColumn() . $nativeSheet->getHighestDataRow(),
+            null,
+            true,
+            true,
+            false
+        );
 
-                        if ($nazivIdx !== -1 && $ectsIdx !== -1) {
-                            $headerIndex = $rowIndex;
-                            $headerCount = count($rowData);
-                            
-                        foreach($rowData as $i => $colName) {
-                            // Better cleaning: replace newlines with spaces, then collapse multiple spaces
-                            $cleanName = trim(preg_replace('/\s+/', ' ', str_replace(["\n", "\r"], " ", $colName)));
-                            
-                            $cleanLower = mb_strtolower($cleanName);
+        $englishRows = $englishSheet->rangeToArray(
+            'A1:' . $englishSheet->getHighestDataColumn() . $englishSheet->getHighestDataRow(),
+            null,
+            true,
+            true,
+            false
+        );
 
-                            if (stripos($cleanName, 'Naziv predmeta') !== false && stripos($cleanName, '(Eng)') === false) {
-                                $idxMap['Naziv predmeta'] = $i;
-                            } elseif (stripos($cleanName, 'Naziv predmeta(Eng)') !== false || stripos($cleanName, 'Naziv predmeta (Eng)') !== false) {
-                                $idxMap['Naziv predmeta(Eng)'] = $i;
-                            } elseif (stripos($cleanName, 'Šifra') !== false || stripos($cleanName, 'Sifra') !== false) {
-                                $idxMap['Šifra predmeta'] = $i;
-                            } elseif (stripos($cleanName, 'Status') !== false) {
-                                $idxMap['Status'] = $i;
-                            } elseif (stripos($cleanName, 'Semestar') !== false) {
-                                 $idxMap['Semestar'] = $i;
-                            } elseif (stripos($cleanName, 'ECTS') !== false) {
-                                $idxMap['ECTS'] = $i;
-                            } elseif (stripos($cleanName, 'casova') !== false || stripos($cleanName, 'sati') !== false || stripos($cleanName, 'hours') !== false) {
-                                 $idxMap['SplitColumn'] = $i;
-                            }
-                        }
-                            $lastIdxMap = $idxMap;
-                            $lastHeaderCount = $headerCount;
-                            continue; 
-                        }
-                    }
+        $englishHeadersMap = $this->findHeaderRow($englishRows, ['Course']);
+        
+        if (!$englishHeadersMap) {
+             throw new \Exception("Could not find 'Course' header in '{$englishSheetName}' sheet.");
+        }
+        
+        $englishCourseIndex = $englishHeadersMap['Course'];
 
-                    $isHeaderRow = ($headerIndex !== -1 && $rowIndex === $headerIndex);
-                    
-                    if (!$isHeaderRow) {
-                        if (stripos(implode(' ', $rowData), 'ukupno') !== false)
-                            continue;
+        $codeHeaderCandidates = ['Code', 'Šifra', 'Šifra predmeta', 'Sifra predmeta', 'Sifra'];
+        $englishCodeIndex = null;
+        
+        $englishHeaderRowIndex = $englishHeadersMap['_rowIndex'];
+        $englishHeaderRow = $englishRows[$englishHeaderRowIndex];
 
-                        if (count(array_filter($rowData)) < 2) 
-                            continue;
+        foreach ($englishHeaderRow as $index => $cellValue) {
+             $cellValue = trim($cellValue ?? '');
+             if (in_array($cellValue, $codeHeaderCandidates)) {
+                 $englishCodeIndex = $index;
+                 break;
+             }
+        }
 
-                        $tableData[] = $rowData;
-                    }
-                }
+        if ($englishCodeIndex === null) {
+             $englishCodeIndex = ($level === 'basic') ? 1 : 2; 
+        }
 
-                $currentMap = !empty($idxMap) ? $idxMap : $lastIdxMap;
-                $currentHeaderCount = !empty($idxMap) ? $headerCount : $lastHeaderCount;
-                
-                if (empty($currentMap)) {
-                     continue; 
-                }
+        $englishMap = [];
+        foreach ($englishRows as $rowIndex => $row) {
+            if ($rowIndex <= $englishHeaderRowIndex) continue; // Skip headers
+            if (!array_filter($row)) continue;
 
-                $splitColIdx = $currentMap['SplitColumn'] ?? -1;
-
-                foreach ($tableData as $r) {
-                    if (isset($currentMap['Naziv predmeta']) && isset($r[$currentMap['Naziv predmeta']]) && !empty($r[$currentMap['Naziv predmeta']])) {
-                        
-                        $item = [];
-                        $shift = 0;
-                        if ($currentHeaderCount > 0 && count($r) > $currentHeaderCount) {
-                            $shift = count($r) - $currentHeaderCount;
-                        }
-
-                        foreach($currentMap as $key => $idx) {
-                            if ($key === 'SplitColumn') continue;
-
-                            $targetIdx = $idx;
-                            
-                            // Robust Logic
-                            if ($shift > 0) {
-                                if ($splitColIdx !== -1) {
-                                    if ($idx > $splitColIdx) {
-                                        $targetIdx += $shift;
-                                    }
-                                } elseif ($key === 'ECTS') {
-                                    $targetIdx += $shift; 
-                                }
-                            }
-
-                            $item[$key] = $r[$targetIdx] ?? '';
-                        }
-                        
-                        $courses[] = $item;
-                    }
-                }
+            $code = trim($row[$englishCodeIndex] ?? '');
+            if ($code !== '') {
+                $englishMap[$code] = $row[$englishCourseIndex] ?? null;
             }
         }
+
+        $requiredNativeHeaders = ['Šifra predmeta', 'Naziv predmeta', 'Semestar', 'ECTS'];
+        $nativeHeadersMap = $this->findHeaderRow($nativeRows, $requiredNativeHeaders);
+        
+        if (!$nativeHeadersMap) {
+             throw new \Exception("Could not find required headers (" . implode(', ', $requiredNativeHeaders) . ") in '{$nativeSheetName}' sheet.");
+        }
+
+        $nativeHeaderRowIndex = $nativeHeadersMap['_rowIndex'];
+
+        $courses = [];
+        foreach ($nativeRows as $rowIndex => $row) {
+            if ($rowIndex <= $nativeHeaderRowIndex) continue;
+            if (!array_filter($row)) continue;
+
+            $sifraVal = trim($row[$nativeHeadersMap['Šifra predmeta']] ?? '');
+            $nazivVal = trim($row[$nativeHeadersMap['Naziv predmeta']] ?? '');
+            
+            if ($sifraVal === '' || $nazivVal === '') continue;
+
+            if ($sifraVal === 'Šifra predmeta' || $nazivVal === 'Naziv predmeta') continue;
+
+            $courses[] = [
+                'Sifra Predmeta' => $sifraVal,
+                'Naziv Predmeta' => $nazivVal,
+                'Naziv Engleski' => $englishMap[$sifraVal] ?? null,
+                'Semestar'       => $this->romanToInt($row[$nativeHeadersMap['Semestar']] ?? ''),
+                'ECTS'           => $row[$nativeHeadersMap['ECTS']] ?? null,
+            ];
+        }
+
+        return $courses;
         return $courses;
     }
 
-    private function getElementText($element): string
-    {
-        $text = '';
+    public function loadCoursesGeneric(string $filePath) {
+        $reader = IOFactory::createReaderForFile($filePath);
+        $reader->setReadDataOnly(true);
+        $spreadsheet = $reader->load($filePath);
+        
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheetName = $sheet->getTitle();
+        
+        $rows = $sheet->rangeToArray(
+            'A1:' . $sheet->getHighestDataColumn() . $sheet->getHighestDataRow(),
+            null,
+            true,
+            true,
+            false
+        );
 
-        if ($element instanceof Text) {
-            $text .= $element->getText();
-        } elseif ($element instanceof TextRun) {
-            foreach ($element->getElements() as $child) {
-                $text .= $this->getElementText($child) . ' ';
-            }
+        $requiredHeaders = ['Šifra predmeta', 'Naziv predmeta', 'Semestar', 'ECTS'];
+        $headersMap = $this->findHeaderRow($rows, $requiredHeaders);
+
+        if (!$headersMap) {
+             throw new \Exception("Could not find required headers (" . implode(', ', $requiredHeaders) . ") in '{$sheetName}' sheet.");
         }
-        return trim($text);
+
+        $headerRowIndex = $headersMap['_rowIndex'];
+        $courses = [];
+
+        foreach ($rows as $rowIndex => $row) {
+            if ($rowIndex <= $headerRowIndex) continue;
+            if (!array_filter($row)) continue;
+
+            $sifraVal = trim($row[$headersMap['Šifra predmeta']] ?? '');
+            $nazivVal = trim($row[$headersMap['Naziv predmeta']] ?? '');
+
+            if ($sifraVal === '' || $nazivVal === '') continue;
+            if ($sifraVal === 'Šifra predmeta' || $nazivVal === 'Naziv predmeta') continue;
+
+            $courses[] = [
+                'Sifra Predmeta' => $sifraVal,
+                'Naziv Predmeta' => $nazivVal,
+                'Naziv Engleski' => null,
+                'Semestar'       => $this->romanToInt($row[$headersMap['Semestar']] ?? ''),
+                'ECTS'           => $row[$headersMap['ECTS']] ?? null,
+            ];
+        }
+
+        return $courses;
     }
 
-    public function romanToInt(?string $roman): int
-    {
+    private function findHeaderRow(array $rows, array $requiredHeaders): ?array {
+        $maxSearch = 20;
+        
+        foreach ($rows as $rowIndex => $row) {
+            if ($rowIndex >= $maxSearch) break;
+            
+            $map = [];
+            $foundCount = 0;
+            
+            foreach ($row as $colIndex => $cellValue) {
+                $cellValue = trim((string)$cellValue);
+                if (in_array($cellValue, $requiredHeaders)) {
+                    $map[$cellValue] = $colIndex;
+                    $foundCount++;
+                }
+            }
+
+            if ($foundCount === count($requiredHeaders)) {
+                $map['_rowIndex'] = $rowIndex;
+                return $map;
+            }
+        }
+
+        return null;
+    }
+
+   
+    private function romanToInt(?string $roman): int {
         $map = [
             'I' => 1,
             'II' => 2,

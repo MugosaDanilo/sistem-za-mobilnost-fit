@@ -31,25 +31,45 @@
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
                     Dodaj Predmet
                 </button>
-                @if(Str::contains($fakultet->naziv, ['FIT', 'Mediteran']))
-                    <button id="importSubjectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                        Import Subjects (Word)
-                    </button>
-                @endif
+                <button id="importSubjectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                    Import Subjects
+                </button>
             </div>
         </div>
 
         <!-- Import Modal -->
         <div id="importSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
             <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-                <h2 class="text-xl font-semibold mb-4">Import Subjects from Word</h2>
+                <h2 class="text-xl font-semibold mb-4">Import Subjects from Excel</h2>
                 <form action="{{ route('fakulteti.predmeti.import', $fakultet->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    
                     <div class="mb-4">
-                         <label class="block text-gray-700 font-medium mb-1">Upload .docx File</label>
-                         <input type="file" name="file" accept=".docx" required class="w-full border p-2 rounded">
-                         <p class="text-sm text-gray-500 mt-1">Expected format: Tables with 'Naziv predmeta', 'ECTS', 'Semestar'.</p>
+                        <label class="block text-gray-700 font-medium mb-1">Study Level</label>
+                        <div class="flex items-center space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="level" value="basic" checked class="form-radio text-blue-600">
+                                <span class="ml-2">Osnovne Studije</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="level" value="master" class="form-radio text-blue-600">
+                                <span class="ml-2">Master Studije</span>
+                            </label>
+                        </div>
                     </div>
+
+                    <div class="mb-4">
+                         <label class="block text-gray-700 font-medium mb-1">Upload .xlsx File</label>
+                         <input type="file" name="file" accept=".xlsx, .xls" required class="w-full border p-2 rounded">
+                         <p class="text-sm text-gray-500 mt-1">
+                             @if(Str::contains($fakultet->naziv, ['FIT', 'Fakultet za informacione tehnologije']))
+                                Expected table: Native sheet & English.
+                             @else
+                                Expected headers: 'Šifra predmeta', 'Naziv predmeta', 'ECTS', 'Semestar'.
+                             @endif
+                         </p>
+                    </div>
+                    
                     <div class="flex justify-end space-x-2">
                         <button type="button" id="cancelImportModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">Cancel</button>
                         <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">Import</button>
