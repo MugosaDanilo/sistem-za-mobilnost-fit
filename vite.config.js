@@ -8,4 +8,9 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    
+    base: process.env.NODE_ENV === 'production' ? '/build/' : '/', 
+    server: {
+        https: false,  
+    },
 });

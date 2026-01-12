@@ -103,4 +103,6 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::post('/mapping-request/{id}', [\App\Http\Controllers\MappingRequestController::class, 'update'])->name('mapping-request.update');
 });
 
+
+
 require __DIR__ . '/auth.php';

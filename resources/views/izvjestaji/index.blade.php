@@ -1,19 +1,29 @@
 <x-app-layout>
-
   <div class="py-10 max-w-7xl mx-auto px-6">
+
+    <!-- HEADER -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-3xl font-bold text-gray-900">Izvještaji</h1>
+
+      <div class="flex gap-1 bg-gray-50 rounded-lg p-1">
+        <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent" data-tab="studenti">Studenti</button>
+        <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent" data-tab="prepisi">Prepisi</button>
+        <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent" data-tab="mobilnost">Mobilnost</button>
+      </div>
     </div>
 
-    <div class="space-y-8">
-      <!-- Studenti -->
-      <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 p-4 relative">
-        <h2 class="text-lg font-semibold mb-3">Studenti</h2>
+    <div class="bg-white shadow-sm rounded-xl border border-gray-200 p-4">
 
+      <!-- ================= STUDENTI ================= -->
+      <div id="tab-content-studenti" class="tab-content hidden mb-12">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold m-0 p-0">Studenti</h2>
+        </div>
+
+        <!-- FILTRI -->
         <form method="GET" class="mb-4 flex items-center gap-3">
-          <?php $q = http_build_query(request()->except('_token')); ?>
-            <div>
-            <label class="block text-xs text-gray-600">Godina</label>
+          <div>
+            <label class="block text-xs text-gray-600">Godina</label> 
             <select name="year" onchange="submitFormClean(this.form)" class="border rounded px-2 py-1 pr-8 text-sm w-28 appearance-none bg-no-repeat bg-right">
               <option value="">Sve</option>
               @foreach($students as $s)
@@ -35,48 +45,61 @@
           </div>
         </form>
 
-        <div class="mb-4">
-          <div class="flex gap-6 items-start">
-            <div class="w-1/2 h-48">
-              <canvas id="studentsChart" class="w-full h-full"></canvas>
+        <!-- GRAFICI -->
+        <div class="flex gap-6 mb-6">
+          <div class="w-1/2 h-52 border border-gray-200 rounded-lg overflow-hidden">
+            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Godišnje</div>
+            <div class="h-full bg-gray-50 p-4">
+              <canvas id="studentsChart"></canvas>
             </div>
-            <div class="w-1/2 flex gap-4">
-              <div class="w-1/2 h-24">
-                <h3 class="text-sm font-medium">Pol</h3>
-                <canvas id="studentsGenderChart" class="w-full h-full"></canvas>
+          </div>
+
+          <div class="w-1/2 flex gap-4">
+            <div class="w-1/2 h-28 border border-gray-200 rounded-lg overflow-hidden">
+              <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2 text-sm">Pol</div>
+              <div class="h-full bg-gray-50 p-2">
+                <canvas id="studentsGenderChart"></canvas>
               </div>
-              <div class="w-1/2 h-24">
-                <h3 class="text-sm font-medium">Nivo studija</h3>
-                <canvas id="studentsNivoChart" class="w-full h-full"></canvas>
+            </div>
+            <div class="w-1/2 h-28 border border-gray-200 rounded-lg overflow-hidden">
+              <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2 text-sm">Nivo studija</div>
+              <div class="h-full bg-gray-50 p-2">
+                <canvas id="studentsNivoChart"></canvas>
               </div>
             </div>
           </div>
         </div>
-        <div class="overflow-x-auto flex justify-center">
-          <table class="table-fixed text-sm w-auto mx-auto">
+
+        <!-- TABELA STUDENTI -->
+        <div class="overflow-x-auto flex justify-center mb-4">
+          <table class="table-fixed text-sm w-auto border border-gray-200">
             <thead>
-              <tr>
-                <th class="py-1 px-2 w-24 text-center">Godina</th>
-                <th class="py-1 px-2 w-20 text-center">Muško</th>
-                <th class="py-1 px-2 w-20 text-center">Žensko</th>
-                <th class="py-1 px-2 w-20 text-center">Ukupno</th>
+              <tr class="bg-gray-100 h-7">
+                <th class="px-3 border">Godina</th>
+                <th class="px-3 border">Muško</th>
+                <th class="px-3 border">Žensko</th>
+                <th class="px-3 border">Ukupno</th>
               </tr>
             </thead>
             <tbody>
               @forelse($students as $row)
-                <tr>
-                  <td class="py-1 px-2 text-center">{{ $row->year }}</td>
-                  <td class="py-1 px-2 bg-blue-50 text-center"><span class="text-blue-700 font-medium">{{ $row->musko ?? 0 }}</span></td>
-                  <td class="py-1 px-2 bg-red-50 text-center"><span class="text-red-700 font-medium">{{ $row->zensko ?? 0 }}</span></td>
-                  <td class="py-1 px-2 text-center">{{ $row->total }}</td>
+                <tr class="h-7">
+                  <td class="px-3 text-center border">{{ $row->year }}</td>
+                  <td class="px-3 text-center border bg-blue-50 text-blue-700">{{ $row->musko ?? 0 }}</td>
+                  <td class="px-3 text-center border bg-red-50 text-red-700">{{ $row->zensko ?? 0 }}</td>
+                  <td class="px-3 text-center border font-medium">{{ $row->total }}</td>
                 </tr>
               @empty
-                <tr><td colspan="4" class="py-1 px-2 text-gray-500 text-center">Nema podataka</td></tr>
+                <tr>
+                  <td colspan="4" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
+                </tr>
               @endforelse
             </tbody>
           </table>
         </div>
-        <div class="absolute bottom-4 right-4">
+
+        <!-- DUGME IZVEZI -->
+        <div class="flex justify-end">
           <?php $query = http_build_query(request()->except('_token')); ?>
           <a href="{{ route('izvjestaji.export', 'students') }}{{ $query ? '?'.$query : '' }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
             Izvezi
@@ -84,66 +107,41 @@
         </div>
       </div>
 
-      <!-- Prepisi -->
-      <div id="prepisi-section" class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 p-4 relative">
-        <h2 class="text-lg font-semibold mb-3">Prepisi</h2>
+      <!-- ================= PREPISI ================= -->
+      <div id="tab-content-prepisi" class="tab-content hidden mb-12">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold m-0 p-0">Prepisi</h2>
+        </div>
 
-        <form method="GET" class="mb-3 flex items-center gap-3">
-          @foreach(request()->except('fakultet','_token') as $k => $v)
-            <input type="hidden" name="{{ $k }}" value="{{ $v }}" />
-          @endforeach
+        <!-- FILTRI -->
+        <form method="GET" class="mb-4 flex items-center gap-3">
+          <div>
+            <label class="block text-xs text-gray-600">Godina</label>
+            <select name="year" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm w-28 appearance-none bg-no-repeat bg-right">
+              <option value="">Sve</option>
+              @foreach($prepisi as $p)
+                <option value="{{ $p->year }}" @if(isset($filterYear) && $filterYear == $p->year) selected @endif>{{ $p->year }}</option>
+              @endforeach
+            </select>
+          </div>
           <div>
             <label class="block text-xs text-gray-600">Fakultet</label>
-            <select name="fakultet" onchange="submitWithAnchor(this.form,'prepisi-section')" class="border rounded px-2 py-1 pr-8 text-sm w-56 appearance-none bg-no-repeat bg-right">
+            <select name="fakultet" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm w-56 appearance-none bg-no-repeat bg-right">
               <option value="">Sve</option>
               @foreach($fakulteti as $f)
                 <option value="{{ $f->id }}" @if(isset($filterFakultet) && $filterFakultet == $f->id) selected @endif>{{ $f->naziv }}</option>
               @endforeach
             </select>
           </div>
-        </form>
-
-        <div class="mb-4">
-          <canvas id="prepisiChart" height="120"></canvas>
-        </div>
-        <div class="overflow-x-auto flex justify-center">
-          <table class="table-fixed text-sm w-auto mx-auto">
-            <thead>
-              <tr>
-                <th class="py-1 px-2 w-28 text-center">Godina</th>
-                <th class="py-1 px-2 w-40 text-center">Fakultet</th>
-                <th class="py-1 px-2 w-20 text-center">Broj</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($prepisi as $row)
-                <tr>
-                  <td class="py-1 px-2 text-center">{{ $row->year }}</td>
-                  <td class="py-1 px-2 text-center">{{ $row->fakultet }}</td>
-                  <td class="py-1 px-2 text-center">{{ $row->total }}</td>
-                </tr>
-              @empty
-                <tr><td colspan="3" class="py-1 px-2 text-gray-500 text-center">Nema podataka</td></tr>
-              @endforelse
-            </tbody>
-          </table>
-        </div>
-        <div class="absolute bottom-4 right-4">
-          <?php $query = http_build_query(request()->except('_token')); ?>
-          <a href="{{ route('izvjestaji.export', 'prepisi') }}{{ $query ? '?'.$query : '' }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
-            Izvezi
-          </a>
-        </div>
-      </div>
-
-      <!-- Mobilnost -->
-      <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 p-4 relative">
-        <h2 class="text-lg font-semibold mb-3">Mobilnost</h2>
-        
-        <form method="GET" class="mb-4 flex items-center gap-3" id="mobilnostFilterForm">
-          <input type="hidden" name="year" value="{{ $filterYear ?? '' }}">
-          <input type="hidden" name="nivo" value="{{ $filterNivo ?? '' }}">
-          <input type="hidden" name="fakultet" value="{{ $filterFakultet ?? '' }}">
+          <div>
+            <label class="block text-xs text-gray-600">Nivo</label>
+            <select name="nivo" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm w-36 appearance-none bg-no-repeat bg-right">
+              <option value="">Sve</option>
+              @foreach($nivoOptions as $n)
+                <option value="{{ $n->id }}" @if(isset($filterNivo) && $filterNivo == $n->id) selected @endif>{{ $n->naziv }}</option>
+              @endforeach
+            </select>
+          </div>
           <div>
             <label class="block text-xs text-gray-600">Država</label>
             <select name="drzava" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm appearance-none bg-no-repeat bg-right">
@@ -154,197 +152,309 @@
             </select>
           </div>
         </form>
-        
-        <div class="mb-4 h-40">
-          <canvas id="mobilnostChart" class="w-full h-full"></canvas>
+
+        <div class="flex gap-6 mb-6">
+          <div class="w-2/3 h-44 border border-gray-200 rounded-lg overflow-hidden">
+            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Godišnje</div>
+            <div class="h-full bg-gray-50 p-4">
+            <canvas id="prepisiChart"></canvas>
+            </div>
+          </div>
+          <div class="w-1/3 h-44 border border-gray-200 rounded-lg overflow-hidden">
+            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Pol</div>
+            <div class="h-full bg-gray-50 p-4">
+            <canvas id="prepisiGenderChart"></canvas>
+            </div>
+          </div>
         </div>
-        <div class="overflow-x-auto flex justify-center">
-          <table class="table-fixed text-sm w-auto mx-auto">
+
+        <!-- TABELA PREPISI -->
+        <div class="overflow-x-auto flex justify-center mb-4">
+          <table class="table-fixed text-sm w-auto border border-gray-200">
             <thead>
-              <tr>
-                <th class="py-2 px-2">Godina</th>
-                <th class="py-2 px-2">Država</th>
-                <th class="py-1 px-2 w-10 text-center">Ukupno</th>
-                <th class="py-1 px-2 w-10 text-center">Muško</th>
-                <th class="py-1 px-2 w-16 text-center">Žensko</th>
-                <th class="py-1 px-2 w-20 text-center">Procenat Muško (%)</th>
-                <th class="py-1 px-2 w-20 text-center">Procenat Žensko (%)</th>
-                <th class="py-1 px-2 w-16 text-center">Master</th>
-                <th class="py-1 px-2 w-16 text-center">Osnovne</th>
+              <tr class="bg-gray-100 h-7">
+                <th class="px-3 py-1 border">Godina</th>
+                <th class="px-3 py-1 border">Fakultet</th>
+                <th class="px-3 py-1 border text-center">Ukupno</th>
+                <th class="px-3 py-1 border text-center">Muško</th>
+                <th class="px-3 py-1 border text-center">Žensko</th>
               </tr>
             </thead>
             <tbody>
-              @forelse($mobilnosti as $row)
-                <tr>
-                  <td class="py-1 px-2 text-center">{{ $row->year }}</td>
-                  <td class="py-1 px-2 text-center">{{ $row->drzava }}</td>
-                  <td class="py-1 px-2 text-center">{{ $row->total }}</td>
-                  <td class="py-1 px-2 text-center">{{ $row->musko }}</td>
-                  <td class="py-1 px-2 text-center">{{ $row->zensko }}</td>
-                  <td class="py-1 px-2 text-center">{{ $row->procenat_musko }}%</td>
-                  <td class="py-1 px-2 text-center">{{ $row->procenat_zensko }}%</td>
-                  <td class="py-1 px-2 text-center">{{ $row->master }}</td>
-                  <td class="py-1 px-2 text-center">{{ $row->osnovne }}</td>
+              @forelse($prepisi as $row)
+                <tr class="h-7">
+                  <td class="px-3 border">{{ $row->year }}</td>
+                  <td class="px-3 border">{{ $row->fakultet }}</td>
+                  <td class="px-3 border text-center">{{ $row->total }}</td>
+                  <td class="px-3 border text-center">{{ $row->musko ?? 0 }}</td>
+                  <td class="px-3 border text-center">{{ $row->zensko ?? 0 }}</td>
                 </tr>
               @empty
-                <tr><td colspan="8" class="py-2 text-gray-500">Nema podataka</td></tr>
+                <tr>
+                  <td colspan="5" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
+                </tr>
               @endforelse
             </tbody>
           </table>
         </div>
-        <div class="absolute bottom-4 right-4">
-          <a href="{{ route('izvjestaji.export', 'mobilnost') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+
+        <!-- DUGME IZVEZI -->
+        <div class="flex justify-end">
+          <?php $query = http_build_query(request()->except('_token')); ?>
+          <a href="{{ route('izvjestaji.export', 'prepisi') }}{{ $query ? '?'.$query : '' }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
             Izvezi
           </a>
         </div>
       </div>
+
+      <!-- ================= MOBILNOST ================= -->
+      <div id="tab-content-mobilnost" class="tab-content hidden mb-12">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold m-0 p-0">Mobilnost</h2>
+        </div>
+
+        <!-- FILTRI -->
+        <form method="GET" class="mb-4 flex items-center gap-3" id="mobilnostFilterForm">
+          <div>
+            <label class="block text-xs text-gray-600">Godina</label>
+            <select name="year" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm w-28 appearance-none bg-no-repeat bg-right">
+              <option value="">Sve</option>
+              @foreach($mobilnosti as $m)
+                <option value="{{ $m->year }}" @if(isset($filterYear) && $filterYear == $m->year) selected @endif>{{ $m->year }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-600">Fakultet</label>
+            <select name="fakultet" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm w-56 appearance-none bg-no-repeat bg-right">
+              <option value="">Sve</option>
+              @foreach($fakulteti as $f)
+                <option value="{{ $f->id }}" @if(isset($filterFakultet) && $filterFakultet == $f->id) selected @endif>{{ $f->naziv }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-600">Nivo</label>
+            <select name="nivo" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm w-36 appearance-none bg-no-repeat bg-right">
+              <option value="">Sve</option>
+              @foreach($nivoOptions as $n)
+                <option value="{{ $n->id }}" @if(isset($filterNivo) && $filterNivo == $n->id) selected @endif>{{ $n->naziv }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-600">Država</label>
+            <select name="drzava" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm appearance-none bg-no-repeat bg-right">
+              <option value="">Sve</option>
+              @foreach($drzave as $d)
+                <option value="{{ $d }}" @if($filterDrzava == $d) selected @endif>{{ $d }}</option>
+              @endforeach
+            </select>
+          </div>
+        </form>
+
+        <div class="flex gap-6 mb-6">
+          <div class="w-2/3 h-44 border border-gray-200 rounded-lg overflow-hidden">
+            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Godišnje</div>
+            <div class="h-full bg-gray-50 p-4"> 
+            <canvas id="mobilnostChart"></canvas>
+            </div>
+          </div>
+          <div class="w-1/3 h-44 border border-gray-200 rounded-lg overflow-hidden">
+            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Pol</div>
+            <div class="h-full bg-gray-50 p-4">
+            <canvas id="mobilnostGenderChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABELA MOBILNOST -->
+        <div class="overflow-x-auto flex justify-center mb-4">
+          <table class="table-fixed text-sm w-auto border border-gray-200">
+            <thead>
+              <tr class="bg-gray-100 h-7">
+                <th class="py-1 px-2 border">Godina</th>
+                <th class="py-1 px-2 border">Država</th>
+                <th class="py-1 px-2 w-10 text-center border">Ukupno</th>
+                <th class="py-1 px-2 w-10 text-center border">Muško</th>
+                <th class="py-1 px-2 w-16 text-center border">Žensko</th>
+                <th class="py-1 px-2 w-16 text-center border">%Muško</th>
+                <th class="py-1 px-2 w-16 text-center border">%Žensko</th>
+                <th class="py-1 px-2 w-12 text-center border">Master</th>
+                <th class="py-1 px-2 w-12 text-center border">Osnovne</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse($mobilnosti as $row)
+                <tr class="h-7">
+                  <td class="py-1 px-2 border">{{ $row->year }}</td>
+                  <td class="py-1 px-2 border">{{ $row->drzava }}</td>
+                  <td class="py-1 px-2 text-center border">{{ $row->total }}</td>
+                  <td class="py-1 px-2 text-center border">{{ $row->musko }}</td>
+                  <td class="py-1 px-2 text-center border">{{ $row->zensko }}</td>
+                  <td class="py-1 px-2 text-center border">{{ $row->procenat_musko }}%</td>
+                  <td class="py-1 px-2 text-center border">{{ $row->procenat_zensko }}%</td>
+                  <td class="py-1 px-2 text-center border">{{ $row->master }}</td>
+                  <td class="py-1 px-2 text-center border">{{ $row->osnovne }}</td>
+                </tr>
+              @empty
+                <tr>
+                  <td colspan="9" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
+                </tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
+
+        <!-- DUGME IZVEZI -->
+        <div class="flex justify-end">
+          <?php $query = http_build_query(request()->except('_token')); ?>
+          <a href="{{ route('izvjestaji.export', 'mobilnost') }}{{ $query ? '?'.$query : '' }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+            Izvezi
+          </a>
+        </div>
+      </div>
+
     </div>
   </div>
-
 </x-app-layout>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  // Pripremi podatke za grafikone
-  const studentsData = {!! json_encode($students->map(function($r){ return ['year'=>$r->year,'total'=>$r->total]; })) !!};
-  const prepisiData = {!! json_encode($prepisi->map(function($r){ return ['year'=>$r->year,'total'=>$r->total]; })) !!};
-  const mobilnostiData = {!! json_encode($mobilnosti->map(function($r){ return [
-    'year'=>$r->year,
-    'total'=>$r->total,
-    'musko'=>$r->musko,
-    'zensko'=>$r->zensko,
-    'procenat_musko'=>$r->procenat_musko,
-    'procenat_zensko'=>$r->procenat_zensko,
-    'master'=>$r->master,
-    'osnovne'=>$r->osnovne
-  ]; })) !!};
-  const studentsByGender = {!! json_encode($studentsByGender ?? collect()); !!};
-  const studentsByNivo = {!! json_encode($byNivo ?? collect()); !!};
-  const cumulativeData = {!! json_encode($cumulative ?? collect()); !!};
 
-  function initBarChart(ctxId, labels, datasets, options = {}){
-    const ctx = document.getElementById(ctxId).getContext('2d');
-    return new Chart(ctx, {
-      type: 'bar',
-      data: { labels, datasets },
-      options: Object.assign({
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } },
-        scales: { y: { beginAtZero: true } },
-        datasets: {
-          bar: {
-            // width controls kozmetika za bar
-            barThickness: 20,
-            maxBarThickness: 20,
-            categoryPercentage: 0.6,
-            barPercentage: 0.8
-          }
-        }
-      }, options)
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ================= TABOVI ================= */
+  const tabs = document.querySelectorAll('.tab-btn');
+  const contents = document.querySelectorAll('.tab-content');
+  let activeTab = sessionStorage.getItem('active-tab') || 'studenti';
+
+  function showTab(tab){
+    contents.forEach(c => c.classList.add('hidden'));
+    document.getElementById('tab-content-' + tab).classList.remove('hidden');
+
+    tabs.forEach(b => {
+      b.style.borderBottomColor = b.dataset.tab === tab ? '#2563eb' : 'transparent';
+      b.style.color = b.dataset.tab === tab ? '#2563eb' : '#374151';
+    });
+
+    sessionStorage.setItem('active-tab', tab);
+    resizeCharts();
+  }
+
+  tabs.forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  showTab(activeTab);
+
+  /* ================= PODACI ================= */
+  const studentsData = @json($students->map(fn($r)=>['year'=>$r->year,'total'=>$r->total]));
+  const cumulativeData = @json($cumulative ?? []);
+  const studentsByGender = @json($studentsByGender ?? []);
+  const studentsByNivo = @json($byNivo ?? []);
+  const prepisiData = @json($prepisi->map(fn($r)=>['year'=>$r->year,'total'=>$r->total]));
+  const prepisiGenderData = @json($prepisiGenderData ?? []);
+  const mobilnostiData = @json($mobilnosti->map(fn($r)=>['year'=>$r->year,'musko'=>$r->musko,'zensko'=>$r->zensko]));
+  const mobilnostiGenderData = @json($mobilnostiGenderData ?? []);
+
+  /* ================= HELPER ================= */
+  function initBar(id, labels, datasets){
+    return new Chart(document.getElementById(id),{
+      type:'bar',
+      data:{ labels, datasets },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{
+          x:{ offset:true, grid:{display:false} },
+          y:{ beginAtZero:true, ticks:{stepSize:1} }
+        },
+        plugins:{ legend:{position:'bottom'} }
+      }
     });
   }
 
-  // Students chart
-  (function(){
-    const labels = studentsData.map(d => d.year);
-    const totals = studentsData.map(d => d.total);
-    const cumulative = cumulativeData.map(d => d.cumulative);
-    initBarChart('studentsChart', labels, [{
-      label: 'Ukupno',
-      data: totals,
-      backgroundColor: '#3b82f6'
-    },{
-      label: 'Kumulativno',
-      data: cumulative,
-      type: 'line',
-      borderColor: '#111827',
-      backgroundColor: '#111827',
-      fill: false,
-      tension: 0.2,
-      yAxisID: 'y'
-    }]);
-  })();
+  /* ================= GRAFICI ================= */
 
-  // Students gender
-  (function(){
-    const labels = studentsByGender.map(d => {
-       if(d.pol === 'musko') return 'Muško';
-       if(d.pol === 'zensko') return 'Žensko';
-       return d.pol; // fallback
+  initBar('studentsChart', studentsData.map(d=>d.year), [
+    { label:'Ukupno', data:studentsData.map(d=>d.total), backgroundColor:'#3b82f6', borderRadius:6, maxBarThickness:18 },
+    { label:'Kumulativno', data:cumulativeData.map(d=>d.cumulative ?? 0), type:'line', borderColor:'#111827', tension:.25, maxBarThickness:18 }
+  ]);
+
+  new Chart(document.getElementById('studentsGenderChart'), {
+    type:'doughnut',
+    data:{
+      labels:['Muško','Žensko'],
+      datasets:[{
+        data: studentsByGender.map(d=>d.total),
+        backgroundColor:['#2563eb','#ef4444']
+      }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+  });
+
+  const nivoMap = {};
+  studentsByNivo.forEach(n => nivoMap[n.label] = n.total);
+
+  initBar('studentsNivoChart', ['Osnovne','Master'], [
+    { label:'Broj', data:['Osnovne','Master'].map(l=>nivoMap[l] ?? 0), backgroundColor:['#10b981','#f59e0b'], borderRadius:6, maxBarThickness:18 }
+  ]);
+
+  initBar('prepisiChart', prepisiData.map(d=>d.year), [
+    { label:'Ukupno', data:prepisiData.map(d=>d.total), backgroundColor:'#10b981', borderRadius:6, maxBarThickness:18 }
+  ]);
+
+  new Chart(document.getElementById('prepisiGenderChart'), {
+    type:'doughnut',
+    data:{
+      labels:['Muško','Žensko'],
+      datasets:[{
+        data: prepisiGenderData.map(d=>d.total),
+        backgroundColor:['#2563eb','#ef4444']
+      }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+  });
+
+  initBar('mobilnostChart', mobilnostiData.map(d=>d.year), [
+    { label:'Muško', data:mobilnostiData.map(d=>d.musko), backgroundColor:'#2563eb', borderRadius:6, maxBarThickness:18 },
+    { label:'Žensko', data:mobilnostiData.map(d=>d.zensko), backgroundColor:'#ef4444', borderRadius:6, maxBarThickness:18 }
+  ]);
+
+  new Chart(document.getElementById('mobilnostGenderChart'), {
+    type:'doughnut',
+    data:{
+      labels:['Muško','Žensko'],
+      datasets:[{
+        data: mobilnostiGenderData.map(d=>d.total),
+        backgroundColor:['#2563eb','#ef4444']
+      }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+  });
+
+  /* ================= RESIZE ================= */
+  function resizeCharts(){
+    [
+      'studentsChart',
+      'studentsGenderChart',
+      'studentsNivoChart',
+      'prepisiChart',
+      'prepisiGenderChart',
+      'mobilnostChart',
+      'mobilnostGenderChart'
+    ].forEach(id=>{
+      const c = Chart.getChart(id);
+      if(c) c.resize();
     });
-    const data = studentsByGender.map(d => d.total);
-    const ctx = document.getElementById('studentsGenderChart').getContext('2d');
-    new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ data, backgroundColor: ['#2563eb','#ef4444'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } } });
-  })();
+  }
 
-  // Students nivo bar
-  (function(){
-    // Isti level na chartu: Osnovne and Master (0 if missing)
-    const nivoMap = {};
-    studentsByNivo.forEach(d => { nivoMap[d.label] = d.total; });
-    const labels = ['Osnovne', 'Master'];
-    const data = labels.map(l => nivoMap[l] ?? 0);
-    const canvas = document.getElementById('studentsNivoChart');
-    if (canvas && canvas.getContext) {
-      const ctx = canvas.getContext('2d');
-      new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Broj', data, backgroundColor: ['#10b981','#f59e0b'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } } });
-    }
-  })();
-
-  // Prepisi grafik
-  (function(){
-    const labels = prepisiData.map(d => d.year);
-    const totals = prepisiData.map(d => d.total);
-    initBarChart('prepisiChart', labels, [{
-      label: 'Ukupno',
-      data: totals,
-      backgroundColor: '#10b981'
-    }]);
-  })();
-
-  // Mobilnost chart (grupisano musko/zensko)
-  (function(){
-    const labels = mobilnostiData.map(d => d.year);
-    const musko = mobilnostiData.map(d => d.musko);
-    const zensko = mobilnostiData.map(d => d.zensko);
-
-    initBarChart('mobilnostChart', labels, [
-      { label: 'Muško', data: musko, backgroundColor: '#2563eb' },
-      { label: 'Žensko', data: zensko, backgroundColor: '#ef4444' }
-    ], {
-      scales: {
-        x: { stacked: false },
-        y: { stacked: false, beginAtZero: true }
-      },
-      plugins: {
-        tooltip: { mode: 'index', intersect: false },
-        legend: { position: 'bottom' }
-      },
-      responsive: true,
-      maintainAspectRatio: false
-    });
-  })();
+});
 </script>
 
 <script>
-  function submitWithAnchor(form, anchorId){
-    try{
-      // zapamti skroll poziciju
-      sessionStorage.setItem('reports-scroll', window.scrollY || window.pageYOffset || 0);
-      var action = form.action || window.location.pathname + window.location.search;
-      action = action.split('#')[0] + '#' + anchorId;
-      form.action = action;
-    }catch(e){ }
-    form.submit();
-  }
-
   function submitFormClean(form){
     try{
-      // izbrisi iz actiona
       var action = form.action || window.location.pathname + window.location.search;
       form.action = action.split('#')[0];
-      //  prikazi skroll poziciju
       sessionStorage.setItem('reports-scroll', window.scrollY || window.pageYOffset || 0);
     }catch(e){ }
     form.submit();
@@ -360,3 +470,14 @@
     }catch(e){ }
   });
 </script>
+
+
+
+
+
+
+
+
+
+
+

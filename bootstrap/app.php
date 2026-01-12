@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'adminAuth' => \App\Http\Middleware\AdminAuth::class,
             'profesorAuth' => \App\Http\Middleware\ProfesorAuth::class,
         ]);
+        
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
