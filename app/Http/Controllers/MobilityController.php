@@ -640,7 +640,7 @@ class MobilityController extends Controller
 
         $subjects = \App\Models\Predmet::where('fakultet_id', $facultyId)
             ->orderBy('naziv')
-            ->get(['id', 'naziv']);
+            ->get(['id', 'naziv', 'semestar', 'ects', 'nivo_studija_id']);
 
         return response()->json($subjects);
     }

@@ -10,7 +10,7 @@ class StudentController extends Controller
 {
   public function index()
   {
-    $students = Student::with('nivoStudija')->orderBy('created_at', 'desc')->get();
+    $students = Student::with(['nivoStudija', 'fakultet'])->orderBy('created_at', 'desc')->get();
     $nivoStudija = NivoStudija::all();
 
     return view('students.index', compact('students', 'nivoStudija'));
@@ -19,10 +19,12 @@ class StudentController extends Controller
   public function create()
   {
     $nivoStudija = NivoStudija::all();
+    $fakulteti = \App\Models\Fakultet::orderBy('naziv')->get();
+    // Default to FIT subjects initially or empty, let frontend handle it via JS
     $predmeti = \App\Models\Predmet::whereHas('fakultet', function ($query) {
       $query->where('naziv', 'FIT');
     })->get();
-    return view('students.create', compact('nivoStudija', 'predmeti'));
+    return view('students.create', compact('nivoStudija', 'predmeti', 'fakulteti'));
   }
 
   public function store(Request $request)
@@ -37,6 +39,7 @@ class StudentController extends Controller
       'godina_studija' => 'required|integer',
       'jmbg' => 'required|string|size:13|unique:studenti,jmbg',
       'nivo_studija_id' => 'required|exists:nivo_studija,id',
+      'fakultet_id' => 'required|exists:fakulteti,id',
       'pol' => 'required|string|in:musko,zensko',
       'predmeti' => 'array',
       'predmeti.*' => 'array', // Each item in predmeti should be an array (e.g., ['grade' => 7])
@@ -64,10 +67,19 @@ class StudentController extends Controller
   {
     $student = Student::with('predmeti')->findOrFail($id);
     $nivoStudija = NivoStudija::all();
+    $fakulteti = \App\Models\Fakultet::orderBy('naziv')->get();
+    // Fetch subjects for the student's current faculty or all? 
+    // The view will likely need to fetch subjects based on selection.
+    // For now, let's pass FIT subjects as default pool if we want, 
+    // OR we should pass ALL subjects that the student HAS, plus the pool from selected faculty.
+    // The <x-subject-selector> might need all available subjects to show them checked.
+    // BUT if we change faculty, the list changes.
+    // Let's pass FIT subjects as default pool for now.
     $predmeti = \App\Models\Predmet::whereHas('fakultet', function ($query) {
       $query->where('naziv', 'FIT');
     })->get();
-    return view('students.edit', compact('student', 'nivoStudija', 'predmeti'));
+    
+    return view('students.edit', compact('student', 'nivoStudija', 'predmeti', 'fakulteti'));
   }
 
   public function update(Request $request, $id)
@@ -84,6 +96,7 @@ class StudentController extends Controller
       'godina_studija' => 'required|integer',
       'jmbg' => 'required|string|size:13|unique:studenti,jmbg,' . $id,
       'nivo_studija_id' => 'required|exists:nivo_studija,id',
+      'fakultet_id' => 'required|exists:fakulteti,id',
       'pol' => 'required|string|in:musko,zensko',
       'predmeti' => 'array',
       'predmeti.*' => 'array', // Each item in predmeti should be an array (e.g., ['grade' => 7])

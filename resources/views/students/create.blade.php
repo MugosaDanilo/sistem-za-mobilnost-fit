@@ -87,7 +87,43 @@
 
 
 
-          <div class="mb-4 md:col-span-2">
+          <div class="mb-4 md:col-span-2" x-data="{
+              selectedFaculty: '{{ old('fakultet_id') }}',
+              subjects: [],
+              async fetchSubjects() {
+                  if (!this.selectedFaculty) {
+                      this.subjects = [];
+                      return;
+                  }
+                  try {
+                      let url = '{{ route('admin.mobility.faculty-subjects') }}' + '?fakultet_id=' + this.selectedFaculty;
+                      let response = await fetch(url);
+                      this.subjects = await response.json();
+                      window.dispatchEvent(new CustomEvent('subjects-updated', { detail: this.subjects }));
+                  } catch (e) {
+                      console.error('Error fetching subjects:', e);
+                  }
+              },
+              init() {
+                  if (this.selectedFaculty) {
+                      this.fetchSubjects();
+                  }
+              }
+          }">
+            <div class="mb-4">
+              <label class="block text-gray-700 font-medium mb-2">Faculty</label>
+              <select name="fakultet_id" required x-model="selectedFaculty" @change="fetchSubjects()"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select Faculty</option>
+                @foreach($fakulteti as $f)
+                  <option value="{{ $f->id }}" {{ old('fakultet_id') == $f->id ? 'selected' : '' }}>
+                    {{ $f->naziv }}
+                  </option>
+                @endforeach
+              </select>
+              @error('fakultet_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            </div>
+
             <div class="mb-4">
               <label class="block text-gray-700 font-medium mb-2">Study Level</label>
               <select name="nivo_studija_id" required
@@ -102,9 +138,7 @@
               </select>
               @error('nivo_studija_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
-          </div>
 
-          <div class="mb-4 md:col-span-2">
             <x-subject-selector :subjects="$predmeti" />
             @error('predmeti') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>

@@ -18,6 +18,7 @@ class Student extends Model
         'godina_studija',
         'jmbg',
         'nivo_studija_id',
+        'fakultet_id',
         'pol'
     ];
 
@@ -27,6 +28,11 @@ class Student extends Model
     public function nivoStudija()
     {
         return $this->belongsTo(NivoStudija::class, 'nivo_studija_id');
+    }
+
+    public function fakultet()
+    {
+        return $this->belongsTo(Fakultet::class, 'fakultet_id');
     }
 
     public function mobilnosti()

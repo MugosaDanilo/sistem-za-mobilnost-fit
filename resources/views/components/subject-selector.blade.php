@@ -57,7 +57,9 @@
     get selectedCount() {
         return this.selectedIds.length;
     }
-}" class="w-full" @study-level-changed.window="currentLevelId = $event.detail">
+}" class="w-full" 
+@study-level-changed.window="currentLevelId = $event.detail"
+@subjects-updated.window="subjects = $event.detail">
 
     <div class="mb-2">
         <label class="block text-gray-700 font-medium mb-1">Assign Subjects</label>
