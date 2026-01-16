@@ -145,4 +145,10 @@ class PredmetController extends Controller
 
         return redirect()->back()->with('success', "Successfully imported $count new subjects!");
     }
+    
+    public function getSubjectsByFaculty(Fakultet $fakultet)
+    {
+        $predmeti = $fakultet->predmeti()->with('nivoStudija')->get();
+        return response()->json($predmeti);
+    }
 }

@@ -22,7 +22,8 @@ class StudentController extends Controller
     $predmeti = \App\Models\Predmet::whereHas('fakultet', function ($query) {
       $query->where('naziv', 'FIT');
     })->get();
-    return view('students.create', compact('nivoStudija', 'predmeti'));
+    $fakulteti = \App\Models\Fakultet::all();
+    return view('students.create', compact('nivoStudija', 'predmeti', 'fakulteti'));
   }
 
   public function store(Request $request)
@@ -67,7 +68,8 @@ class StudentController extends Controller
     $predmeti = \App\Models\Predmet::whereHas('fakultet', function ($query) {
       $query->where('naziv', 'FIT');
     })->get();
-    return view('students.edit', compact('student', 'nivoStudija', 'predmeti'));
+    $fakulteti = \App\Models\Fakultet::all();
+    return view('students.edit', compact('student', 'nivoStudija', 'predmeti', 'fakulteti'));
   }
 
   public function update(Request $request, $id)

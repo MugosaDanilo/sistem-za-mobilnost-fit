@@ -10,19 +10,27 @@
     subjects: {{ json_encode($subjects) }},
     currentLevelId: '',
 
+    selectedSubjectsData: [],
+
     init() {
-        
         let initialSelected = {{ json_encode($selected) }};
         
         if (Array.isArray(initialSelected)) {
              initialSelected.forEach(item => {
                 if (typeof item === 'object' && item !== null) {
                     this.selectedIds.push(item.id);
+                    this.selectedSubjectsData.push(item);
                     if (item.pivot && item.pivot.grade) {
                         this.grades[item.id] = item.pivot.grade;
                     } 
                 } else {
+                    // If we only have ID, we might not have the full object if it's not in the initial 'subjects' list.
+                    // However, for 'create', initialSelected is usually empty or from old input.
+                    // For 'edit', we pass the student's subjects which are full objects.
                     this.selectedIds.push(item);
+                    // Try to find in initial subjects
+                    let subj = this.subjects.find(s => s.id == item);
+                    if (subj) this.selectedSubjectsData.push(subj);
                 }
              });
         }
@@ -41,23 +49,34 @@
     },
 
     get selectedSubjectsList() {
-        return this.subjects.filter(subject => this.selectedIds.includes(subject.id));
+        return this.selectedSubjectsData;
     },
 
     toggleSelection(id) {
         if (this.selectedIds.includes(id)) {
             this.selectedIds = this.selectedIds.filter(i => i !== id);
+            this.selectedSubjectsData = this.selectedSubjectsData.filter(s => s.id !== id);
             delete this.grades[id];
         } else {
             this.selectedIds.push(id);
+            let subj = this.subjects.find(s => s.id == id);
+            if (subj) {
+                this.selectedSubjectsData.push(subj);
+            }
             this.grades[id] = '';
         }
     },
 
     get selectedCount() {
         return this.selectedIds.length;
+    },
+
+    updateSubjects(newSubjects) {
+        this.subjects = newSubjects;
     }
-}" class="w-full" @study-level-changed.window="currentLevelId = $event.detail">
+}" class="w-full" 
+    @study-level-changed.window="currentLevelId = $event.detail"
+    @update-subjects.window="updateSubjects($event.detail)">
 
     <div class="mb-2">
         <label class="block text-gray-700 font-medium mb-1">Assign Subjects</label>
