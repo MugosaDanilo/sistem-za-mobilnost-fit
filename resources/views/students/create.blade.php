@@ -87,12 +87,42 @@
 
 
 
+          <div class="mb-4 md:col-span-2" x-data="{
+            selectedFaculty: '',
+            async fetchSubjects() {
+                if (!this.selectedFaculty) return;
+                try {
+                    let response = await fetch(`/admin/api/fakulteti/${this.selectedFaculty}/predmeti`);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    let subjects = await response.json();
+                    window.dispatchEvent(new CustomEvent('update-subjects', { detail: subjects }));
+                } catch (error) {
+                    console.error('Error fetching subjects:', error);
+                    alert('Failed to load subjects for the selected faculty.');
+                }
+            }
+          }">
+            <div class="mb-4">
+              <label class="block text-gray-700 font-medium mb-2">Faculty</label>
+              <select x-model="selectedFaculty" @change="fetchSubjects()" x-init="if(selectedFaculty) fetchSubjects()"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select Faculty</option>
+                @foreach($fakulteti as $f)
+                  <option value="{{ $f->id }}">
+                    {{ $f->naziv }}
+                  </option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+
           <div class="mb-4 md:col-span-2">
             <div class="mb-4">
               <label class="block text-gray-700 font-medium mb-2">Study Level</label>
               <select name="nivo_studija_id" required
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onchange="window.dispatchEvent(new CustomEvent('study-level-changed', { detail: this.value }))">
+                onchange="window.dispatchEvent(new CustomEvent('study-level-changed', { detail: this.value }))"
+                x-init="$nextTick(() => window.dispatchEvent(new CustomEvent('study-level-changed', { detail: $el.value })))">
                 <option value="">Select Study Level</option>
                 @foreach($nivoStudija as $nivo)
                   <option value="{{ $nivo->id }}" {{ old('nivo_studija_id') == $nivo->id ? 'selected' : '' }}>

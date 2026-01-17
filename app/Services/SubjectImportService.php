@@ -32,7 +32,7 @@ class SubjectImportService
             'A1:' . $nativeSheet->getHighestDataColumn() . $nativeSheet->getHighestDataRow(),
             null,
             true,
-            true,
+            false,
             false
         );
 
@@ -40,7 +40,7 @@ class SubjectImportService
             'A1:' . $englishSheet->getHighestDataColumn() . $englishSheet->getHighestDataRow(),
             null,
             true,
-            true,
+            false,
             false
         );
 
@@ -59,7 +59,7 @@ class SubjectImportService
         $englishHeaderRow = $englishRows[$englishHeaderRowIndex];
 
         foreach ($englishHeaderRow as $index => $cellValue) {
-             $cellValue = trim($cellValue ?? '');
+             $cellValue = $this->safeString($cellValue);
              if (in_array($cellValue, $codeHeaderCandidates)) {
                  $englishCodeIndex = $index;
                  break;
@@ -75,7 +75,7 @@ class SubjectImportService
             if ($rowIndex <= $englishHeaderRowIndex) continue; // Skip headers
             if (!array_filter($row)) continue;
 
-            $code = trim($row[$englishCodeIndex] ?? '');
+            $code = $this->safeString($row[$englishCodeIndex] ?? '');
             if ($code !== '') {
                 $englishMap[$code] = $row[$englishCourseIndex] ?? null;
             }
@@ -95,8 +95,8 @@ class SubjectImportService
             if ($rowIndex <= $nativeHeaderRowIndex) continue;
             if (!array_filter($row)) continue;
 
-            $sifraVal = trim($row[$nativeHeadersMap['Šifra predmeta']] ?? '');
-            $nazivVal = trim($row[$nativeHeadersMap['Naziv predmeta']] ?? '');
+            $sifraVal = $this->safeString($row[$nativeHeadersMap['Šifra predmeta']] ?? '');
+            $nazivVal = $this->safeString($row[$nativeHeadersMap['Naziv predmeta']] ?? '');
             
             if ($sifraVal === '' || $nazivVal === '') continue;
 
@@ -127,7 +127,7 @@ class SubjectImportService
             'A1:' . $sheet->getHighestDataColumn() . $sheet->getHighestDataRow(),
             null,
             true,
-            true,
+            false,
             false
         );
 
@@ -145,8 +145,8 @@ class SubjectImportService
             if ($rowIndex <= $headerRowIndex) continue;
             if (!array_filter($row)) continue;
 
-            $sifraVal = trim($row[$headersMap['Šifra predmeta']] ?? '');
-            $nazivVal = trim($row[$headersMap['Naziv predmeta']] ?? '');
+            $sifraVal = $this->safeString($row[$headersMap['Šifra predmeta']] ?? '');
+            $nazivVal = $this->safeString($row[$headersMap['Naziv predmeta']] ?? '');
 
             if ($sifraVal === '' || $nazivVal === '') continue;
             if ($sifraVal === 'Šifra predmeta' || $nazivVal === 'Naziv predmeta') continue;
@@ -173,7 +173,7 @@ class SubjectImportService
             $foundCount = 0;
             
             foreach ($row as $colIndex => $cellValue) {
-                $cellValue = trim((string)$cellValue);
+                $cellValue = $this->safeString($cellValue);
                 if (in_array($cellValue, $requiredHeaders)) {
                     $map[$cellValue] = $colIndex;
                     $foundCount++;
@@ -204,8 +204,18 @@ class SubjectImportService
             'X' => 10,
         ];
 
-        $roman = trim($roman ?? '');
+        $roman = $this->safeString($roman);
 
         return $map[$roman] ?? 0;
+    }
+
+    private function safeString($value): string {
+        if (is_string($value) || is_numeric($value)) {
+            return trim((string)$value);
+        }
+        if (is_object($value) && method_exists($value, '__toString')) {
+            return trim((string)$value);
+        }
+        return '';
     }
 }

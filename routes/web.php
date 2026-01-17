@@ -78,6 +78,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     
     Route::post('/fakulteti/{fakultet}/predmeti/import', [\App\Http\Controllers\PredmetController::class, 'import'])->name('fakulteti.predmeti.import');
     Route::get('/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'index'])->name('fakulteti.predmeti.index');
+    Route::get('/api/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'getSubjectsByFaculty'])->name('api.fakulteti.predmeti');
 
     Route::get('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'index'])->name('users.subjects.index');
     Route::post('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'store'])->name('users.subjects.store');
