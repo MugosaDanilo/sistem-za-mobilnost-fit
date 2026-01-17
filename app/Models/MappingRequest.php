@@ -12,12 +12,18 @@ class MappingRequest extends Model
     protected $fillable = [
         'professor_id',
         'fakultet_id',
+        'student_id',
         'status',
     ];
 
     public function professor()
     {
         return $this->belongsTo(User::class, 'professor_id');
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
     }
 
     public function fakultet()

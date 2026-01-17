@@ -16,8 +16,11 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         
-        $mappingRequests = \App\Models\MappingRequest::where('professor_id', $user->id)
-            ->with(['fakultet', 'subjects.straniPredmet'])
+        $mappingRequests = \App\Models\MappingRequest::whereHas('subjects', function ($query) use ($user) {
+                $query->where('professor_id', $user->id);
+            })
+            ->with(['fakultet', 'subjects.straniPredmet', 'subjects' => function ($query) use ($user) {
+            }])
             ->latest()
             ->get();
 
