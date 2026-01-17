@@ -22,28 +22,71 @@
 
         <!-- FILTRI -->
         <form method="GET" class="mb-4 flex items-center gap-3">
-          <div>
-            <label class="block text-xs text-gray-600">Godina</label> 
-            <select name="year" onchange="submitFormClean(this.form)" class="border rounded px-2 py-1 pr-8 text-sm w-28 appearance-none bg-no-repeat bg-right">
-              <option value="">Sve</option>
-              @foreach($students as $s)
-                <option value="{{ $s->year }}" @if(isset($filterYear) && $filterYear == $s->year) selected @endif>{{ $s->year }}</option>
-              @endforeach
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs text-gray-600">Nivo</label>
-            <select name="nivo" onchange="submitFormClean(this.form)" class="border rounded px-2 py-1 pr-8 text-sm w-36 appearance-none bg-no-repeat bg-right">
-              <option value="">Sve</option>
-              @foreach($nivoOptions as $n)
-                <option value="{{ $n->id }}" @if(isset($filterNivo) && $filterNivo == $n->id) selected @endif>{{ $n->naziv }}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="pt-5">
-            <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Filtriraj</button>
-          </div>
-        </form>
+  <!-- Godina -->
+  <div>
+    <label class="block text-xs text-gray-600">Godina</label> 
+    <select name="year"
+            onchange="this.form.submit()"
+            class="border rounded px-2 py-1 pr-8 text-sm w-28 appearance-none bg-no-repeat bg-right">
+      <option value="">Sve</option>
+      @foreach($students as $s)
+        <option value="{{ $s->year }}"
+          @if(isset($filterYear) && $filterYear == $s->year) selected @endif>
+          {{ $s->year }}
+        </option>
+      @endforeach
+    </select>
+  </div>
+
+  <!-- Fakultet -->
+  <div>
+    <label class="block text-xs text-gray-600">Fakultet</label>
+    <select name="fakultet"
+            onchange="this.form.submit()"
+            class="border rounded px-2 py-1 pr-8 text-sm w-56 appearance-none bg-no-repeat bg-right">
+      <option value="">Sve</option>
+      @foreach($fakulteti as $f)
+        <option value="{{ $f->id }}"
+          @if(isset($filterFakultet) && $filterFakultet == $f->id) selected @endif>
+          {{ $f->naziv }}
+        </option>
+      @endforeach
+    </select>
+  </div>
+
+  <!-- Nivo -->
+  <div>
+    <label class="block text-xs text-gray-600">Nivo</label>
+    <select name="nivo"
+            onchange="this.form.submit()"
+            class="border rounded px-2 py-1 pr-8 text-sm w-36 appearance-none bg-no-repeat bg-right">
+      <option value="">Sve</option>
+      @foreach($nivoOptions as $n)
+        <option value="{{ $n->id }}"
+          @if(isset($filterNivo) && $filterNivo == $n->id) selected @endif>
+          {{ $n->naziv }}
+        </option>
+      @endforeach
+    </select>
+  </div>
+
+  <!-- Država -->
+  <div>
+    <label class="block text-xs text-gray-600">Država</label>
+    <select name="drzava"
+            onchange="this.form.submit()"
+            class="border rounded px-2 py-1 pr-8 text-sm appearance-none bg-no-repeat bg-right">
+      <option value="">Sve</option>
+      @foreach($drzave as $d)
+        <option value="{{ $d }}"
+          @if(isset($filterDrzava) && $filterDrzava == $d) selected @endif>
+          {{ $d }}
+        </option>
+      @endforeach
+    </select>
+  </div>
+</form>
+
 
         <!-- GRAFICI -->
         <div class="flex gap-6 mb-6">
