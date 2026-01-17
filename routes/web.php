@@ -64,9 +64,23 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
     Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
 
-    Route::get('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'professorMatch'])->name('prepis.professor-match');
-    Route::post('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'storeProfessorMatch'])->name('prepis.professor-match.store');
-    Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis');
+    // Route::get('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'professorMatch'])->name('prepis.professor-match'); // Removed
+    // Route::post('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'storeProfessorMatch'])->name('prepis.professor-match.store'); // Removed
+    
+    Route::get('/prepisi/match', [\App\Http\Controllers\PrepisController::class, 'finalMatch'])->name('prepis.match');
+    Route::post('/prepisi/match', [\App\Http\Controllers\PrepisController::class, 'storeFinalMatch'])->name('prepis.match.store');
+    Route::get('/prepisi/student-subjects/{student}', [\App\Http\Controllers\PrepisController::class, 'getStudentSubjects'])->name('prepis.student-subjects');
+    
+    Route::get('/prepisi/mapping-request/{id}', [\App\Http\Controllers\PrepisController::class, 'showMappingRequest'])->name('prepis.mapping-request.show');
+    Route::post('/prepisi/mapping-request/subject/{id}/update', [\App\Http\Controllers\PrepisController::class, 'updateMappingRequestSubject'])->name('prepis.mapping-request.subject.update');
+    Route::delete('/prepisi/mapping-request/subject/{id}/remove', [\App\Http\Controllers\PrepisController::class, 'removeMappingRequestSubject'])->name('prepis.mapping-request.subject.remove');
+    Route::post('/prepisi/mapping-request/{id}/accept', [\App\Http\Controllers\PrepisController::class, 'acceptMappingRequest'])->name('prepis.mapping-request.accept');
+    Route::post('/prepisi/mapping-request/{id}/reject', [\App\Http\Controllers\PrepisController::class, 'rejectMappingRequest'])->name('prepis.mapping-request.reject');
+    Route::post('/prepisi/mapping-request/{id}/add-subject', [\App\Http\Controllers\PrepisController::class, 'addMappingRequestSubject'])->name('prepis.mapping-request.subject.add');
+    Route::post('/prepisi/mapping-request/{id}/add-subjects-bulk', [\App\Http\Controllers\PrepisController::class, 'storeBulkSubjects'])->name('prepis.mapping-request.subject.bulk-add');
+    Route::delete('/prepisi/mapping-request/{id}', [\App\Http\Controllers\PrepisController::class, 'destroyMappingRequest'])->name('prepis.mapping-request.destroy');
+
+    Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis')->except(['create', 'store']);
 
     Route::get('/izvjestaji', [\App\Http\Controllers\IzvjestajiController::class, 'index'])->name('izvjestaji.index');
     Route::get('/izvjestaji/export/{type}', [\App\Http\Controllers\IzvjestajiController::class, 'export'])->name('izvjestaji.export');

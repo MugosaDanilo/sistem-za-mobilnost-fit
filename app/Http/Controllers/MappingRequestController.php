@@ -13,14 +13,10 @@ class MappingRequestController extends Controller
     {
         $mappingRequest = MappingRequest::with(['fakultet', 'subjects.straniPredmet', 'subjects.fitPredmet'])->findOrFail($id);
         
-        // Ensure the logged-in professor owns this request
-        if ($mappingRequest->professor_id !== auth()->id()) {
-            abort(403);
+        if (!$mappingRequest->subjects()->where('professor_id', auth()->id())->exists()) {
+             abort(403);
         }
 
-        // Professor's subjects (FIT subjects)
-        // Assuming professor is linked to subjects via 'profesor_predmet' table or similar relationship
-        // Based on DashboardController, user->predmeti gives the subjects
         $professorSubjects = auth()->user()->predmeti;
 
         return view('mapping_request.show', compact('mappingRequest', 'professorSubjects'));
@@ -30,8 +26,12 @@ class MappingRequestController extends Controller
     {
         $mappingRequest = MappingRequest::findOrFail($id);
 
-        if ($mappingRequest->professor_id !== auth()->id()) {
+        if (!$mappingRequest->subjects()->where('professor_id', auth()->id())->exists()) {
             abort(403);
+        }
+
+        if (in_array($mappingRequest->status, ['accepted', 'rejected'])) {
+            return response()->json(['message' => 'Request is finalized and cannot be modified.'], 403);
         }
 
         $request->validate([
@@ -40,31 +40,25 @@ class MappingRequestController extends Controller
             'mappings.*.fit_predmet_id' => 'required|exists:predmeti,id',
         ]);
 
-        // Reset all mappings for this request first? Or just update provided ones?
-        // User said "After professor finishes linking... click button to save connections"
-        // And "Status changes from Pending to Completed"
-
-        // Get all subjects for this request
-        $allRequestSubjects = MappingRequestSubject::where('mapping_request_id', $mappingRequest->id)->get();
+        $mySubjects = MappingRequestSubject::where('mapping_request_id', $mappingRequest->id)
+            ->where('professor_id', auth()->id())
+            ->get();
         
-        // Map input mappings by ID for easy lookup
         $inputMappings = collect($request->input('mappings', []))->keyBy('request_subject_id');
 
-        foreach ($allRequestSubjects as $subject) {
+        foreach ($mySubjects as $subject) {
             if ($inputMappings->has($subject->id)) {
-                // Update with new fit_predmet_id
                 $subject->update([
-                    'fit_predmet_id' => $inputMappings->get($subject->id)['fit_predmet_id']
+                    'fit_predmet_id' => $inputMappings->get($subject->id)['fit_predmet_id'],
+                    'is_rejected' => false
                 ]);
             } else {
-                // Clear mapping if not present in input
-                $subject->update([
-                    'fit_predmet_id' => null
+                 $subject->update([
+                    'fit_predmet_id' => null,
+                    'is_rejected' => true
                 ]);
             }
         }
-
-        $mappingRequest->update(['status' => 'completed']);
 
         session()->flash('success', 'Mappings saved successfully.');
 
