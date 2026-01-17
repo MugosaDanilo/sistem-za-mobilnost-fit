@@ -22,7 +22,6 @@
 
         <!-- FILTRI -->
         <form method="GET" class="mb-4 flex items-center gap-3">
-  <!-- Godina -->
   <div>
     <label class="block text-xs text-gray-600">Godina</label> 
     <select name="year"
@@ -38,23 +37,6 @@
     </select>
   </div>
 
-  <!-- Fakultet -->
-  <div>
-    <label class="block text-xs text-gray-600">Fakultet</label>
-    <select name="fakultet"
-            onchange="this.form.submit()"
-            class="border rounded px-2 py-1 pr-8 text-sm w-56 appearance-none bg-no-repeat bg-right">
-      <option value="">Sve</option>
-      @foreach($fakulteti as $f)
-        <option value="{{ $f->id }}"
-          @if(isset($filterFakultet) && $filterFakultet == $f->id) selected @endif>
-          {{ $f->naziv }}
-        </option>
-      @endforeach
-    </select>
-  </div>
-
-  <!-- Nivo -->
   <div>
     <label class="block text-xs text-gray-600">Nivo</label>
     <select name="nivo"
@@ -69,24 +51,7 @@
       @endforeach
     </select>
   </div>
-
-  <!-- Država -->
-  <div>
-    <label class="block text-xs text-gray-600">Država</label>
-    <select name="drzava"
-            onchange="this.form.submit()"
-            class="border rounded px-2 py-1 pr-8 text-sm appearance-none bg-no-repeat bg-right">
-      <option value="">Sve</option>
-      @foreach($drzave as $d)
-        <option value="{{ $d }}"
-          @if(isset($filterDrzava) && $filterDrzava == $d) selected @endif>
-          {{ $d }}
-        </option>
-      @endforeach
-    </select>
-  </div>
 </form>
-
 
         <!-- GRAFICI -->
         <div class="flex gap-6 mb-6">
