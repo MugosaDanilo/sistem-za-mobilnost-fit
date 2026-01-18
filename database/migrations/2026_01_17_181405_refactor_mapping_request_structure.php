@@ -23,7 +23,9 @@ return new class extends Migration
                 ->update(['professor_id' => $request->professor_id]);
         }
         
-        DB::statement('ALTER TABLE mapping_requests ALTER COLUMN professor_id DROP NOT NULL');
+        Schema::table('mapping_requests', function (Blueprint $table) {
+            $table->foreignId('professor_id')->nullable()->change();
+        });
     }
 
     /**

@@ -115,7 +115,38 @@ class PrepisController extends Controller
         $professors = \App\Models\User::where('type', 1)->get();
         $students = Student::whereHas('predmeti')->get();
         
-        return view('prepis.final_match', compact('professors', 'students'));
+        $previousMatches = \App\Models\MappingRequestSubject::whereNotNull('fit_predmet_id')
+            ->with(['professor', 'fitPredmet'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->unique('strani_predmet_id')
+            ->mapWithKeys(function ($item) {
+                return [$item->strani_predmet_id => [
+                    'professor_id' => $item->professor_id,
+                    'professor_name' => $item->professor->name,
+                    'fit_predmet_id' => $item->fit_predmet_id,
+                    'fit_predmet_name' => $item->fitPredmet->naziv,
+                    'date' => $item->created_at->format('d.m.Y'),
+                ]];
+            });
+
+        // Fetch ALL pending matches grouped by subject ID
+        // This allows us to see if a subject is pending with a professor for ANY student
+        $globalPendingMatches = \App\Models\MappingRequestSubject::whereHas('mappingRequest', function($q) {
+                $q->where('status', 'pending');
+            })
+            ->with(['professor'])
+            ->get()
+            ->unique('strani_predmet_id')
+            ->mapWithKeys(function($item) {
+                return [$item->strani_predmet_id => [
+                    'professor_id' => $item->professor_id,
+                    'professor_name' => $item->professor->name,
+                    'status' => 'pending'
+                ]];
+            });
+        
+        return view('prepis.final_match', compact('professors', 'students', 'previousMatches', 'globalPendingMatches'));
     }
 
     public function storeFinalMatch(Request $request)
@@ -125,6 +156,7 @@ class PrepisController extends Controller
             'matches' => 'required|array',
             'matches.*.professor_id' => 'required|exists:users,id',
             'matches.*.subject_id' => 'required|exists:predmeti,id',
+            'matches.*.fit_predmet_id' => 'nullable|exists:predmeti,id',
         ]);
         
        
@@ -144,6 +176,7 @@ class PrepisController extends Controller
                 'mapping_request_id' => $mappingRequest->id,
                 'strani_predmet_id' => $match['subject_id'],
                 'professor_id' => $match['professor_id'], // Assign professor to the subject
+                'fit_predmet_id' => $match['fit_predmet_id'] ?? null,
             ]);
         }
 

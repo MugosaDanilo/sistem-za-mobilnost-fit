@@ -113,6 +113,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const allProfessors = @json($professors);
+            const previousMatches = @json($previousMatches);
+            const globalPendingMatches = @json($globalPendingMatches);
             
             // State
             let state = {
@@ -153,9 +155,9 @@
 
             function render() {
                 renderProfList();
-                renderSubjectList();
                 renderLinkedList();
                 renderDropZone();
+                renderSubjectList(); // Re-render subject list to update disabled states
                 updateSendButton();
             }
 
@@ -187,6 +189,45 @@
                     .filter(s => s.naziv && s.naziv.toLowerCase().includes(query)) // Ensure s.naziv exists
                     .forEach(s => {
                         const el = createDraggableItem(s, 'subject');
+                        
+                        // Check if already linked (pending or new match)
+                        const isLinked = state.linkedPairs.some(p => p.subject.id === s.id);
+                        if (isLinked) {
+                            el.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+                            el.classList.remove('bg-white', 'hover:border-indigo-400', 'bg-green-100', 'border-green-300'); // Remove other styles
+                            el.draggable = false;
+                            el.title = "Already matched or pending";
+                            // Remove event listeners by cloning (simplest way to strip them if we didn't want them, but draggable=false handles most)
+                            // Actually, just setting draggable false is enough to stop dragstart.
+                        } else {
+                            // Only apply previous match styling if NOT linked yet
+                            if (previousMatches.hasOwnProperty(s.id)) {
+                                const match = previousMatches[s.id];
+                                el.classList.remove('bg-white'); // Remove default white background
+                                el.classList.add('bg-green-100', 'border-green-300'); // Stronger green
+                                
+                                const actionsDiv = document.createElement('div');
+                                actionsDiv.className = 'flex items-center space-x-2 ml-2';
+                                
+                                const linkBtn = document.createElement('button');
+                                linkBtn.type = 'button';
+                                linkBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600 hover:text-green-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>`;
+                                linkBtn.title = "Auto-match to " + match.fit_predmet_name;
+                                linkBtn.onclick = (e) => {
+                                    e.stopPropagation();
+                                    autoMatch(s, match);
+                                };
+                                
+                                const infoIcon = document.createElement('div');
+                                infoIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                                infoIcon.title = `Matched by ${match.professor_name} on ${match.date}`;
+                                
+                                actionsDiv.appendChild(linkBtn);
+                                actionsDiv.appendChild(infoIcon);
+                                el.appendChild(actionsDiv);
+                            }
+                        }
+
                         els.subjectList.appendChild(el);
                     });
             }
@@ -196,12 +237,33 @@
                 state.linkedPairs.forEach((pair, index) => {
                     const el = document.createElement('div');
                     el.className = 'flex items-center justify-between p-3 bg-white border border-gray-200 rounded shadow-sm text-sm';
+                    
+                    if (pair.isLocked) {
+                         el.className = 'flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded shadow-sm text-sm opacity-75';
+                    }
+
+                    let matchInfo;
+                    if (pair.fit_predmet_name) {
+                        matchInfo = `<div class="text-green-600 font-bold">-> ${pair.fit_predmet_name}</div>`;
+                    } else {
+                        matchInfo = `<div class="text-gray-600">-> ${pair.prof.name}</div>`;
+                    }
+                    
+                    if (pair.isLocked) {
+                        matchInfo += `<div class="text-yellow-600 text-xs font-semibold mt-1">Pending Professor Review</div>`;
+                    }
+
+                    let deleteBtn = `<button type="button" class="ml-3 text-red-500 hover:text-red-700 font-bold px-2" onclick="unlinkPair(${index})">&times;</button>`;
+                    if (pair.isLocked) {
+                        deleteBtn = `<span class="ml-3 text-gray-400 px-2 cursor-not-allowed" title="Cannot remove pending match">&times;</span>`;
+                    }
+
                     el.innerHTML = `
-                        <div class="flex-1 grid grid-cols-2 gap-2">
-                            <div class="font-medium text-gray-800 truncate" title="${pair.subject.naziv}">${pair.subject.naziv}</div>
-                            <div class="text-gray-600 truncate" title="${pair.prof.name}">-> ${pair.prof.name}</div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-800" title="${pair.subject.naziv}">${pair.subject.naziv}</div>
+                            ${matchInfo}
                         </div>
-                        <button type="button" class="ml-3 text-red-500 hover:text-red-700 font-bold px-2" onclick="unlinkPair(${index})">&times;</button>
+                        ${deleteBtn}
                     `;
                     els.linkedList.appendChild(el);
                 });
@@ -228,6 +290,7 @@
             }
 
             function updateSendButton() {
+                // Always show if there are pairs, regardless of lock status
                 if (state.linkedPairs.length > 0) {
                     els.sendBtn.classList.remove('hidden');
                 } else {
@@ -272,7 +335,33 @@
                     if (!response.ok) throw new Error('Failed to fetch subjects');
                     const data = await response.json();
                     state.subjects = data;
+                    
+                    // Populate pending matches (Global)
+                    state.subjects.forEach(subject => {
+                        // Check if this subject is pending GLOBALLY (for any student)
+                        // If so, we auto-add it to the list for THIS student too, so it gets sent to the same professor.
+                        // BUT, if we already have a PREVIOUS MATCH (accepted/known), we prioritize that (Auto-match)
+                        // so the admin can use the known match instead of waiting.
+                        if (globalPendingMatches.hasOwnProperty(subject.id) && !previousMatches.hasOwnProperty(subject.id)) {
+                             const matchData = globalPendingMatches[subject.id];
+                             const prof = allProfessors.find(p => p.id == matchData.professor_id);
+                             
+                             if (prof) {
+                                 // Check if already added (to avoid duplicates if re-rendering)
+                                 if (!state.linkedPairs.some(p => p.subject.id == subject.id)) {
+                                     state.linkedPairs.push({
+                                         prof: prof,
+                                         subject: subject,
+                                         isLocked: true // Locked because it's dictated by the global pending state
+                                     });
+                                 }
+                             }
+                        }
+                    });
+                    
                     renderSubjectList();
+                    renderLinkedList(); // Render linked list with pending items
+                    updateSendButton(); // Ensure button is shown if there are pending items
                 } catch (error) {
                     console.error('Error fetching subjects:', error);
                     alert('Could not load student subjects.');
@@ -294,6 +383,26 @@
                 if (type === 'subject') state.pendingSubject = null;
                 render();
             };
+
+            function autoMatch(subject, matchData) {
+                const prof = allProfessors.find(p => p.id == matchData.professor_id);
+                if (!prof) {
+                    alert('Professor for this match not found.');
+                    return;
+                }
+
+                if (!pairExists(prof.id, subject.id)) {
+                    state.linkedPairs.push({ 
+                        prof: prof, 
+                        subject: subject,
+                        fit_predmet_id: matchData.fit_predmet_id, // Store the FIT subject ID
+                        fit_predmet_name: matchData.fit_predmet_name // Store name for display
+                    });
+                    render();
+                } else {
+                    alert('This match already exists.');
+                }
+            }
 
             // --- Drag and Drop Setup ---
 
@@ -357,14 +466,15 @@
                     const studentId = els.studentSelect.value;
                     state.selectedStudentId = studentId;
                     state.pendingSubject = null;
-                    state.linkedPairs = []; // Clear current pairs on student change? Probably safer.
+                    state.linkedPairs = []; 
+                    
                     if (studentId) {
                         loadStudentSubjects(studentId);
                     } else {
                         state.subjects = [];
                         renderSubjectList();
+                        render(); // Clear linked list
                     }
-                    render();
                 });
             }
 
@@ -425,13 +535,18 @@
 
             function setupSendButton() {
                 els.sendBtn.addEventListener('click', async () => {
-                    if (state.linkedPairs.length === 0) return;
+                    // Send ALL pairs, including locked ones (as they need to be created for this student)
+                    if (state.linkedPairs.length === 0) {
+                        alert('No matches to send.');
+                        return;
+                    }
                     
-                    if (!confirm('Are you sure you want to send these requests to the professors?')) return;
+                    if (!confirm('Are you sure you want to send these matches to the professors?')) return;
 
                     const matches = state.linkedPairs.map(p => ({
                         professor_id: p.prof.id,
-                        subject_id: p.subject.id
+                        subject_id: p.subject.id,
+                        fit_predmet_id: p.fit_predmet_id || null // Send FIT subject ID if available
                     }));
 
                     try {
