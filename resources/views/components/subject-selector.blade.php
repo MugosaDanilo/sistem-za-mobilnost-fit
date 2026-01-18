@@ -73,10 +73,17 @@
 
     updateSubjects(newSubjects) {
         this.subjects = newSubjects;
+    },
+    
+    clearSelection() {
+        this.selectedIds = [];
+        this.selectedSubjectsData = [];
+        this.grades = {};
     }
 }" class="w-full" 
     @study-level-changed.window="currentLevelId = $event.detail"
-    @update-subjects.window="updateSubjects($event.detail)">
+    @update-subjects.window="updateSubjects($event.detail)"
+    @clear-selection.window="clearSelection()">
 
     <div class="mb-2">
         <label class="block text-gray-700 font-medium mb-1">Assign Subjects</label>

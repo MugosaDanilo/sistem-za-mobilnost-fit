@@ -225,7 +225,7 @@
                 const filtered = localStudents.filter(s =>
                     s.ime.toLowerCase().includes(query) ||
                     s.prezime.toLowerCase().includes(query) ||
-                    (s.indeks && s.indeks.includes(query))
+                    (s.br_indexa && s.br_indexa.toLowerCase().includes(query))
                 );
 
                 renderResults(filtered);

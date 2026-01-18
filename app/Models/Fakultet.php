@@ -18,4 +18,9 @@ class Fakultet extends Model
     {
         return $this->hasMany(Predmet::class);
     }
+
+    public function studenti()
+    {
+        return $this->belongsToMany(Student::class, 'student_fakultet', 'fakultet_id', 'student_id');
+    }
 }

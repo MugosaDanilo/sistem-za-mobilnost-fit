@@ -23,7 +23,9 @@ class MobilityController extends Controller
 {
     public function index()
     {
-        $students = Student::orderBy('ime')->orderBy('prezime')->get();
+        $students = Student::whereHas('fakulteti', function($query) {
+            $query->where('naziv', 'FIT');
+        })->orderBy('ime')->orderBy('prezime')->get();
         $fakulteti = Fakultet::with('predmeti')->orderBy('naziv')->get();
         return view('mobility.index', compact('students', 'fakulteti'));
     }

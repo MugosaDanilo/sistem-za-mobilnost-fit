@@ -104,8 +104,8 @@
           }">
             <div class="mb-4">
               <label class="block text-gray-700 font-medium mb-2">Faculty</label>
-              <select x-model="selectedFaculty" @change="fetchSubjects()" x-init="if(selectedFaculty) fetchSubjects()"
-                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select name="fakultet_id" x-model="selectedFaculty" @change="window.dispatchEvent(new CustomEvent('clear-selection')); fetchSubjects()" x-init="if(selectedFaculty) fetchSubjects()"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 <option value="">Select Faculty</option>
                 @foreach($fakulteti as $f)
                   <option value="{{ $f->id }}">
