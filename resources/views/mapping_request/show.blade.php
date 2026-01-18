@@ -89,13 +89,20 @@
                                                 @php $isMySubject = $reqSubject->professor_id == auth()->id(); @endphp
                                                 <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded shadow-sm text-sm {{ !$isMySubject ? 'opacity-75 bg-gray-50' : '' }}" 
                                                      data-req-id="{{ $reqSubject->id }}" 
-                                                     data-fit-id="{{ $reqSubject->fit_predmet_id }}">
-                                                    <div class="flex-1 grid grid-cols-2 gap-2">
-                                                        <div class="font-medium text-gray-800 truncate" title="{{ $reqSubject->straniPredmet->naziv }}">
+                                                     data-fit-id="{{ $reqSubject->fit_predmet_id }}"
+                                                     data-foreign-name="{{ $reqSubject->straniPredmet->naziv }}"
+                                                     data-local-name="{{ $reqSubject->fitPredmet->naziv }}">
+                                                    <div class="flex-1 flex items-center gap-2 min-w-0">
+                                                        <div class="flex-1 truncate font-medium text-gray-800" title="{{ $reqSubject->straniPredmet->naziv }}">
                                                             {{ $reqSubject->straniPredmet->naziv }}
                                                             @if(!$isMySubject) <span class="text-xs text-gray-400 block">({{ $reqSubject->professor->name ?? '?' }})</span> @endif
                                                         </div>
-                                                        <div class="text-gray-600 truncate" title="{{ $reqSubject->fitPredmet->naziv }}">{{ $reqSubject->fitPredmet->naziv }}</div>
+                                                        <div class="flex-shrink-0 text-gray-400">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                            </svg>
+                                                        </div>
+                                                        <div class="flex-1 truncate text-gray-600 text-right" title="{{ $reqSubject->fitPredmet->naziv }}">{{ $reqSubject->fitPredmet->naziv }}</div>
                                                     </div>
                                                     @if($isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']))
                                                         <button type="button" class="ml-3 text-red-500 hover:text-red-700 font-bold px-2" onclick="unlinkPair(this, '{{ $reqSubject->id }}', '{{ $reqSubject->straniPredmet->naziv }}', '{{ $reqSubject->straniPredmet->ects }}')">&times;</button>
@@ -236,8 +243,8 @@
                             state.mappings.push({
                                 request_subject_id: el.dataset.reqId,
                                 fit_predmet_id: el.dataset.fitId,
-                                foreign_name: el.querySelector('div > div:first-child').textContent.trim(),
-                                local_name: el.querySelector('div > div:last-child').textContent.trim()
+                                foreign_name: el.dataset.foreignName,
+                                local_name: el.dataset.localName
                             });
                         });
                     }
@@ -337,9 +344,14 @@
                             el.dataset.reqId = m.request_subject_id;
                             el.dataset.fitId = m.fit_predmet_id;
                             el.innerHTML = `
-                                <div class="flex-1 grid grid-cols-2 gap-2">
-                                    <div class="font-medium text-gray-800 truncate" title="${m.foreign_name}">${m.foreign_name}</div>
-                                    <div class="text-gray-600 truncate" title="${m.local_name}">${m.local_name}</div>
+                                <div class="flex-1 flex items-center gap-2 min-w-0">
+                                    <div class="flex-1 truncate font-medium text-gray-800" title="${m.foreign_name}">${m.foreign_name}</div>
+                                    <div class="flex-shrink-0 text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 truncate text-gray-600 text-right" title="${m.local_name}">${m.local_name}</div>
                                 </div>
                                 <button type="button" class="ml-3 text-red-500 hover:text-red-700 font-bold px-2" onclick="unlinkPair(this, '${m.request_subject_id}', '${m.foreign_name}', '0')">&times;</button>
                             `;
