@@ -135,6 +135,10 @@ class PrepisController extends Controller
         $globalPendingMatches = \App\Models\MappingRequestSubject::whereHas('mappingRequest', function($q) {
                 $q->where('status', 'pending');
             })
+            ->where(function($q) {
+                $q->where('is_rejected', false)
+                  ->orWhereNull('is_rejected');
+            })
             ->with(['professor'])
             ->get()
             ->unique('strani_predmet_id')
@@ -196,7 +200,14 @@ class PrepisController extends Controller
         $fitSubjects = Predmet::where('fakultet_id', 1)->get(); 
         
         // Fetch existing foreign subjects in this request to exclude them
-        $existingSubjectIds = $mappingRequest->subjects->pluck('strani_predmet_id')->toArray();
+        // Exclude rejected ones so they can be re-added/updated
+        $existingSubjectIds = $mappingRequest->subjects()
+            ->where(function($q) {
+                $q->where('is_rejected', false)
+                  ->orWhereNull('is_rejected');
+            })
+            ->pluck('strani_predmet_id')
+            ->toArray();
         
         // Fetch ALL subjects for this student that are NOT already in this request
         // Ensure to fetch subjects that belong to the mapping request's faculty? 
@@ -254,9 +265,23 @@ class PrepisController extends Controller
         ]);
 
         $count = 0;
+        $count = 0;
         foreach ($request->matches as $match) {
-            // Check existence
-            if (!$mappingRequest->subjects()->where('strani_predmet_id', $match['subject_id'])->exists()) {
+            $existingSubject = $mappingRequest->subjects()->where('strani_predmet_id', $match['subject_id'])->first();
+
+            if ($existingSubject) {
+                if ($existingSubject->is_rejected) {
+                    // Reactivate rejected subject
+                    $existingSubject->update([
+                        'professor_id' => $match['professor_id'],
+                        'is_rejected' => false,
+                        'fit_predmet_id' => null, // Reset match
+                    ]);
+                    $count++;
+                }
+                // Else: already exists and active, skip
+            } else {
+                // Create new
                 \App\Models\MappingRequestSubject::create([
                     'mapping_request_id' => $mappingRequest->id,
                     'strani_predmet_id' => $match['subject_id'],
@@ -264,6 +289,19 @@ class PrepisController extends Controller
                 ]);
                 $count++;
             }
+
+            // Propagate to other pending rejected requests
+            \App\Models\MappingRequestSubject::where('strani_predmet_id', $match['subject_id'])
+                ->where('id', '!=', $existingSubject ? $existingSubject->id : 0) // Exclude current
+                ->where('is_rejected', true)
+                ->whereHas('mappingRequest', function($q) {
+                    $q->where('status', 'pending');
+                })
+                ->update([
+                    'professor_id' => $match['professor_id'],
+                    'is_rejected' => false,
+                    'fit_predmet_id' => null,
+                ]);
         }
 
         return response()->json(['message' => "$count subjects added successfully."]);
@@ -297,10 +335,22 @@ class PrepisController extends Controller
             return redirect()->back()->with('error', 'Request is not pending.');
         }
 
+        // Update Student Faculty to FIT (ID 2) and Sync Subjects
+        $student = $mappingRequest->student;
+        // Student has many-to-many relationship with Faculty
+        $student->fakulteti()->sync([2]);
+
+        $newSubjectIds = $mappingRequest->subjects()
+            ->whereNotNull('fit_predmet_id')
+            ->pluck('fit_predmet_id')
+            ->toArray();
+            
+        $student->predmeti()->sync($newSubjectIds);
+
         // Create Prepis
         $prepis = Prepis::create([
             'student_id' => $mappingRequest->student_id,
-            'fakultet_id' => $mappingRequest->fakultet_id,
+            'fakultet_id' => 2, // Ensure Prepis is also linked to FIT
             'datum' => now(), 
             'status' => 'odobren', // Accepted
         ]);
