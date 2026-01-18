@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory; // dodaj ovo
+
 
 class Fakultet extends Model
 {
+    use HasFactory;
     protected $table = 'fakulteti';
     protected $fillable = ['naziv', 'email', 'telefon', 'web', 'uputstvo_za_ocjene', 'univerzitet_id'];
 

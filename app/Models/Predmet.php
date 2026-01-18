@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 
 class Predmet extends Model
 {
+
+use HasFactory;
     protected $table = 'predmeti';
 
     protected $fillable = [
@@ -37,4 +41,10 @@ class Predmet extends Model
     {
         return $this->belongsToMany(Student::class, 'student_predmet', 'predmet_id', 'student_id')->withPivot('grade');
     }
+
+    public function nastavnaLista()
+{
+    return $this->hasOne(NastavnaLista::class, 'predmet_id');
+}
+
 }

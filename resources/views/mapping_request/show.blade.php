@@ -23,29 +23,36 @@
                             <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
                                 <h4 class="font-semibold text-gray-700 mb-2">Foreign Subjects ({{ $mappingRequest->fakultet->naziv }})</h4>
                                 <div id="foreign-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
-                                    @foreach($mappingRequest->subjects as $reqSubject)
-                                        @if(!$reqSubject->fit_predmet_id)
-                                            @php
-                                                $isMySubject = $reqSubject->professor_id == auth()->id();
-                                            @endphp
-                                            <div class="draggable-item bg-white p-2 rounded border border-gray-200 shadow-sm text-sm flex justify-between items-center group
-                                                 {{ $isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']) ? 'hover:border-indigo-400 transition-colors cursor-grab' : 'opacity-50 cursor-not-allowed bg-gray-100' }}"
-                                                 @if($isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']))
-                                                     draggable="true"
-                                                     data-id="{{ $reqSubject->id }}"
-                                                     data-name="{{ $reqSubject->straniPredmet->naziv }}"
-                                                     data-type="foreign"
-                                                 @endif>
-                                                <span>
-                                                    {{ $reqSubject->straniPredmet->naziv }} ({{ $reqSubject->straniPredmet->ects }} ECTS)
-                                                    @if(!$isMySubject)
-                                                        <span class="text-xs text-gray-400 block ml-1">(Assigned to: {{ $reqSubject->professor->name ?? 'Unknown' }})</span>
-                                                    @endif
-                                                </span>
-                                            </div>
-                                        @endif
-                                    @endforeach
-                                </div>
+    @foreach($mappingRequest->subjects as $reqSubject)
+        @if(!$reqSubject->fit_predmet_id)
+            @php
+                $isMySubject = $reqSubject->professor_id == auth()->id();
+                $hasNL = \DB::table('nastavne_liste')->where('predmet_id', $reqSubject->straniPredmet->id)
+                            ->where('fakultet_id', $mappingRequest->fakultet->id)->exists();
+            @endphp
+            <div class="draggable-item bg-white p-2 rounded border border-gray-200 shadow-sm text-sm flex justify-between items-center group
+                 {{ $isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']) ? 'hover:border-indigo-400 transition-colors cursor-grab' : 'opacity-50 cursor-not-allowed bg-gray-100' }}"
+                 @if($isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']))
+                     draggable="true"
+                     data-id="{{ $reqSubject->id }}"
+                     data-name="{{ $reqSubject->straniPredmet->naziv }}"
+                     data-type="foreign"
+                 @endif>
+                <span>
+                    {{ $reqSubject->straniPredmet->naziv }} ({{ $reqSubject->straniPredmet->ects }} ECTS)
+                    @if($hasNL)
+                       <a href="{{ route('nastavna-lista.show', $reqSubject->straniPredmet->id) }}" target="_blank">*</a>
+
+                    @endif
+                    @if(!$isMySubject)
+                        <span class="text-xs text-gray-400 block ml-1">(Assigned to: {{ $reqSubject->professor->name ?? 'Unknown' }})</span>
+                    @endif
+                </span>
+            </div>
+        @endif
+    @endforeach
+</div>
+
                             </div>
 
                             <!-- Drop Zone & Linked List -->
