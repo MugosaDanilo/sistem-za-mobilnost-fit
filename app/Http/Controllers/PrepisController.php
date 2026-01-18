@@ -110,7 +110,7 @@ class PrepisController extends Controller
     }
 
 
-    public function finalMatch()
+    public function match()
     {
         $professors = \App\Models\User::where('type', 1)->get();
         $students = Student::whereHas('predmeti')->get();
@@ -146,10 +146,10 @@ class PrepisController extends Controller
                 ]];
             });
         
-        return view('prepis.final_match', compact('professors', 'students', 'previousMatches', 'globalPendingMatches'));
+        return view('prepis.match', compact('professors', 'students', 'previousMatches', 'globalPendingMatches'));
     }
 
-    public function storeFinalMatch(Request $request)
+    public function storeMatch(Request $request)
     {
         $request->validate([
             'student_id' => 'required|exists:studenti,id',

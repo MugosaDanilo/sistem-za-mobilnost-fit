@@ -17,7 +17,6 @@
 
 
 
-        @if(count($mappingRequests) > 0)
         <!-- Mapping Requests Table -->
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 mt-8">
              <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
@@ -36,7 +35,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($mappingRequests as $request)
+                        @forelse($mappingRequests as $request)
                              <tr class="hover:bg-gray-50 transition-colors duration-150 ease-in-out">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex flex-col space-y-1">
@@ -72,8 +71,6 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
                                         // Determine status color logic
-                                        // "In dashboard it is represented in status pending (yellow color) and it will only be green if admin clicks button accept"
-                                        // So we use $request->status
                                         $color = match($request->status) {
                                             'accepted' => 'bg-green-100 text-green-800',
                                             'rejected' => 'bg-red-100 text-red-800',
@@ -85,11 +82,6 @@
                                             default => 'Pending',
                                         };
                                         
-                                        // If pending but professor matched all subjects, maybe show something?
-                                        // But status remains Pending until admin action.
-                                        
-                                        // Check if professor matched
-                                        // Check if all subjects are processed (either matched or rejected)
                                         $totalSubjects = $request->subjects->count();
                                         $matchedSubjects = $request->subjects->whereNotNull('fit_predmet_id')->count();
                                         $rejectedSubjects = $request->subjects->where('is_rejected', true)->count();
@@ -126,12 +118,17 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-10 text-center text-gray-500 italic">
+                                    No mapping requests found.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
-        @endif
         </div>
     </div>
 </x-app-layout>

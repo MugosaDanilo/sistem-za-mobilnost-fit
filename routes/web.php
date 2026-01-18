@@ -67,8 +67,8 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     // Route::get('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'professorMatch'])->name('prepis.professor-match'); // Removed
     // Route::post('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'storeProfessorMatch'])->name('prepis.professor-match.store'); // Removed
     
-    Route::get('/prepisi/match', [\App\Http\Controllers\PrepisController::class, 'finalMatch'])->name('prepis.match');
-    Route::post('/prepisi/match', [\App\Http\Controllers\PrepisController::class, 'storeFinalMatch'])->name('prepis.match.store');
+    Route::get('/prepisi/match', [\App\Http\Controllers\PrepisController::class, 'match'])->name('prepis.match');
+    Route::post('/prepisi/match', [\App\Http\Controllers\PrepisController::class, 'storeMatch'])->name('prepis.match.store');
     Route::get('/prepisi/student-subjects/{student}', [\App\Http\Controllers\PrepisController::class, 'getStudentSubjects'])->name('prepis.student-subjects');
     
     Route::get('/prepisi/mapping-request/{id}', [\App\Http\Controllers\PrepisController::class, 'showMappingRequest'])->name('prepis.mapping-request.show');

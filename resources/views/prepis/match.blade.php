@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Final Match: Student Subjects to Professors') }}
+            {{ __('Student Subjects to Professors') }}
         </h2>
     </x-slot>
 
@@ -86,6 +86,30 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Match Info Modal -->
+    <div id="matchInfoModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-[60]">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-800">Match Information</h3>
+                <button type="button" onclick="closeMatchModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="matchInfoContent" class="space-y-4">
+                    <!-- Content will be injected here -->
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                <button type="button" onclick="closeMatchModal()" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    Close
+                </button>
             </div>
         </div>
     </div>
@@ -218,15 +242,18 @@
                                     autoMatch(s, match);
                                 };
                                 
-                                const infoIcon = document.createElement('div');
-                                infoIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
-                                infoIcon.title = `Matched by ${match.professor_name} on ${match.date}`;
-                                
-                                actionsDiv.appendChild(linkBtn);
-                                actionsDiv.appendChild(infoIcon);
-                                el.appendChild(actionsDiv);
-                            }
-                        }
+                                 const infoIcon = document.createElement('div');
+                                 infoIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 cursor-pointer hover:text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                                 infoIcon.onclick = (e) => {
+                                     e.stopPropagation();
+                                     showMatchInfo(s.id);
+                                 };
+                                 
+                                 actionsDiv.appendChild(linkBtn);
+                                 actionsDiv.appendChild(infoIcon);
+                                 el.appendChild(actionsDiv);
+                             }
+                         }
 
                         els.subjectList.appendChild(el);
                     });
@@ -403,6 +430,61 @@
                     alert('This match already exists.');
                 }
             }
+
+            window.showMatchInfo = function(subjectId) {
+                const match = previousMatches[subjectId];
+                if (!match) return;
+
+                const content = document.getElementById('matchInfoContent');
+                content.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Previously Matched</p>
+                            <p class="text-sm text-gray-500">This subject has a verified match in the system.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 border-t border-gray-100 pt-4">
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                            <div class="sm:col-span-1">
+                                <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Matched By</dt>
+                                <dd class="mt-1 text-sm text-gray-900 font-medium">${match.professor_name}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</dt>
+                                <dd class="mt-1 text-sm text-gray-900 font-medium">${match.date}</dd>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wider">FIT Equivalent</dt>
+                                <dd class="mt-1 text-sm text-indigo-600 font-bold">${match.fit_predmet_name}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                `;
+
+                const modal = document.getElementById('matchInfoModal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                // Close on click outside
+                const closeHandler = (e) => {
+                    if (e.target === modal) {
+                        closeMatchModal();
+                        modal.removeEventListener('click', closeHandler);
+                    }
+                };
+                modal.addEventListener('click', closeHandler);
+            };
+
+            window.closeMatchModal = function() {
+                const modal = document.getElementById('matchInfoModal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
 
             // --- Drag and Drop Setup ---
 
