@@ -48,10 +48,27 @@ class MappingRequestController extends Controller
 
         foreach ($mySubjects as $subject) {
             if ($inputMappings->has($subject->id)) {
+                $fitPredmetId = $inputMappings->get($subject->id)['fit_predmet_id'];
+                
                 $subject->update([
-                    'fit_predmet_id' => $inputMappings->get($subject->id)['fit_predmet_id'],
+                    'fit_predmet_id' => $fitPredmetId,
                     'is_rejected' => false
                 ]);
+
+                // Auto-match logic: Propagate to other pending requests
+                if ($fitPredmetId) {
+                    MappingRequestSubject::where('professor_id', auth()->id())
+                        ->where('strani_predmet_id', $subject->strani_predmet_id)
+                        ->where('id', '!=', $subject->id) // Exclude current record
+                        ->whereHas('mappingRequest', function ($query) {
+                            $query->where('status', 'pending');
+                        })
+                        ->update([
+                            'fit_predmet_id' => $fitPredmetId,
+                            'is_rejected' => false
+                        ]);
+                }
+
             } else {
                  $subject->update([
                     'fit_predmet_id' => null,
