@@ -458,27 +458,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<script>
-  function submitFormClean(form){
-    try{
-      var action = form.action || window.location.pathname + window.location.search;
-      form.action = action.split('#')[0];
-      sessionStorage.setItem('reports-scroll', window.scrollY || window.pageYOffset || 0);
-    }catch(e){ }
-    form.submit();
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    try{
-      const pos = sessionStorage.getItem('reports-scroll');
-      if(pos !== null){
-        window.scrollTo({ top: parseInt(pos,10), left: 0 });
-        sessionStorage.removeItem('reports-scroll');
-      }
-    }catch(e){ }
-  });
-</script>
-
 
 
 
