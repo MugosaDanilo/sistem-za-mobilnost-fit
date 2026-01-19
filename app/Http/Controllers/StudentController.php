@@ -4,25 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use App\Models\NivoStudija;
+use App\Models\Fakultet;
+use App\Models\Predmet;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
   public function index()
   {
-    $students = Student::with('nivoStudija')->orderBy('created_at', 'desc')->get();
+    $students = Student::with(['nivoStudija', 'fakulteti'])->orderBy('created_at', 'desc')->get();
     $nivoStudija = NivoStudija::all();
+    $fakulteti = Fakultet::all();
 
-    return view('students.index', compact('students', 'nivoStudija'));
+    return view('students.index', compact('students', 'nivoStudija', 'fakulteti'));
   }
 
   public function create()
   {
     $nivoStudija = NivoStudija::all();
-    $predmeti = \App\Models\Predmet::whereHas('fakultet', function ($query) {
-      $query->where('naziv', 'FIT');
-    })->get();
-    $fakulteti = \App\Models\Fakultet::all();
+    $predmeti = collect(); // Start empty, will be loaded via API when faculty is selected
+    $fakulteti = Fakultet::all();
     return view('students.create', compact('nivoStudija', 'predmeti', 'fakulteti'));
   }
 
@@ -39,6 +40,7 @@ class StudentController extends Controller
       'jmbg' => 'required|string|size:13|unique:studenti,jmbg',
       'nivo_studija_id' => 'required|exists:nivo_studija,id',
       'pol' => 'required|string|in:musko,zensko',
+      'fakultet_id' => 'required|exists:fakulteti,id',
       'predmeti' => 'array',
       'predmeti.*' => 'array', // Each item in predmeti should be an array (e.g., ['grade' => 7])
       'predmeti.*.grade' => 'nullable|integer|min:6|max:10', // Validate grades if present
@@ -50,11 +52,15 @@ class StudentController extends Controller
       $syncData = [];
       foreach ($request->predmeti as $id => $data) {
         // Ensure the ID itself is a valid subject ID before syncing
-        if (\App\Models\Predmet::where('id', $id)->exists()) {
+        if (Predmet::where('id', $id)->exists()) {
           $syncData[$id] = ['grade' => $data['grade'] ?? null];
         }
       }
       $student->predmeti()->sync($syncData);
+    }
+
+    if ($request->has('fakultet_id')) {
+      $student->fakulteti()->sync([$request->fakultet_id]);
     }
 
     return redirect()->route('students.index')
@@ -63,12 +69,17 @@ class StudentController extends Controller
 
   public function edit($id)
   {
-    $student = Student::with('predmeti')->findOrFail($id);
+    $student = Student::with(['predmeti', 'fakulteti'])->findOrFail($id);
     $nivoStudija = NivoStudija::all();
-    $predmeti = \App\Models\Predmet::whereHas('fakultet', function ($query) {
-      $query->where('naziv', 'FIT');
-    })->get();
-    $fakulteti = \App\Models\Fakultet::all();
+    
+    $studentFaculty = $student->fakulteti->first();
+    if ($studentFaculty) {
+        $predmeti = Predmet::where('fakultet_id', $studentFaculty->id)->get();
+    } else {
+        $predmeti = collect();
+    }
+    
+    $fakulteti = Fakultet::all();
     return view('students.edit', compact('student', 'nivoStudija', 'predmeti', 'fakulteti'));
   }
 
@@ -87,6 +98,7 @@ class StudentController extends Controller
       'jmbg' => 'required|string|size:13|unique:studenti,jmbg,' . $id,
       'nivo_studija_id' => 'required|exists:nivo_studija,id',
       'pol' => 'required|string|in:musko,zensko',
+      'fakultet_id' => 'required|exists:fakulteti,id',
       'predmeti' => 'array',
       'predmeti.*' => 'array', // Each item in predmeti should be an array (e.g., ['grade' => 7])
       'predmeti.*.grade' => 'nullable|integer|min:6|max:10', // Validate grades if present
@@ -109,6 +121,10 @@ class StudentController extends Controller
       $student->predmeti()->sync($syncData);
     } else {
       $student->predmeti()->detach();
+    }
+
+    if ($request->has('fakultet_id')) {
+      $student->fakulteti()->sync([$request->fakultet_id]);
     }
 
     return redirect()->route('students.index')

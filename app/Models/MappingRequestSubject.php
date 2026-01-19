@@ -13,11 +13,18 @@ class MappingRequestSubject extends Model
         'mapping_request_id',
         'strani_predmet_id',
         'fit_predmet_id',
+        'professor_id',
+        'is_rejected',
     ];
 
     public function mappingRequest()
     {
         return $this->belongsTo(MappingRequest::class);
+    }
+
+    public function professor()
+    {
+        return $this->belongsTo(User::class, 'professor_id');
     }
 
     public function straniPredmet()

@@ -38,4 +38,9 @@ class Student extends Model
     {
         return $this->belongsToMany(Predmet::class, 'student_predmet', 'student_id', 'predmet_id')->withPivot('grade');
     }
+
+    public function fakulteti()
+    {
+        return $this->belongsToMany(Fakultet::class, 'student_fakultet', 'student_id', 'fakultet_id');
+    }
 }

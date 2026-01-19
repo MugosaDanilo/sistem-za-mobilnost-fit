@@ -47,7 +47,8 @@
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Indeks</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Godina</th>
+               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Godina</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fakultet</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivo</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
@@ -70,7 +71,10 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->br_indexa }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->email }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->godina_studija }}</td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->godina_studija }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ $student->fakulteti->first()->naziv ?? 'N/A' }}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->nivoStudija->naziv ?? 'N/A' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -174,13 +178,24 @@
             </div>
           </div>
 
-          <div class="mb-4 md:col-span-2">
+           <div class="mb-4">
             <label for="nivo_studija_id" class="block text-gray-700 font-medium mb-1">Nivo Studija</label>
             <select id="nivo_studija_id" name="nivo_studija_id"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
               <option value="">Odaberite nivo studija</option>
               @foreach($nivoStudija as $nivo)
                 <option value="{{ $nivo->id }}">{{ $nivo->naziv }}</option>
+              @endforeach
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label for="fakultet_id" class="block text-gray-700 font-medium mb-1">Fakultet</label>
+            <select id="fakultet_id" name="fakultet_id"
+              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+              <option value="">Odaberite fakultet</option>
+              @foreach($fakulteti as $fakultet)
+                <option value="{{ $fakultet->id }}">{{ $fakultet->naziv }}</option>
               @endforeach
             </select>
           </div>
@@ -249,6 +264,13 @@
       document.getElementById('godina_studija').value = student.godina_studija;
       document.getElementById('jmbg').value = student.jmbg;
       document.getElementById('nivo_studija_id').value = student.nivo_studija_id;
+      
+      if (student.fakulteti && student.fakulteti.length > 0) {
+        document.getElementById('fakultet_id').value = student.fakulteti[0].id;
+      } else {
+        document.getElementById('fakultet_id').value = '';
+      }
+
       // Set pol radio (student.pol may be 0/1 or boolean)
       const polMuski = document.getElementById('pol_muski');
       const polZenski = document.getElementById('pol_zenski');
