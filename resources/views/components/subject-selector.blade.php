@@ -57,7 +57,12 @@
     get selectedCount() {
         return this.selectedIds.length;
     }
+<<<<<<< Updated upstream
 }" class="w-full" @study-level-changed.window="currentLevelId = $event.detail">
+=======
+}" class="w-full" @study-level-changed.window="currentLevelId = $event.detail"
+    @update-subjects.window="updateSubjects($event.detail)" @clear-selection.window="clearSelection()">
+>>>>>>> Stashed changes
 
     <div class="mb-2">
         <label class="block text-gray-700 font-medium mb-1">Assign Subjects</label>
