@@ -11,20 +11,20 @@
                 <div class="p-6 text-gray-900">
                     <div class="mb-6">
                         <a href="{{ route('prepis.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                            &larr; Back to Prepis Management
+                            &larr; Nazad na upravljanje prepisima
                         </a>
                     </div>
 
                     <!-- Faculty Selection -->
                     <div class="mb-6">
-                        <label for="fakultet_id" class="block text-sm font-medium text-gray-700">Faculty (for Subjects)</label>
+                        <label for="fakultet_id" class="block text-sm font-medium text-gray-700">Fakultet (za predmete)</label>
                         <div class="relative searchable-container" data-type="faculty">
-                            <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Search Faculty..." autocomplete="off">
+                            <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Pretraži fakultet..." autocomplete="off">
                             <div class="search-results absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
                             <select name="fakultet_id" id="fakultet_id" class="hidden">
-                                <option value="">Select Faculty</option>
+                                <option value="">Odaberi fakultet</option>
                                 @foreach($fakulteti as $fakultet)
-                                    <option value="{{ $fakultet->id }}" data-text="{{ $fakultet->naziv }}">{{ $fakultet->naziv }}</option>
+                                <option value="{{ $fakultet->id }}" data-text="{{ $fakultet->naziv }}">{{ $fakultet->naziv }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -32,13 +32,13 @@
 
                     <!-- Drag and Drop Interface -->
                     <div class="mb-6 select-none">
-                        <h3 class="text-lg font-medium mb-4">Link Professor with Subject</h3>
-                        
+                        <h3 class="text-lg font-medium mb-4">Poveži profesora s predmetom</h3>
+
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <!-- Professors Column -->
                             <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                <h4 class="font-semibold text-gray-700 mb-2">Available Professors</h4>
-                                <input type="text" id="search-prof" placeholder="Search Professor..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <h4 class="font-semibold text-gray-700 mb-2">Dostupni profesori</h4>
+                                <input type="text" id="search-prof" placeholder="Pretraži profesora..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 <div id="prof-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
                                     <!-- Professor Items will be injected here -->
                                 </div>
@@ -48,14 +48,14 @@
                             <div class="flex flex-col space-y-4">
                                 <!-- Drop Zone -->
                                 <div id="drop-zone" class="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-6 flex flex-col items-center justify-center transition-colors min-h-[150px]">
-                                    <p class="text-blue-500 font-medium text-center mb-2">Drag professor and subject here to link</p>
+                                    <p class="text-blue-500 font-medium text-center mb-2">Prevucite profesora i predmet ovdje da ih povežete</p>
                                     <div class="flex items-center space-x-4 w-full justify-center">
                                         <div id="drop-slot-prof" class="w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2">
-                                            Professor
+                                            Profesor
                                         </div>
                                         <span class="text-gray-400">+</span>
                                         <div id="drop-slot-subject" class="w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2">
-                                            Subject
+                                            Predmet
                                         </div>
                                     </div>
                                 </div>
@@ -63,9 +63,9 @@
                                 <!-- Linked List -->
                                 <div class="flex-1 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col">
                                     <div class="p-3 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
-                                        <h4 class="font-semibold text-gray-700">Matched Pairs</h4>
+                                        <h4 class="font-semibold text-gray-700">Povezani parovi</h4>
                                         <button id="send-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-3 rounded shadow transition-colors hidden">
-                                            Send to Professor
+                                            Pošalji profesoru
                                         </button>
                                     </div>
                                     <div id="linked-list" class="h-[350px] overflow-y-auto p-2 space-y-2">
@@ -76,10 +76,10 @@
 
                             <!-- Subjects Column -->
                             <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                <h4 class="font-semibold text-gray-700 mb-2">Available Subjects</h4>
-                                <input type="text" id="search-subject" placeholder="Search Subject..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" disabled>
+                                <h4 class="font-semibold text-gray-700 mb-2">Dostupni predmeti</h4>
+                                <input type="text" id="search-subject" placeholder="Pretraži predmet..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" disabled>
                                 <div id="subject-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
-                                    <p class="text-gray-500 text-sm text-center mt-4">Select a faculty to view subjects</p>
+                                    <p class="text-gray-500 text-sm text-center mt-4">Odaberite fakultet da prikažete predmete</p>
                                 </div>
                             </div>
                         </div>
@@ -95,48 +95,54 @@
             user-select: none;
             position: relative;
         }
+
         .draggable-item:active {
             cursor: grabbing;
             z-index: 10;
         }
+
         .draggable-item.dragging {
             opacity: 0.5;
             transform: scale(0.95);
         }
+
         .drop-active {
-            background-color: #e0e7ff; /* indigo-100 */
-            border-color: #6366f1; /* indigo-500 */
+            background-color: #e0e7ff;
+            /* indigo-100 */
+            border-color: #6366f1;
+            /* indigo-500 */
         }
+
     </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const allProfessors = @json($professors);
             const allSubjects = @json($predmeti);
-            
+
             // State
             let state = {
-                professors: [],
-                subjects: [],
-                linkedPairs: [],
-                pendingProf: null,
-                pendingSubject: null,
-                selectedFacultyId: null
+                professors: []
+                , subjects: []
+                , linkedPairs: []
+                , pendingProf: null
+                , pendingSubject: null
+                , selectedFacultyId: null
             };
 
             // DOM Elements
             const els = {
-                profList: document.getElementById('prof-list'),
-                subjectList: document.getElementById('subject-list'),
-                linkedList: document.getElementById('linked-list'),
-                dropZone: document.getElementById('drop-zone'),
-                dropSlotProf: document.getElementById('drop-slot-prof'),
-                dropSlotSubject: document.getElementById('drop-slot-subject'),
-                searchProf: document.getElementById('search-prof'),
-                searchSubject: document.getElementById('search-subject'),
-                facultySelect: document.getElementById('fakultet_id'),
-                sendBtn: document.getElementById('send-btn'),
-            };
+                profList: document.getElementById('prof-list')
+                , subjectList: document.getElementById('subject-list')
+                , linkedList: document.getElementById('linked-list')
+                , dropZone: document.getElementById('drop-zone')
+                , dropSlotProf: document.getElementById('drop-slot-prof')
+                , dropSlotSubject: document.getElementById('drop-slot-subject')
+                , searchProf: document.getElementById('search-prof')
+                , searchSubject: document.getElementById('search-subject')
+                , facultySelect: document.getElementById('fakultet_id')
+                , sendBtn: document.getElementById('send-btn')
+            , };
 
             // Initialize Data
             function init() {
@@ -162,7 +168,7 @@
             function renderProfList() {
                 const query = els.searchProf.value.toLowerCase();
                 els.profList.innerHTML = '';
-                
+
                 state.professors
                     .filter(p => (p.name).toLowerCase().includes(query))
                     .forEach(p => {
@@ -173,13 +179,13 @@
 
             function renderSubjectList() {
                 els.subjectList.innerHTML = '';
-                
+
                 if (!state.selectedFacultyId) {
                     els.subjectList.innerHTML = '<p class="text-gray-500 text-sm text-center mt-4">Select a faculty to view subjects</p>';
                     els.searchSubject.disabled = true;
                     return;
                 }
-                
+
                 els.searchSubject.disabled = false;
                 const query = els.searchSubject.value.toLowerCase();
 
@@ -241,19 +247,22 @@
                 div.draggable = true;
                 div.dataset.id = item.id;
                 div.dataset.type = type;
-                
+
                 // Content
                 const content = document.createElement('span');
                 if (type === 'professor') {
-                     content.textContent = item.name;
+                    content.textContent = item.name;
                 } else {
-                     content.textContent = `${item.naziv} (${item.ects} ECTS)`;
+                    content.textContent = `${item.naziv} (${item.ects} ECTS)`;
                 }
                 div.appendChild(content);
-                
+
                 div.addEventListener('dragstart', (e) => {
                     div.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', JSON.stringify({ id: item.id, type: type }));
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        id: item.id
+                        , type: type
+                    }));
                     e.dataTransfer.effectAllowed = 'move';
                 });
 
@@ -274,7 +283,7 @@
                 }
                 renderSubjectList();
             }
-            
+
             function pairExists(profId, subjectId) {
                 return state.linkedPairs.some(p => p.prof.id == profId && p.subject.id == subjectId);
             }
@@ -308,24 +317,27 @@
                 zone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     zone.classList.remove('drop-active');
-                    
+
                     const data = e.dataTransfer.getData('text/plain');
                     if (!data) return;
-                    
+
                     try {
                         const itemData = JSON.parse(data);
-                        
+
                         if (itemData.type === 'professor') {
                             const prof = allProfessors.find(p => p.id == itemData.id);
-                             if (prof) state.pendingProf = prof;
+                            if (prof) state.pendingProf = prof;
                         } else { // subject
-                             const subj = allSubjects.find(s => s.id == itemData.id);
-                             if (subj) state.pendingSubject = subj;
+                            const subj = allSubjects.find(s => s.id == itemData.id);
+                            if (subj) state.pendingSubject = subj;
                         }
 
                         if (state.pendingProf && state.pendingSubject) {
                             if (!pairExists(state.pendingProf.id, state.pendingSubject.id)) {
-                                state.linkedPairs.push({ prof: state.pendingProf, subject: state.pendingSubject });
+                                state.linkedPairs.push({
+                                    prof: state.pendingProf
+                                    , subject: state.pendingSubject
+                                });
                                 state.pendingProf = null;
                                 state.pendingSubject = null;
                             } else {
@@ -358,28 +370,28 @@
             }
 
             function setupSearchableDropdowns() {
-                 document.querySelectorAll('.searchable-container').forEach(container => {
+                document.querySelectorAll('.searchable-container').forEach(container => {
                     const input = container.querySelector('.search-input');
                     const resultsDiv = container.querySelector('.search-results');
                     const select = container.querySelector('select');
-                    
+
                     let optionsData = Array.from(select.options)
                         .filter(opt => opt.value)
                         .map(opt => ({
-                            id: opt.value,
-                            text: opt.dataset.text || opt.text,
-                            element: opt
+                            id: opt.value
+                            , text: opt.dataset.text || opt.text
+                            , element: opt
                         }));
 
                     if (select.value) {
-                         const selected = optionsData.find(o => o.id === select.value);
-                         if (selected) input.value = selected.text;
+                        const selected = optionsData.find(o => o.id === select.value);
+                        if (selected) input.value = selected.text;
                     }
 
                     input.addEventListener('input', () => {
                         const query = input.value.toLowerCase();
                         const filtered = optionsData.filter(o => o.text.toLowerCase().includes(query));
-                        
+
                         resultsDiv.innerHTML = '';
                         if (filtered.length === 0) {
                             resultsDiv.innerHTML = '<div class="px-4 py-2 text-gray-500 italic">No results found</div>';
@@ -415,24 +427,24 @@
             function setupSendButton() {
                 els.sendBtn.addEventListener('click', async () => {
                     if (state.linkedPairs.length === 0) return;
-                    
+
                     if (!confirm('Are you sure you want to send these matches to the professors?')) return;
 
                     const matches = state.linkedPairs.map(p => ({
-                        professor_id: p.prof.id,
-                        subject_id: p.subject.id
+                        professor_id: p.prof.id
+                        , subject_id: p.subject.id
                     }));
 
                     try {
                         const response = await fetch('{{ route("prepis.professor-match.store") }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                fakultet_id: state.selectedFacultyId,
-                                matches: matches
+                            method: 'POST'
+                            , headers: {
+                                'Content-Type': 'application/json'
+                                , 'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                            , body: JSON.stringify({
+                                fakultet_id: state.selectedFacultyId
+                                , matches: matches
                             })
                         });
 
@@ -452,5 +464,6 @@
 
             init();
         });
+
     </script>
 </x-app-layout>

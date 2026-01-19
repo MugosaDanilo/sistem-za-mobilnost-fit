@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900">
                     <div class="mb-6">
                         <a href="{{ route('prepis.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                            &larr; Back to Prepis Management
+                            &larr; Nazad na upravljanje prepisima
                         </a>
                     </div>
 
@@ -24,54 +24,50 @@
                             <div>
                                 <label for="student_id" class="block text-sm font-medium text-gray-700">Student</label>
                                 <div class="relative searchable-container" data-type="student">
-                                    <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Search Student..." autocomplete="off">
+                                    <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Pretraži studenta..." autocomplete="off">
                                     <div class="search-results absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
                                     <select name="student_id" id="student_id" class="hidden" required>
-                                        <option value="">Select Student</option>
+                                        <option value="">Odaberi studenta</option>
                                         @foreach($studenti as $student)
-                                            <option value="{{ $student->id }}" 
-                                                {{ $prepis->student_id == $student->id ? 'selected' : '' }}
-                                                data-text="{{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})">
-                                                {{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})
-                                            </option>
+                                        <option value="{{ $student->id }}" {{ $prepis->student_id == $student->id ? 'selected' : '' }} data-text="{{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})">
+                                            {{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
 
                             <div>
-                                <label for="fakultet_id" class="block text-sm font-medium text-gray-700">Faculty</label>
+                                <label for="fakultet_id" class="block text-sm font-medium text-gray-700">Fakultet</label>
                                 <div class="relative searchable-container" data-type="faculty">
-                                    <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Search Faculty..." autocomplete="off">
+                                    <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Pretraži fakultet..." autocomplete="off">
                                     <div class="search-results absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
                                     <select name="fakultet_id" id="fakultet_id" class="hidden" required>
-                                        <option value="">Select Faculty</option>
+                                        <option value="">Odaberi fakultet</option>
                                         @foreach($fakulteti as $fakultet)
-                                            <option value="{{ $fakultet->id }}" 
-                                                {{ $prepis->fakultet_id == $fakultet->id ? 'selected' : '' }}
-                                                data-text="{{ $fakultet->naziv }}">
-                                                {{ $fakultet->naziv }}
-                                            </option>
+                                        <option value="{{ $fakultet->id }}" {{ $prepis->fakultet_id == $fakultet->id ? 'selected' : '' }} data-text="{{ $fakultet->naziv }}">
+                                            {{ $fakultet->naziv }}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
 
                             <div>
-                                <label for="datum" class="block text-sm font-medium text-gray-700">Date</label>
+                                <label for="datum" class="block text-sm font-medium text-gray-700">Datum</label>
                                 <input type="date" name="datum" id="datum" value="{{ $prepis->datum ? $prepis->datum->format('Y-m-d') : '' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
                             </div>
                         </div>
 
                         <!-- Drag and Drop Interface -->
                         <div class="mb-6 select-none">
-                            <h3 class="text-lg font-medium mb-4">Link Subjects</h3>
-                            
+                            <h3 class="text-lg font-medium mb-4">Poveži predmete</h3>
+
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <!-- FIT Subjects Column -->
                                 <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                    <h4 class="font-semibold text-gray-700 mb-2">Available FIT Subjects</h4>
-                                    <input type="text" id="search-fit" placeholder="Search FIT..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    <h4 class="font-semibold text-gray-700 mb-2">Dostupni FIT predmeti</h4>
+                                    <input type="text" id="search-fit" placeholder="Pretraži FIT..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     <div id="fit-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
                                         <!-- FIT Items will be injected here -->
                                     </div>
@@ -81,14 +77,14 @@
                                 <div class="flex flex-col space-y-4">
                                     <!-- Drop Zone -->
                                     <div id="drop-zone" class="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-6 flex flex-col items-center justify-center transition-colors min-h-[150px]">
-                                        <p class="text-blue-500 font-medium text-center mb-2">Drag subjects here to link</p>
+                                        <p class="text-blue-500 font-medium text-center mb-2">Prevucite predmete ovdje da ih povežete</p>
                                         <div class="flex items-center space-x-4 w-full justify-center">
                                             <div id="drop-slot-fit" class="w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2">
-                                                FIT Subject
+                                                FIT predemti
                                             </div>
                                             <span class="text-gray-400">+</span>
                                             <div id="drop-slot-foreign" class="w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2">
-                                                Foreign Subject
+                                                Strani predmeti
                                             </div>
                                         </div>
                                     </div>
@@ -96,7 +92,7 @@
                                     <!-- Linked List -->
                                     <div class="flex-1 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col">
                                         <div class="p-3 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-                                            <h4 class="font-semibold text-gray-700">Linked Pairs</h4>
+                                            <h4 class="font-semibold text-gray-700">Povezani parovi</h4>
                                         </div>
                                         <div id="linked-list" class="h-[350px] overflow-y-auto p-2 space-y-2">
                                             <!-- Linked Pairs will be injected here -->
@@ -106,10 +102,10 @@
 
                                 <!-- Foreign Subjects Column -->
                                 <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                    <h4 class="font-semibold text-gray-700 mb-2">Available Foreign Subjects</h4>
-                                    <input type="text" id="search-foreign" placeholder="Search Foreign..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" disabled>
+                                    <h4 class="font-semibold text-gray-700 mb-2">Dostupni strani predmeti</h4>
+                                    <input type="text" id="search-foreign" placeholder="Pretraži strane..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" disabled>
                                     <div id="foreign-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
-                                        <p class="text-gray-500 text-sm text-center mt-4">Select a faculty to view subjects</p>
+                                        <p class="text-gray-500 text-sm text-center mt-4">Odaberite fakultet da prikažete predmete</p>
                                     </div>
                                 </div>
                             </div>
@@ -120,11 +116,10 @@
 
                         <div class="flex justify-end mt-6 space-x-4">
                             <button type="button" onclick="openPreviewModal()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-lg transform transition hover:scale-105">
-                                Preview Transcripts
-                            </button>
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transform transition hover:scale-105">
-                                Update Prepis
-                            </button>
+                                Pregled ocjena
+                                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transform transition hover:scale-105">
+                                    Ažuriraj prepis
+                                </button>
                         </div>
                     </form>
                 </div>
@@ -136,14 +131,14 @@
     <div id="preview-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
         <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
             <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Transcript Preview</h3>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Pregled ocjena</h3>
                 <div class="mt-2 px-7 py-3">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FIT Subject</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FIT predmeti</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ECTS</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foreign Subject</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strani predmeti</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ECTS</th>
                             </tr>
                         </thead>
@@ -152,9 +147,9 @@
                         </tbody>
                         <tfoot class="bg-gray-50 font-bold">
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">Total:</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">Ukupno:</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left" id="total-fit-ects">0</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">Total:</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">Ukupno:</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left" id="total-foreign-ects">0</td>
                             </tr>
                         </tfoot>
@@ -162,7 +157,7 @@
                 </div>
                 <div class="items-center px-4 py-3">
                     <button id="close-modal" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-lg transform transition hover:scale-105 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                        Close
+                        Zatvori
                     </button>
                 </div>
             </div>
@@ -175,24 +170,32 @@
             user-select: none;
             position: relative;
         }
+
         .draggable-item:active {
             cursor: grabbing;
             z-index: 10;
         }
+
         .draggable-item.dragging {
             opacity: 0.5;
             transform: scale(0.95);
         }
+
         .drop-active {
-            background-color: #e0e7ff; /* indigo-100 */
-            border-color: #6366f1; /* indigo-500 */
+            background-color: #e0e7ff;
+            /* indigo-100 */
+            border-color: #6366f1;
+            /* indigo-500 */
         }
+
         .automatch-btn {
             display: none;
         }
+
         .draggable-item:hover .automatch-btn {
             display: flex;
         }
+
     </style>
 
     <script>
@@ -200,57 +203,60 @@
             const allSubjects = @json($predmeti);
             const existingAgreements = @json($existingAgreements);
             const existingAgreementsForeign = @json($existingAgreementsForeign);
-            
+
             // Loaded from existing Prepis
-            const initialAgreements = @json($prepis->agreements);
+            const initialAgreements = @json($prepis - > agreements);
             const initialFacultyId = "{{ $prepis->fakultet_id }}";
 
             // State
             let state = {
-                fitSubjects: [],
-                foreignSubjects: [],
-                linkedPairs: [],
-                pendingFit: null,
-                pendingForeign: null,
-                selectedFacultyId: initialFacultyId
+                fitSubjects: []
+                , foreignSubjects: []
+                , linkedPairs: []
+                , pendingFit: null
+                , pendingForeign: null
+                , selectedFacultyId: initialFacultyId
             };
 
             // DOM Elements
             const els = {
-                fitList: document.getElementById('fit-list'),
-                foreignList: document.getElementById('foreign-list'),
-                linkedList: document.getElementById('linked-list'),
-                dropZone: document.getElementById('drop-zone'),
-                dropSlotFit: document.getElementById('drop-slot-fit'),
-                dropSlotForeign: document.getElementById('drop-slot-foreign'),
-                searchFit: document.getElementById('search-fit'),
-                searchForeign: document.getElementById('search-foreign'),
-                facultySelect: document.getElementById('fakultet_id'),
-                formInputs: document.getElementById('form-inputs'),
-                previewModal: document.getElementById('preview-modal'),
-                previewTableBody: document.getElementById('preview-table-body'),
-                closeModalBtn: document.getElementById('close-modal'),
-                totalFitEcts: document.getElementById('total-fit-ects'),
-                totalForeignEcts: document.getElementById('total-foreign-ects'),
-            };
+                fitList: document.getElementById('fit-list')
+                , foreignList: document.getElementById('foreign-list')
+                , linkedList: document.getElementById('linked-list')
+                , dropZone: document.getElementById('drop-zone')
+                , dropSlotFit: document.getElementById('drop-slot-fit')
+                , dropSlotForeign: document.getElementById('drop-slot-foreign')
+                , searchFit: document.getElementById('search-fit')
+                , searchForeign: document.getElementById('search-foreign')
+                , facultySelect: document.getElementById('fakultet_id')
+                , formInputs: document.getElementById('form-inputs')
+                , previewModal: document.getElementById('preview-modal')
+                , previewTableBody: document.getElementById('preview-table-body')
+                , closeModalBtn: document.getElementById('close-modal')
+                , totalFitEcts: document.getElementById('total-fit-ects')
+                , totalForeignEcts: document.getElementById('total-foreign-ects')
+            , };
 
             // Initialize Data
             function init() {
                 state.fitSubjects = allSubjects;
-                
+
                 // Initialize linked pairs from existing data
                 if (initialAgreements && initialAgreements.length > 0) {
                     initialAgreements.forEach(agreement => {
                         const fitSub = allSubjects.find(s => s.id == agreement.fit_predmet_id);
                         const foreignSub = allSubjects.find(s => s.id == agreement.strani_predmet_id);
                         if (fitSub && foreignSub) {
-                            state.linkedPairs.push({ fit: fitSub, foreign: foreignSub });
+                            state.linkedPairs.push({
+                                fit: fitSub
+                                , foreign: foreignSub
+                            });
                         }
                     });
                 }
-                
+
                 filterForeignSubjects();
-                
+
                 render();
                 setupDragAndDrop();
                 setupSearch();
@@ -272,7 +278,7 @@
             function renderFitList() {
                 const query = els.searchFit.value.toLowerCase();
                 els.fitList.innerHTML = '';
-                
+
                 state.fitSubjects
                     .filter(s => s.naziv.toLowerCase().includes(query))
                     .forEach(s => {
@@ -284,13 +290,13 @@
 
             function renderForeignList() {
                 els.foreignList.innerHTML = '';
-                
+
                 if (!state.selectedFacultyId) {
                     els.foreignList.innerHTML = '<p class="text-gray-500 text-sm text-center mt-4">Select a faculty to view subjects</p>';
                     els.searchForeign.disabled = true;
                     return;
                 }
-                
+
                 els.searchForeign.disabled = false;
                 const query = els.searchForeign.value.toLowerCase();
 
@@ -345,7 +351,7 @@
                 div.draggable = true;
                 div.dataset.id = subject.id;
                 div.dataset.type = type;
-                
+
                 // Content
                 const content = document.createElement('span');
                 content.textContent = `${subject.naziv} (${subject.ects} ECTS)`;
@@ -369,10 +375,13 @@
                     });
                     div.appendChild(btn);
                 }
-                
+
                 div.addEventListener('dragstart', (e) => {
                     div.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', JSON.stringify({ id: subject.id, type: type }));
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        id: subject.id
+                        , type: type
+                    }));
                     e.dataTransfer.effectAllowed = 'move';
                 });
 
@@ -393,7 +402,7 @@
                 }
                 renderForeignList();
             }
-            
+
             function pairExists(fitId, foreignId) {
                 return state.linkedPairs.some(p => p.fit.id == fitId && p.foreign.id == foreignId);
             }
@@ -421,7 +430,10 @@
                         const foreignSubject = state.foreignSubjects.find(s => s.id == foreignId);
                         if (foreignSubject) {
                             if (!pairExists(subject.id, foreignSubject.id)) {
-                                state.linkedPairs.push({ fit: subject, foreign: foreignSubject });
+                                state.linkedPairs.push({
+                                    fit: subject
+                                    , foreign: foreignSubject
+                                });
                                 matchedCount++;
                             }
                         }
@@ -431,14 +443,17 @@
                     const fitIds = existingAgreementsForeign[subject.id];
 
                     fitIds.forEach(fitId => {
-                         // Find FIT subject in available list
-                         const fitSubject = state.fitSubjects.find(s => s.id == fitId);
-                         if (fitSubject) {
-                             if (!pairExists(fitSubject.id, subject.id)) {
-                                 state.linkedPairs.push({ fit: fitSubject, foreign: subject });
-                                 matchedCount++;
-                             }
-                         }
+                        // Find FIT subject in available list
+                        const fitSubject = state.fitSubjects.find(s => s.id == fitId);
+                        if (fitSubject) {
+                            if (!pairExists(fitSubject.id, subject.id)) {
+                                state.linkedPairs.push({
+                                    fit: fitSubject
+                                    , foreign: subject
+                                });
+                                matchedCount++;
+                            }
+                        }
                     });
                 }
 
@@ -456,7 +471,7 @@
                     inputFit.type = 'hidden';
                     inputFit.name = `agreements[${index}][fit_predmet_id]`;
                     inputFit.value = pair.fit.id;
-                    
+
                     const inputForeign = document.createElement('input');
                     inputForeign.type = 'hidden';
                     inputForeign.name = `agreements[${index}][strani_predmet_id]`;
@@ -483,7 +498,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">${pair.foreign.ects}</td>
                     `;
                     els.previewTableBody.appendChild(row);
-                    
+
                     totalFit += parseFloat(pair.fit.ects) || 0;
                     totalForeign += parseFloat(pair.foreign.ects) || 0;
                 });
@@ -523,14 +538,14 @@
                 zone.addEventListener('drop', (e) => {
                     e.preventDefault();
                     zone.classList.remove('drop-active');
-                    
+
                     const data = e.dataTransfer.getData('text/plain');
                     if (!data) return;
-                    
+
                     try {
                         const item = JSON.parse(data);
                         const subject = allSubjects.find(s => s.id == item.id);
-                        
+
                         if (!subject) return;
 
                         if (item.type === 'fit') {
@@ -541,7 +556,10 @@
 
                         if (state.pendingFit && state.pendingForeign) {
                             if (!pairExists(state.pendingFit.id, state.pendingForeign.id)) {
-                                state.linkedPairs.push({ fit: state.pendingFit, foreign: state.pendingForeign });
+                                state.linkedPairs.push({
+                                    fit: state.pendingFit
+                                    , foreign: state.pendingForeign
+                                });
                                 state.pendingFit = null;
                                 state.pendingForeign = null;
                             } else {
@@ -578,13 +596,13 @@
                     const input = container.querySelector('.search-input');
                     const resultsDiv = container.querySelector('.search-results');
                     const select = container.querySelector('select');
-                    
+
                     let optionsData = Array.from(select.options)
                         .filter(opt => opt.value)
                         .map(opt => ({
-                            id: opt.value,
-                            text: opt.dataset.text || opt.text,
-                            element: opt
+                            id: opt.value
+                            , text: opt.dataset.text || opt.text
+                            , element: opt
                         }));
 
                     if (select.value) {
@@ -595,7 +613,7 @@
                     input.addEventListener('input', () => {
                         const query = input.value.toLowerCase();
                         const filtered = optionsData.filter(o => o.text.toLowerCase().includes(query));
-                        
+
                         resultsDiv.innerHTML = '';
                         if (filtered.length === 0) {
                             resultsDiv.innerHTML = '<div class="px-4 py-2 text-gray-500 italic">No results found</div>';
@@ -630,5 +648,6 @@
 
             init();
         });
+
     </script>
 </x-app-layout>
