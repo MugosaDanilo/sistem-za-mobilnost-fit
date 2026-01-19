@@ -1,38 +1,37 @@
 <x-app-layout>
     @if(session('success'))
-        <div class="mb-4 bg-green-100 text-green-800 p-3 rounded-md">
-            {{ session('success') }}
-        </div>
+    <div class="mb-4 bg-green-100 text-green-800 p-3 rounded-md">
+        {{ session('success') }}
+    </div>
     @endif
 
     @if ($errors->any())
-        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong class="font-bold">Whoops!</strong>
-            <span class="block">There were some problems with your input:</span>
-            <ul class="mt-2 list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
+    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold">Whoops!</strong>
+        <span class="block">There were some problems with your input:</span>
+        <ul class="mt-2 list-disc list-inside">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
     @endif
 
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="mb-6">
             <a href="{{ route('fakulteti.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                &larr; Back to Faculty Management
+                &larr; Nazad na upravljanje fakultetima
             </a>
         </div>
 
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Predmeti - {{ $fakultet->naziv }}</h1>
             <div class="flex items-center space-x-2">
-                <button id="addSubjectBtn"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                <button id="addSubjectBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
                     Dodaj Predmet
                 </button>
                 <button id="importSubjectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                    Import Subjects
+                    Dodaj predmete
                 </button>
             </div>
         </div>
@@ -40,12 +39,12 @@
         <!-- Import Modal -->
         <div id="importSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
             <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-                <h2 class="text-xl font-semibold mb-4">Import Subjects from Excel</h2>
+                <h2 class="text-xl font-semibold mb-4">Dodaj predmete iz Excel fajla</h2>
                 <form action="{{ route('fakulteti.predmeti.import', $fakultet->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    
+
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-medium mb-1">Study Level</label>
+                        <label class="block text-gray-700 font-medium mb-1">Nivo studija</label>
                         <div class="flex items-center space-x-4">
                             <label class="inline-flex items-center">
                                 <input type="radio" name="level" value="basic" checked class="form-radio text-blue-600">
@@ -59,36 +58,34 @@
                     </div>
 
                     <div class="mb-4">
-                         <label class="block text-gray-700 font-medium mb-1">Upload .xlsx File</label>
-                         <input type="file" name="file" accept=".xlsx, .xls" required class="w-full border p-2 rounded">
-                         <p class="text-sm text-gray-500 mt-1">
-                             @if(Str::contains($fakultet->naziv, ['FIT', 'Fakultet za informacione tehnologije']))
-                                Expected table: Native sheet & English.
-                             @else
-                                Expected headers: 'Šifra predmeta', 'Naziv predmeta', 'ECTS', 'Semestar'.
-                             @endif
-                         </p>
+                        <label class="block text-gray-700 font-medium mb-1">Dodaj .xlsx fajl</label>
+                        <input type="file" name="file" accept=".xlsx, .xls" required class="w-full border p-2 rounded">
+                        <p class="text-sm text-gray-500 mt-1">
+                            @if(Str::contains($fakultet->naziv, ['FIT', 'Fakultet za informacione tehnologije']))
+                            Expected table: Native sheet & English.
+                            @else
+                            Expected headers: 'Šifra predmeta', 'Naziv predmeta', 'ECTS', 'Semestar'.
+                            @endif
+                        </p>
                     </div>
-                    
+
                     <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelImportModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">Cancel</button>
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">Import</button>
+                        <button type="button" id="cancelImportModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">Otkaži</button>
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">Dodaj</button>
                     </div>
                 </form>
             </div>
         </div>
 
         <div class="mb-4">
-            <input type="text" id="searchSubject" placeholder="Pretraži.."
-                class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+            <input type="text" id="searchSubject" placeholder="Pretraži.." class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
         </div>
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-800">Lista Predmeta</h2>
-                <span
-                    class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($predmeti) }}
-                    Total</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($predmeti) }}
+                    Ukupno</span>
             </div>
 
             <div class="overflow-x-auto">
@@ -111,36 +108,31 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($predmeti as $p)
-                            <tr class="subject-row hover:bg-gray-50 transition-colors duration-150 ease-in-out"
-                                data-search="{{ strtolower($p->naziv) }}">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $p->sifra_predmeta }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $p->naziv }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->ects }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->semestar }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $p->nivoStudija->naziv ?? 'N/A' }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
-                                        <button
-                                            class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors openEditModal"
-                                            data-id="{{ $p->id }}" data-sifra="{{ $p->sifra_predmeta }}" data-naziv="{{ $p->naziv }}" data-ects="{{ $p->ects }}"
-                                            data-semestar="{{ $p->semestar }}" data-nivo="{{ $p->nivo_studija_id }}">
-                                            Izmijeni
+
+                        <tr class="subject-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($p->naziv) }}">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $p->naziv }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->ects }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->semestar }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $p->nivoStudija->naziv ?? 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors openEditModal" data-id="{{ $p->id }}" data-naziv="{{ $p->naziv }}" data-ects="{{ $p->ects }}" data-semestar="{{ $p->semestar }}" data-nivo="{{ $p->nivo_studija_id }}">
+                                        Izmijeni
+                                    </button>
+                                    <form action="{{ route('predmeti.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Da li ste sigurni koje odbrisati ovaj predmet?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
+                                            Obriši
+
                                         </button>
-                                        <form action="{{ route('predmeti.destroy', $p->id) }}" method="POST"
-                                            onsubmit="return confirm('Da li ste sigurni koje odbrisati ovaj predmet?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
-                                                Obriši
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -166,44 +158,34 @@
 
                 <div class="mb-4">
                     <label for="addName" class="block text-gray-700 font-medium mb-1">Naziv</label>
-                    <input type="text" id="addName" name="naziv"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required>
+                    <input type="text" id="addName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="addNivo" class="block text-gray-700 font-medium mb-1">Nivo Studija</label>
-                    <select id="addNivo" name="nivo_studija_id"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required>
+                    <select id="addNivo" name="nivo_studija_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                         <option value="">Odaberite nivo studija</option>
                         @foreach($nivoStudija as $nivo)
-                            <option value="{{ $nivo->id }}">{{ $nivo->naziv }}</option>
+                        <option value="{{ $nivo->id }}">{{ $nivo->naziv }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="mb-4">
                     <label for="addEcts" class="block text-gray-700 font-medium mb-1">ECTS</label>
-                    <input type="number" id="addEcts" name="ects"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required min="1">
+                    <input type="number" id="addEcts" name="ects" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
                 </div>
 
                 <div class="mb-4">
                     <label for="addSemester" class="block text-gray-700 font-medium mb-1">Semestar</label>
-                    <input type="number" id="addSemester" name="semestar"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required min="1">
+                    <input type="number" id="addSemester" name="semestar" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
                 </div>
 
                 <div class="flex justify-end space-x-2">
-                    <button type="button" id="cancelAddModal"
-                        class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
+                    <button type="button" id="cancelAddModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
                         Otkaži
                     </button>
-                    <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
                         Sačuvaj
                     </button>
                 </div>
@@ -232,44 +214,34 @@
 
                 <div class="mb-4">
                     <label for="editName" class="block text-gray-700 font-medium mb-1">Naziv</label>
-                    <input type="text" id="editName" name="naziv"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required>
+                    <input type="text" id="editName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                 </div>
 
                 <div class="mb-4">
                     <label for="editNivo" class="block text-gray-700 font-medium mb-1">Nivo Studija</label>
-                    <select id="editNivo" name="nivo_studija_id"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required>
+                    <select id="editNivo" name="nivo_studija_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
                         <option value="">Odaberite nivo studija</option>
                         @foreach($nivoStudija as $nivo)
-                            <option value="{{ $nivo->id }}">{{ $nivo->naziv }}</option>
+                        <option value="{{ $nivo->id }}">{{ $nivo->naziv }}</option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="mb-4">
                     <label for="editEcts" class="block text-gray-700 font-medium mb-1">ECTS</label>
-                    <input type="number" id="editEcts" name="ects"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required min="1">
+                    <input type="number" id="editEcts" name="ects" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
                 </div>
 
                 <div class="mb-4">
                     <label for="editSemester" class="block text-gray-700 font-medium mb-1">Semestar</label>
-                    <input type="number" id="editSemester" name="semestar"
-                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required min="1">
+                    <input type="number" id="editSemester" name="semestar" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
                 </div>
 
                 <div class="flex justify-end space-x-2">
-                    <button type="button" id="cancelEditModal"
-                        class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
+                    <button type="button" id="cancelEditModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
                         Otkaži
                     </button>
-                    <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
                         Sačuvaj Izmjene
                     </button>
                 </div>
@@ -278,7 +250,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Add Modal Logic
             const addModal = document.getElementById('addSubjectModal');
             const addBtn = document.getElementById('addSubjectBtn');
@@ -341,7 +313,7 @@
             const searchInput = document.getElementById('searchSubject');
             const rows = document.querySelectorAll('.subject-row');
 
-            searchInput.addEventListener('input', function () {
+            searchInput.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase().trim();
 
                 rows.forEach(row => {
@@ -354,5 +326,6 @@
                 });
             });
         });
+
     </script>
 </x-app-layout>
