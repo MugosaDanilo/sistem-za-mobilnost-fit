@@ -25,7 +25,7 @@
 
             <!-- Header -->
             <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Mobility Management</h1>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Upravljanje mobilnošću</h1>
             </div>
 
             <form id="mobilityForm" action="{{ route('admin.mobility.save') }}" method="POST">
@@ -39,15 +39,14 @@
 
                         <!-- Student & Faculty Card -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Student & Faculty
-                                Information</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Informacije o studentu i fakultetu</h2>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Student Selection -->
                                 <div class="relative">
-                                    <label for="student_search" class="block text-sm font-medium text-gray-700 mb-1">Select Student</label>
+                                    <label for="student_search" class="block text-sm font-medium text-gray-700 mb-1">Odaberi studenta</label>
                                     <div class="relative">
-                                        <input type="text" id="student_search" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-4 pr-10 py-2.5 transition-colors" placeholder="Search student..." autocomplete="off">
+                                        <input type="text" id="student_search" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-4 pr-10 py-2.5 transition-colors" placeholder="Pretraži studenta..." autocomplete="off">
                                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
@@ -61,10 +60,9 @@
 
                                 <!-- Faculty Selection -->
                                 <div>
-                                    <label for="fakultet_id" class="block text-sm font-medium text-gray-700 mb-1">Host
-                                        Faculty</label>
+                                    <label for="fakultet_id" class="block text-sm font-medium text-gray-700 mb-1">Domaći fakultet</label>
                                     <select name="fakultet_id" id="fakultet_id" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
-                                        <option value="">-- Choose Faculty --</option>
+                                        <option value="">-- Odaberite fakultet --</option>
                                         @foreach($fakulteti as $f)
                                         <option value="{{ $f->id }}">{{ $f->naziv }}</option>
                                         @endforeach
@@ -75,13 +73,11 @@
                             <!-- Dates -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                                 <div>
-                                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start
-                                        Date</label>
+                                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Datum početka</label>
                                     <input type="date" name="start_date" id="start_date" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                                 <div>
-                                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End
-                                        Date</label>
+                                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Datum završetka</label>
                                     <input type="date" name="end_date" id="end_date" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                             </div>
@@ -90,36 +86,35 @@
                         <!-- Subjects Card -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                             <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2 flex items-center justify-between">
-                                <span>Student Subjects</span>
+                                <span>Predmeti studenta</span>
                             </h2>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Unpassed Subjects -->
                                 <div class="flex flex-col h-full">
-                                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Unpassed
-                                        (Previous Years)</h3>
+                                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Nepoloženi ispiti
+                                        (Prethodne godine)</h3>
                                     <div id="unpassedSubjectsBox" class="flex-1 min-h-[250px] bg-gray-50 rounded-lg border border-gray-200 p-3 overflow-y-auto space-y-2 transition-all hover:border-gray-300">
                                         <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
                                             <svg class="w-8 h-8 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
                                                 </path>
                                             </svg>
-                                            <span>Select a student to load subjects</span>
+                                            <span>Odaberite studenta da učitate predmete</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Next Year Subjects -->
                                 <div class="flex flex-col h-full">
-                                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Next Year
-                                        Subjects</h3>
+                                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Predmeti sljedeće godine</h3>
                                     <div id="nextYearSubjectsBox" class="flex-1 min-h-[250px] bg-gray-50 rounded-lg border border-gray-200 p-3 overflow-y-auto space-y-2 transition-all hover:border-gray-300">
                                         <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
                                             <svg class="w-8 h-8 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
                                                 </path>
                                             </svg>
-                                            <span>Select a student to load subjects</span>
+                                            <span>Odaberite studenta da učitate predmete</span>
                                         </div>
                                     </div>
                                 </div>
@@ -131,15 +126,15 @@
                     <!-- Right Column: Available Subjects -->
                     <div class="lg:col-span-1">
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-6 h-[calc(100vh-theme('spacing.12'))] flex flex-col">
-                            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Available Subjects</h2>
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Dostupni predmeti</h2>
 
                             <div class="mb-4">
-                                <input type="text" id="subjectFilter" placeholder="Filter subjects..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3">
+                                <input type="text" id="subjectFilter" placeholder="Filtriraj predmete..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3">
                             </div>
 
                             <div id="available-subjects" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
                                 <div class="p-4 text-center text-gray-500 text-sm">
-                                    Select a host faculty to see available subjects.
+                                    Odaberite domaći fakultet da učitate dostupne predmete.
                                 </div>
                             </div>
                         </div>
@@ -154,13 +149,13 @@
                             <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                             </svg>
-                            Export to Word
+                            Exportuj u Word
                         </button>
                         <button type="button" id="btnSave" class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
-                            Save Learning Agreement
+                            Sačuvaj Learning Agreement
                         </button>
                     </div>
                 </div>
