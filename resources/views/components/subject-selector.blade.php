@@ -79,23 +79,42 @@
         this.selectedIds = [];
         this.selectedSubjectsData = [];
         this.grades = {};
+    },
+
+    setSelection(newItems) {
+        // newItems should be an array of subject objects with optional pivot.grade or just grade property
+        newItems.forEach(item => {
+            if (!this.selectedIds.includes(item.id)) {
+                this.selectedIds.push(item.id);
+                this.selectedSubjectsData.push(item);
+            }
+            // Update grade if present
+            let grade = item.pivot?.grade || item.grade;
+            if (grade) {
+                this.grades[item.id] = grade;
+            }
+        });
     }
 }" class="w-full" 
     @study-level-changed.window="currentLevelId = $event.detail"
     @update-subjects.window="updateSubjects($event.detail)"
-    @clear-selection.window="clearSelection()">
+    @clear-selection.window="clearSelection()"
+    @set-selection.window="setSelection($event.detail)">
 
     <div class="mb-2">
         <label class="block text-gray-700 font-medium mb-1">Assign Subjects</label>
-        <button type="button" @click="open = true" :disabled="currentLevelId === ''"
-            :class="{'opacity-50 cursor-not-allowed': currentLevelId === ''}"
-            class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg border border-indigo-200 transition-colors flex items-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            <span x-text="currentLevelId === '' ? 'Select Study Level First' : 'Select Subjects'"></span>
-        </button>
+        <div class="flex items-center space-x-3 mb-4">
+            <button type="button" @click="open = true" :disabled="currentLevelId === ''"
+                :class="{'opacity-50 cursor-not-allowed': currentLevelId === ''}"
+                class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg border border-indigo-200 transition-colors flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span x-text="currentLevelId === '' ? 'Select Study Level First' : 'Select Subjects'"></span>
+            </button>
+            {{ $slot ?? '' }}
+        </div>
 
         <!-- Selected Subjects Table -->
         <div x-show="selectedCount > 0" class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">

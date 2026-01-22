@@ -40,7 +40,7 @@ class TorImportService
                         foreach ($cell->getElements() as $cellElement) {
                             $cellText .= $this->getElementText($cellElement) . ' ';
                         }
-                        $rowData[] = trim(preg_replace('/\s+/', ' ', $cellText));
+                        $rowData[] = trim(preg_replace('/\s+/u', ' ', $cellText));
                     }
 
                     $rowData = array_values(array_filter($rowData, fn($v) => $v !== ''));
@@ -49,7 +49,7 @@ class TorImportService
                         $normalized = array_map(fn($v) => strtolower(trim($v)), $rowData);
                         
                         // Check for at least 2 keywords to confirm it's a header row
-                        if (count(array_intersect($normalized, ['term', 'semester', 'course', 'subject', 'title', 'grade', 'ects', 'credits', 'points'])) >= 2) {
+                        if (count(array_intersect($normalized, ['term', 'semester', 'semestar', 'naziv predmeta', 'ocjena', 'course', 'subject', 'title', 'grade', 'ects', 'credits', 'points'])) >= 2) {
                             foreach ($normalized as $i => $header) {
                                 $headerMap[$header][] = $i;
                             }
@@ -60,7 +60,7 @@ class TorImportService
 
                     if (!$headerRowFound) continue;
 
-                    $gradeCandidates = $headerMap['grade'] ?? [];
+                    $gradeCandidates = array_merge($headerMap['grade'] ?? [], $headerMap['ocjena'] ?? []);
                     $gradeLetter = null;
                     foreach ($gradeCandidates as $colIdx) {
                         $value = $rowData[$colIdx] ?? null;
@@ -70,8 +70,8 @@ class TorImportService
                         }
                     }
 
-                    $term = $this->getColumnValue($rowData, $headerMap, ['term', 'semester']);
-                    $course = $this->getColumnValue($rowData, $headerMap, ['course', 'subject', 'title']);
+                    $term = $this->getColumnValue($rowData, $headerMap, ['term', 'semester', 'semestar']);
+                    $course = $this->getColumnValue($rowData, $headerMap, ['course', 'subject', 'title', 'naziv predmeta']);
                     $ects = $this->getColumnValue($rowData, $headerMap, ['ects', 'credits', 'points']);
 
                     if ($course && $gradeLetter) {
@@ -97,10 +97,10 @@ class TorImportService
             $text .= $element->getText();
         } elseif ($element instanceof TextRun) {
             foreach ($element->getElements() as $child) {
-                $text .= $this->getElementText($child) . ' ';
+                $text .= $this->getElementText($child);
             }
         }
-        return trim($text);
+        return $text;
     }
 
     private function getColumnValue(array $rowData, array $headerMap, array $possibleNames): ?string

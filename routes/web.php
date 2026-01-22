@@ -54,6 +54,8 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/students', [App\Http\Controllers\StudentController::class, 'store'])->name('students.store');
     Route::get('/students/{id}/edit', [App\Http\Controllers\StudentController::class, 'edit'])->name('students.edit');
     Route::put('/students/{id}', [App\Http\Controllers\StudentController::class, 'update'])->name('students.update');
+    Route::post('/students/{id}/upload-tor', [App\Http\Controllers\StudentController::class, 'uploadTor'])->name('students.upload-tor');
+    Route::post('/students/parse-tor', [App\Http\Controllers\StudentController::class, 'parseTor'])->name('students.parse-tor');
     Route::delete('/students/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
 
 
