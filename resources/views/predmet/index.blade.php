@@ -96,6 +96,8 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Šifra</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Naziv</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 ECTS</th>
@@ -111,6 +113,7 @@
                         @foreach($predmeti as $p)
                             <tr class="subject-row hover:bg-gray-50 transition-colors duration-150 ease-in-out"
                                 data-search="{{ strtolower($p->naziv) }}">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $p->sifra_predmeta }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $p->naziv }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->ects }}</td>
@@ -122,7 +125,7 @@
                                     <div class="flex space-x-2">
                                         <button
                                             class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors openEditModal"
-                                            data-id="{{ $p->id }}" data-naziv="{{ $p->naziv }}" data-ects="{{ $p->ects }}"
+                                            data-id="{{ $p->id }}" data-sifra="{{ $p->sifra_predmeta }}" data-naziv="{{ $p->naziv }}" data-ects="{{ $p->ects }}"
                                             data-semestar="{{ $p->semestar }}" data-nivo="{{ $p->nivo_studija_id }}">
                                             Izmijeni
                                         </button>
@@ -153,6 +156,13 @@
             <form action="{{ route('predmeti.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="fakultet_id" value="{{ $fakultet->id }}">
+
+                <div class="mb-4">
+                    <label for="addSifra" class="block text-gray-700 font-medium mb-1">Šifra Predmeta</label>
+                    <input type="text" id="addSifra" name="sifra_predmeta"
+                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        required>
+                </div>
 
                 <div class="mb-4">
                     <label for="addName" class="block text-gray-700 font-medium mb-1">Naziv</label>
@@ -212,6 +222,13 @@
 
                 <input type="hidden" name="id" id="editSubjectId">
                 <input type="hidden" name="fakultet_id" value="{{ $fakultet->id }}">
+
+                <div class="mb-4">
+                    <label for="editSifra" class="block text-gray-700 font-medium mb-1">Šifra Predmeta</label>
+                    <input type="text" id="editSifra" name="sifra_predmeta"
+                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        required>
+                </div>
 
                 <div class="mb-4">
                     <label for="editName" class="block text-gray-700 font-medium mb-1">Naziv</label>
@@ -303,6 +320,7 @@
                 button.addEventListener('click', () => {
                     const id = button.getAttribute('data-id');
                     document.getElementById('editSubjectId').value = id;
+                    document.getElementById('editSifra').value = button.getAttribute('data-sifra');
                     document.getElementById('editName').value = button.getAttribute('data-naziv');
                     document.getElementById('editEcts').value = button.getAttribute('data-ects');
                     document.getElementById('editSemester').value = button.getAttribute('data-semestar');

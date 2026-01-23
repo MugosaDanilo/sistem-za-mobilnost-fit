@@ -105,7 +105,9 @@
           }">
             <div class="mb-4">
               <label class="block text-gray-700 font-medium mb-2">Faculty</label>
-              <select name="fakultet_id" x-model="selectedFaculty" @change="window.dispatchEvent(new CustomEvent('clear-selection')); fetchSubjects()" x-init="if(selectedFaculty) fetchSubjects()"
+              <select name="fakultet_id" x-model="selectedFaculty" 
+                @change="window.dispatchEvent(new CustomEvent('clear-selection')); fetchSubjects(); $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())" 
+                x-init="if(selectedFaculty) { fetchSubjects(); $nextTick(() => $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())); }"
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                 <option value="">Select Faculty</option>
                 @foreach($fakulteti as $f)
@@ -135,8 +137,19 @@
             </div>
 
             <div class="mb-4 md:col-span-2">
+              <div class="mb-2">
+                  <label class="block text-gray-700 font-medium">Subjects</label>
+              </div>
+              
               {{-- Store full object for edit to prefill grades. fallback to old input if validation fails --}}
-              <x-subject-selector :subjects="$predmeti" :selected="$errors->any() ? old('predmeti') : $student->predmeti" />
+              <x-subject-selector :subjects="$predmeti" :selected="$errors->any() ? old('predmeti') : $student->predmeti">
+                   <div x-data="{ visible: false }" @faculty-changed.window="visible = ($event.detail === 'FIT')" x-show="visible" style="display: none;">
+                      <button type="button" @click="$dispatch('open-tor-modal')"
+                          class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-3 py-1 rounded shadow transform transition hover:scale-105">
+                          Upload ToR
+                      </button>
+                  </div>
+              </x-subject-selector>
               @error('predmeti') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
             </div>
           </div>
@@ -149,6 +162,111 @@
           </button>
         </div>
       </form>
+
+      <!-- ToR Upload Modal -->
+      <div x-data="{ open: false }" @open-tor-modal.window="open = true" x-show="open" 
+          x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+          x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+          x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+          class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4"
+          style="display: none;">
+
+          <div @click.away="open = false" class="relative mx-auto p-5 border w-full max-w-md shadow-lg rounded-xl bg-white"
+               x-data="{ 
+                   language: 'Engleski', 
+                   uploading: false,
+                   uploadTor() {
+                       let fileInput = $refs.torFile;
+                       if (!fileInput.files.length) {
+                           alert('Please select a file');
+                           return;
+                       }
+
+                       this.uploading = true;
+                       let formData = new FormData();
+                       formData.append('tor_file', fileInput.files[0]);
+                       formData.append('language', this.language);
+                       formData.append('fakultet_id', document.querySelector('select[name=\'fakultet_id\']').value);
+                       formData.append('_token', '{{ csrf_token() }}');
+
+                       fetch('{{ route('students.parse-tor') }}', {
+                           method: 'POST',
+                           body: formData,
+                           headers: {
+                               'Accept': 'application/json'
+                           }
+                       })
+                       .then(response => response.json())
+                       .then(data => {
+                           this.uploading = false;
+                           if (data.success) {
+                               window.dispatchEvent(new CustomEvent('set-selection', { detail: data.matched }));
+                               alert(data.message);
+                               this.open = false;
+                               // Optional: Clear file input
+                               fileInput.value = '';
+                           } else {
+                               alert(data.message || 'Upload failed');
+                           }
+                       })
+                       .catch(error => {
+                           this.uploading = false;
+                           console.error('Error:', error);
+                           alert('An error occurred during upload.');
+                       });
+                   }
+               }">
+              <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-xl font-bold text-gray-900">Upload Transcript of Records</h3>
+                  <button @click="open = false" type="button" class="text-gray-400 hover:text-gray-500">
+                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                  </button>
+              </div>
+
+              <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Subject Language</label>
+                  <div class="flex space-x-4">
+                      <label class="inline-flex items-center">
+                          <input type="radio" name="language" value="Engleski" x-model="language" class="form-radio text-green-600">
+                          <span class="ml-2">Engleski</span>
+                      </label>
+                      <label class="inline-flex items-center">
+                          <input type="radio" name="language" value="Srpski" x-model="language" class="form-radio text-green-600">
+                          <span class="ml-2">Srpski</span>
+                      </label>
+                  </div>
+              </div>
+
+              <div class="mb-6">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Upload Word Document (.doc, .docx)</label>
+                  <input type="file" x-ref="torFile" accept=".doc,.docx" class="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-full file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-green-50 file:text-green-700
+                      hover:file:bg-green-100">
+              </div>
+
+              <div class="flex justify-end space-x-2">
+                  <button @click="open = false" type="button"
+                      class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm font-medium">
+                      Cancel
+                  </button>
+                  <button @click="uploadTor()" type="button" :disabled="uploading"
+                      class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-lg transform hover:scale-105 transition-all font-medium flex items-center">
+                      <span x-show="uploading" class="mr-2">
+                          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                      </span>
+                      <span x-text="uploading ? 'Processing...' : 'Upload & Process'"></span>
+                  </button>
+              </div>
+          </div>
+      </div>
     </div>
   </div>
 </x-app-layout>

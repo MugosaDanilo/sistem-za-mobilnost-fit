@@ -58,7 +58,7 @@
               <tr class="student-row hover:bg-gray-50 transition-colors duration-150 ease-in-out"
                 data-search="{{ strtolower($student->ime . ' ' . $student->prezime . ' ' . $student->br_indexa . ' ' . $student->email) }}">
 
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-6 py-4">
                   <div class="flex items-center">
                     <div
                       class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
@@ -70,9 +70,9 @@
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->br_indexa }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->email }}</td>
+                <td class="px-6 py-4 text-sm text-gray-500">{{ $student->email }}</td>
                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->godina_studija }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 text-sm text-gray-500">
                   {{ $student->fakulteti->first()->naziv ?? 'N/A' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $student->nivoStudija->naziv ?? 'N/A' }}
