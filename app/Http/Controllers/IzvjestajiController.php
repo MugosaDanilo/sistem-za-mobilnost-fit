@@ -9,86 +9,101 @@ use App\Models\Prepis;
 use App\Models\Mobilnost;
 use App\Models\NivoStudija;
 use App\Models\Fakultet;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StudentsExport;
+use App\Exports\PrepisiExport;
+use App\Exports\MobilnostExport;
 
 class IzvjestajiController extends Controller
 {
     public function index(Request $request)
     {
-        $driver = DB::getDriverName();
-
-        $filterNivo = $request->get('nivo');
-        $filterYear = $request->get('year');
         $filterFakultet = $request->get('fakultet');
         $filterDrzava = $request->get('drzava');
+        $filterYear = $request->get('year');
+        $filterNivo = $request->get('nivo');
 
-        if ($driver === 'sqlite') {
-            $yearSql = "strftime('%Y', created_at)";
-        } elseif ($driver === 'pgsql') {
-            $yearSql = "EXTRACT(YEAR FROM created_at)";
-        } else {
-            $yearSql = "YEAR(created_at)";
-        }
-
-        $studentsQuery = Student::selectRaw("$yearSql as year, COUNT(*) as total");
-        if ($filterNivo) $studentsQuery->where('nivo_studija_id', $filterNivo);
-        if ($filterYear) $studentsQuery->whereRaw("$yearSql = ?", [$filterYear]);
-        $students = $studentsQuery->groupBy('year')->orderBy('year')->get();
-
-        // Also get gender breakdown per year
-        $studentsWithGender = Student::selectRaw("$yearSql as year, pol, COUNT(*) as total");
-        if ($filterNivo) $studentsWithGender->where('nivo_studija_id', $filterNivo);
-        if ($filterYear) $studentsWithGender->whereRaw("$yearSql = ?", [$filterYear]);
-        $genderPerYear = $studentsWithGender->groupBy('year', 'pol')->orderBy('year')->get();
-
-        $prepisRaw = Prepis::with('fakultet')
+        $prepisRaw = Prepis::with('fakultet.univerzitet', 'student')
             ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
+            ->when($filterYear, function($q) use ($filterYear) { return $q->whereYear('datum', $filterYear); })
             ->get();
         $prepisiAgg = [];
         foreach ($prepisRaw as $p) {
             $year = \Carbon\Carbon::parse($p->datum)->format('Y');
             $fakultetNaziv = $p->fakultet->naziv ?? 'Nepoznato';
-            $key = $year . '|' . $fakultetNaziv;
+            $drzava = $p->fakultet && $p->fakultet->univerzitet ? $p->fakultet->univerzitet->drzava : 'Nepoznato';
+            $key = $year . '|' . $fakultetNaziv . '|' . $drzava;
             if (!isset($prepisiAgg[$key])) {
-                $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'total' => 0];
+                $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'drzava' => $drzava, 'total' => 0, 'musko' => 0, 'zensko' => 0];
             }
             $prepisiAgg[$key]['total']++;
+            // Broji po polu
+            if ($p->student) {
+                if ($p->student->pol === 'musko') {
+                    $prepisiAgg[$key]['musko']++;
+                } else {
+                    $prepisiAgg[$key]['zensko']++;
+                }
+            }
         }
-        $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { return (object)$x; });
-
-        // Merge gender data into students
-        $students = $students->map(function ($row) use ($genderPerYear) {
-            $musko = $genderPerYear->where('year', $row->year)->where('pol', 'musko')->sum('total');
-            $zensko = $genderPerYear->where('year', $row->year)->where('pol', 'zensko')->sum('total');
-            $row->musko = $musko;
-            $row->zensko = $zensko;
-            return $row;
+        $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { 
+            $x['procenat_musko'] = $x['total'] > 0 ? round(($x['musko'] / $x['total']) * 100, 2) : 0;
+            $x['procenat_zensko'] = $x['total'] > 0 ? round(($x['zensko'] / $x['total']) * 100, 2) : 0;
+            return (object)$x; 
         });
 
-        // students by gender (respect filters)
-        $genderQ = Student::selectRaw('pol as pol, COUNT(*) as total');
-        if ($filterNivo) $genderQ->where('nivo_studija_id', $filterNivo);
-        if ($filterYear) $genderQ->whereRaw("$yearSql = ?", [$filterYear]);
-        $studentsByGender = $genderQ->groupBy('pol')->get();
-
-        // students by nivo studija
-        $byNivoQuery = Student::selectRaw('nivo_studija_id, COUNT(*) as total');
-        if ($filterYear) {
-            $byNivoQuery->whereRaw("$yearSql = ?", [$filterYear]);
+        // prepisi po polu - sa listom studenata
+        $prepisiGenderData = collect();
+        $prepisYearAgg = []; // Za godišnje podatke
+        $genderCounts = ['musko' => 0, 'zensko' => 0]; // Broji jedinstvene studente
+        $seenStudents = ['musko' => [], 'zensko' => []]; // Prati koje studente smo videli
+        
+        foreach ($prepisRaw as $p) {
+            $pol = $p->student ? $p->student->pol : null;
+            if ($pol && $p->student) {
+                $studentId = $p->student->id;
+                $studentName = $p->student->ime . ' ' . $p->student->prezime;
+                $polKey = $pol === 'musko' ? 'musko' : 'zensko';
+                
+                // Po polu - broji samo prvi put kada vidimo ovog studenta
+                $existing = $prepisiGenderData->firstWhere('pol', $pol);
+                if (!$existing) {
+                    $prepisiGenderData->push((object)[
+                        'pol' => $pol,
+                        'label' => $pol === 'musko' ? 'Muško' : 'Žensko',
+                        'total' => 0,
+                        'students' => []
+                    ]);
+                    $existing = $prepisiGenderData->last();
+                }
+                
+                // Dodaj u pol listu samo ako nije već dodan
+                if (!in_array($studentName, $existing->students)) {
+                    $existing->students[] = $studentName;
+                    $existing->total++;
+                }
+                
+                // Po godini
+                $year = \Carbon\Carbon::parse($p->datum)->format('Y');
+                if (!isset($prepisYearAgg[$year])) {
+                    $prepisYearAgg[$year] = ['musko' => [], 'zensko' => []];
+                }
+                
+                // Dodaj u godinu ako nije već dodan
+                if (!in_array($studentName, $prepisYearAgg[$year][$polKey])) {
+                    $prepisYearAgg[$year][$polKey][] = $studentName;
+                }
+            }
         }
-        if ($filterNivo) {
-            $byNivoQuery->where('nivo_studija_id', $filterNivo);
-        }
-        $byNivo = $byNivoQuery->groupBy('nivo_studija_id')->get()->map(function ($r) {
-            $nivo = NivoStudija::find($r->nivo_studija_id);
-            return (object) ['label' => $nivo->naziv ?? 'Nepoznato', 'total' => $r->total];
-        });
-
-        // cumulative students over years
-        $cumulative = collect();
-        $sum = 0;
-        foreach ($students as $row) {
-            $sum += $row->total;
-            $cumulative->push((object)['year' => $row->year, 'cumulative' => $sum]);
+        
+        // Konvertuj godišnje u objekat
+        $prepisYearData = (object)[];
+        foreach ($prepisYearAgg as $year => $data) {
+            $prepisYearData->$year = (object)[
+                'year' => $year,
+                'students_musko' => $data['musko'],
+                'students_zensko' => $data['zensko']
+            ];
         }
 
         // available nivo options for filter
@@ -96,14 +111,49 @@ class IzvjestajiController extends Controller
 
         // Build detailed mobilnosti stats using PHP to be DB-agnostic
         $mobilnostiRaw = Mobilnost::with('student.nivoStudija', 'fakultet.univerzitet')
-            ->when($filterDrzava, function($q) use ($filterDrzava) {
-                return $q->whereHas('fakultet.univerzitet', function($subq) use ($filterDrzava) {
-                    $subq->where('drzava', $filterDrzava);
+->when($filterDrzava, fn($q) => $q->whereHas('fakultet.univerzitet', fn($subq) => $subq->where('drzava', $filterDrzava)))
+
+            ->when($filterYear, function($q) use ($filterYear) {
+                return $q->whereYear('datum_pocetka', $filterYear);
+            })
+            ->when($filterFakultet, function($q) use ($filterFakultet) {
+                return $q->where('fakultet_id', $filterFakultet);
+            })
+            ->when($filterNivo, function($q) use ($filterNivo) {
+                return $q->whereHas('student', function($subq) use ($filterNivo) {
+                    $subq->where('nivo_studija_id', $filterNivo);
                 });
             })
             ->get();
 
-        $mobilnostiAgg = [];
+        $mobilnostiGenderData = $mobilnostiRaw
+    ->filter(fn($m) => $m->student) // samo ako student postoji
+    ->groupBy(fn($m) => $m->student->pol) // grupiši po polu
+    ->map(function ($items, $pol) {
+
+        return (object) [
+            'label' => $pol === 'musko' ? 'Muško' : 'Žensko',
+            'pol' => $pol,
+            'total' => $items->count(),
+            'students' => $items
+                ->groupBy(fn($m) => $m->student->id) // grupiši po student ID-u
+                ->map(function($studentItems) {
+                    $student = $studentItems->first()->student;
+                    $count = $studentItems->count();
+                    $displayName = $student->ime . ' ' . $student->prezime;
+                    // Ako je student više puta na mobilnosti, dodaj broj u zagradama
+                    return $count > 1 ? $displayName . ' (' . $count . ')' : $displayName;
+                })
+                ->values()
+        ];
+    })
+    ->values();
+
+
+            $mobilnostiAgg = [];
+        $nivoAgg = ['Osnovne' => [], 'Master' => []];
+        $yearAgg = [];
+        
         foreach ($mobilnostiRaw as $m) {
             $date = $m->datum_pocetka ?? $m->created_at ?? null;
             if (!$date) continue;
@@ -122,6 +172,7 @@ class IzvjestajiController extends Controller
                     'zensko' => 0,
                     'master' => 0,
                     'osnovne' => 0,
+                    'students' => []
                 ];
             }
 
@@ -129,6 +180,8 @@ class IzvjestajiController extends Controller
 
             $student = $m->student;
             if ($student) {
+                $studentName = $student->ime . ' ' . $student->prezime;
+                
                 // pol: string 'musko' or 'zensko'
                 if ($student->pol === 'musko') {
                     $mobilnostiAgg[$key]['musko']++;
@@ -137,11 +190,27 @@ class IzvjestajiController extends Controller
                 }
 
                 $nivo = $student->nivoStudija->naziv ?? null;
+                $nivoLabel = 'Osnovne';
                 if ($nivo && mb_stripos($nivo, 'master') !== false) {
                     $mobilnostiAgg[$key]['master']++;
+                    $nivoLabel = 'Master';
                 } else {
                     $mobilnostiAgg[$key]['osnovne']++;
                 }
+                
+                // Prikupljaj studente
+                if (!in_array($studentName, $mobilnostiAgg[$key]['students'])) {
+                    $mobilnostiAgg[$key]['students'][] = $studentName;
+                }
+                
+                // Za nivo
+                $nivoAgg[$nivoLabel][$student->id] = ($nivoAgg[$nivoLabel][$student->id] ?? 0) + 1;
+                
+                // Za godišnje
+                if (!isset($yearAgg[$year])) {
+                    $yearAgg[$year] = [];
+                }
+                $yearAgg[$year][$student->id] = ($yearAgg[$year][$student->id] ?? 0) + 1;
             }
         }
 
@@ -152,6 +221,56 @@ class IzvjestajiController extends Controller
             return (object) $r;
         });
 
+        // Generiši mobilnostiByNivo sa studentima
+        $mobilnostiByNivo = [];
+        foreach (['Osnovne', 'Master'] as $label) {
+            $studentCounts = [];
+            foreach ($nivoAgg[$label] as $studentId => $count) {
+                $student = Student::find($studentId);
+                if ($student) {
+                    $studentName = $student->ime . ' ' . $student->prezime;
+                    $displayName = $count > 1 ? $studentName . ' (' . $count . ')' : $studentName;
+                    $studentCounts[] = $displayName;
+                }
+            }
+            
+            $mobilnostiByNivo[] = (object)[
+                'label' => $label,
+                'total' => $mobilnosti->sum($label === 'Master' ? 'master' : 'osnovne'),
+                'students' => $studentCounts
+            ];
+        }
+
+        // Generiši mobilnostiYearData sa studentima po godini
+        $mobilnostiYearDataArr = [];
+        foreach ($yearAgg as $year => $studentIds) {
+            $studentsByMale = ['musko' => [], 'zensko' => []];
+            
+            foreach ($studentIds as $studentId => $count) {
+                $student = Student::find($studentId);
+                if ($student) {
+                    $studentName = $student->ime . ' ' . $student->prezime;
+                    $displayName = $count > 1 ? $studentName . ' (' . $count . ')' : $studentName;
+                    
+                    if ($student->pol === 'musko') {
+                        $studentsByMale['musko'][] = $displayName;
+                    } else {
+                        $studentsByMale['zensko'][] = $displayName;
+                    }
+                }
+            }
+            
+            // Dodaj godinu kao ključ - čuva se kao string ključ u nizu
+            $mobilnostiYearDataArr[$year] = [
+                'year' => $year,
+                'students_musko' => $studentsByMale['musko'],
+                'students_zensko' => $studentsByMale['zensko']
+            ];
+        }
+        
+        // Konvertuj u objekat - ovo će biti konvertovano u JSON objekat sa god kao ključevima
+        $mobilnostiYearData = (object)$mobilnostiYearDataArr;
+
         $fakulteti = Fakultet::orderBy('naziv')->get();
         
         // Get all unique countries from universities
@@ -160,8 +279,25 @@ class IzvjestajiController extends Controller
             ->orderBy('drzava')
             ->pluck('drzava');
         
-        return view('izvjestaji.index', compact('students', 'prepisi', 'mobilnosti', 'studentsByGender', 'byNivo', 'cumulative', 'nivoOptions', 'filterNivo', 'filterYear', 'fakulteti', 'filterFakultet', 'drzave', 'filterDrzava'));
-    }
+return view('izvjestaji.index', compact(
+    'prepisi',
+    'mobilnosti',
+    'nivoOptions',
+    'fakulteti',
+    'drzave',
+    'filterYear',
+    'filterFakultet',
+    'filterDrzava',
+    'filterNivo',
+    'prepisiGenderData',
+    'prepisYearData',
+    'mobilnostiGenderData',
+    'mobilnostiByNivo',
+    'mobilnostiYearData'
+));
+    
+}
+
 
     public function export(Request $request, $type)
     {
@@ -186,25 +322,49 @@ class IzvjestajiController extends Controller
         if ($filterYear) $studentsQuery->whereRaw("$yearSql = ?", [$filterYear]);
         $students = $studentsQuery->groupBy('year')->orderBy('year')->get();
 
-        $prepisRaw = Prepis::with('fakultet')
+        $prepisRaw = Prepis::with('fakultet.univerzitet', 'student')
             ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
             ->get();
         $prepisiAgg = [];
         foreach ($prepisRaw as $p) {
             $year = \Carbon\Carbon::parse($p->datum)->format('Y');
             $fakultetNaziv = $p->fakultet->naziv ?? 'Nepoznato';
-            $key = $year . '|' . $fakultetNaziv;
+            $drzava = $p->fakultet && $p->fakultet->univerzitet ? $p->fakultet->univerzitet->drzava : 'Nepoznato';
+            $key = $year . '|' . $fakultetNaziv . '|' . $drzava;
             if (!isset($prepisiAgg[$key])) {
-                $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'total' => 0];
+                $prepisiAgg[$key] = ['year' => $year, 'fakultet' => $fakultetNaziv, 'drzava' => $drzava, 'total' => 0, 'musko' => 0, 'zensko' => 0];
             }
             $prepisiAgg[$key]['total']++;
+            // Broji po polu
+            if ($p->student) {
+                if ($p->student->pol === 'musko') {
+                    $prepisiAgg[$key]['musko']++;
+                } else {
+                    $prepisiAgg[$key]['zensko']++;
+                }
+            }
         }
-        $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { return (object)$x; });
+        $prepisi = collect($prepisiAgg)->sortBy(function($x) { return $x['year'] . $x['fakultet']; })->values()->map(function($x) { 
+            $x['procenat_musko'] = $x['total'] > 0 ? round(($x['musko'] / $x['total']) * 100, 2) : 0;
+            $x['procenat_zensko'] = $x['total'] > 0 ? round(($x['zensko'] / $x['total']) * 100, 2) : 0;
+            return (object)$x; 
+        });
 
         $mobilnostiRaw = Mobilnost::with('student.nivoStudija', 'fakultet.univerzitet')
             ->when($filterDrzava, function($q) use ($filterDrzava) {
                 return $q->whereHas('fakultet.univerzitet', function($subq) use ($filterDrzava) {
                     $subq->where('drzava', $filterDrzava);
+                });
+            })
+            ->when($filterYear, function($q) use ($filterYear) {
+                return $q->whereYear('datum_pocetka', $filterYear);
+            })
+            ->when($filterFakultet, function($q) use ($filterFakultet) {
+                return $q->where('fakultet_id', $filterFakultet);
+            })
+            ->when($filterNivo, function($q) use ($filterNivo) {
+                return $q->whereHas('student', function($subq) use ($filterNivo) {
+                    $subq->where('nivo_studija_id', $filterNivo);
                 });
             })
             ->get();
@@ -254,76 +414,114 @@ class IzvjestajiController extends Controller
             return (object) $r;
         });
 
-        // Generate CSV
-        if ($type === 'students') {
-            return $this->exportCsv('Studenti', ['Godina', 'Broj'], $students);
-        } elseif ($type === 'prepisi') {
-            return $this->exportCsv('Prepisi', ['Godina', 'Broj'], $prepisi);
-        } elseif ($type === 'mobilnost') {
-            $data = $mobilnosti->map(function ($r) {
+        // Generate Excel
+        if ($type === 'prepisi') {
+            // --- PRIPREMI PODATKE ZA SUMMARY TABELU ---
+            $prepisiSummaryData = $prepisi->map(function ($r) {
                 return [
                     $r->year,
+                    $r->fakultet,
+                    $r->drzava,
                     $r->total,
                     $r->musko,
                     $r->zensko,
-                    $r->procenat_musko,
-                    $r->procenat_zensko,
-                    $r->master,
-                    $r->osnovne,
+                    $r->procetat_musko,
+                    $r->procetat_zensko,
                 ];
             })->toArray();
-            return $this->exportCsv('Mobilnost', ['Godina', 'Ukupno', 'Musko', 'Zensko', 'Procenat Musko (%)', 'Procenat Zensko (%)', 'Master', 'Osnovne'], $data);
-        }
+
+            // --- PRIPREMI DETALJNE PODATKE O STUDENTIMA ---
+            $prepisStudentsByYear = $prepisRaw
+                ->groupBy(function ($p) {
+                    $date = $p->datum ?? $p->created_at;
+                    return \Carbon\Carbon::parse($date)->format('Y');
+                })
+                ->map(function ($prepisYear) {
+                    return $prepisYear
+                        ->map(function ($p) {
+                            $student = $p->student;
+
+                            return [
+                                $student->ime ?? '',
+                                $student->prezime ?? '',
+                                $student->pol ?? '',
+                                $student->nivoStudija->naziv ?? '',
+                                $p->fakultet->naziv ?? '',
+                                $p->fakultet && $p->fakultet->univerzitet
+                                    ? $p->fakultet->univerzitet->naziv
+                                    : '',
+                                $p->fakultet && $p->fakultet->univerzitet
+                                    ? $p->fakultet->univerzitet->drzava
+                                    : '',
+                                $p->datum ?? $p->created_at ?? '',
+                            ];
+                        })
+                        ->values()
+                        ->toArray();
+                })
+                ->toArray();
+
+            return Excel::download(
+                new PrepisiExport($prepisiSummaryData, $prepisStudentsByYear),
+                'Prepisi.xlsx'
+            );
+        } elseif ($type === 'mobilnost') {
+    // --- PRIPREMI PODATKE ZA SUMMARY TABELU ---
+    $summaryData = $mobilnosti->map(function ($r) {
+        return [
+            $r->drzava,
+            $r->year,
+            $r->total,
+            $r->musko,
+            $r->zensko,
+            round($r->procenat_musko),
+            round($r->procenat_zensko),
+            $r->master,
+            $r->osnovne,
+        ];
+    })->toArray();
+
+    // --- PRIPREMI DETALJNE PODATKE O STUDENTIMA ---
+$studentsByYear = $mobilnostiRaw
+    ->groupBy(function ($m) {
+        $date = $m->datum_pocetka ?? $m->created_at;
+        return \Carbon\Carbon::parse($date)->format('Y');
+    })
+    ->map(function ($mobilnostiYear) {
+
+        return $mobilnostiYear
+            ->map(function ($m) {
+
+                $student = $m->student;
+
+                return [
+                    $student->ime ?? '',
+                    $student->prezime ?? '',
+                    $student->pol ?? '',
+                    $student->nivoStudija->naziv ?? '',
+                    $m->fakultet->naziv ?? '',
+                    $m->fakultet && $m->fakultet->univerzitet
+                        ? $m->fakultet->univerzitet->naziv
+                        : '',
+                    $m->fakultet && $m->fakultet->univerzitet
+                        ? $m->fakultet->univerzitet->drzava
+                        : '',
+                    $m->datum_pocetka ?? $m->created_at ?? '',
+                    $m->datum_kraja ?? '',
+                ];
+            })
+            ->values()
+            ->toArray();
+    })
+    ->toArray();
+
+    // --- DOWNLOAD EXCELA SA NOVIM MobilnostExport ---
+    return Excel::download(
+    new MobilnostExport($summaryData, $studentsByYear),
+    'Mobilnost.xlsx'
+);
+}
 
         return redirect()->back()->with('error', 'Nepoznat tip izvjestaja');
-    }
-
-    private function exportCsv($filename, $headers, $data)
-    {
-        $csvData = [];
-        $csvData[] = $headers;
-
-        foreach ($data as $row) {
-            if (is_object($row)) {
-                // Handle object with year and total properties
-                $rowData = [];
-                foreach ($headers as $header) {
-                    if ($header === 'Godina') {
-                        $rowData[] = $row->year ?? '';
-                    } elseif ($header === 'Broj') {
-                        $rowData[] = $row->total ?? '';
-                    } elseif ($header === 'Ukupno') {
-                        $rowData[] = $row->total ?? '';
-                    } elseif ($header === 'Musko') {
-                        $rowData[] = $row->musko ?? '';
-                    } elseif ($header === 'Zensko') {
-                        $rowData[] = $row->zensko ?? '';
-                    } elseif ($header === 'Procenat Musko (%)') {
-                        $rowData[] = $row->procenat_musko ?? '';
-                    } elseif ($header === 'Procenat Zensko (%)') {
-                        $rowData[] = $row->procenat_zensko ?? '';
-                    } elseif ($header === 'Master') {
-                        $rowData[] = $row->master ?? '';
-                    } elseif ($header === 'Osnovne') {
-                        $rowData[] = $row->osnovne ?? '';
-                    }
-                }
-                $csvData[] = $rowData;
-            } else {
-                // Handle array row
-                $csvData[] = $row;
-            }
-        }
-
-        $csv = '';
-        foreach ($csvData as $row) {
-            $csv .= implode(',', array_map(function ($cell) {
-                return '"' . str_replace('"', '""', (string) $cell) . '"';
-            }, $row)) . "\n";
-        }
-
-        return response($csv)
-            ->header('Content-Type', 'text/csv; charset=utf-8')
-            ->header('Content-Disposition', "attachment; filename=\"{$filename}.csv\"");
     }
 }

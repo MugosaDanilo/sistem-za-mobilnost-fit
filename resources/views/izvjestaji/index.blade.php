@@ -1,4 +1,14 @@
 <x-app-layout>
+
+  <style>
+    #tab-content-mobilnost .flex.gap-6 {
+      margin-bottom: 20px; /* Razmak između grafikona i tabele */
+    }
+
+    table {
+      margin-top: 30px; /* Razmak između tabele i svega što je iznad nje */
+    }
+  </style>
   <div class="py-10 max-w-7xl mx-auto px-6">
 
     <!-- HEADER -->
@@ -6,114 +16,12 @@
       <h1 class="text-3xl font-bold text-gray-900">Izvještaji</h1>
 
       <div class="flex gap-1 bg-gray-50 rounded-lg p-1">
-        <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent" data-tab="studenti">Studenti</button>
         <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent" data-tab="prepisi">Prepisi</button>
         <button class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent" data-tab="mobilnost">Mobilnost</button>
       </div>
     </div>
 
     <div class="bg-white shadow-sm rounded-xl border border-gray-200 p-4">
-
-      <!-- ================= STUDENTI ================= -->
-      <div id="tab-content-studenti" class="tab-content hidden mb-12">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold m-0 p-0">Studenti</h2>
-        </div>
-
-        <!-- FILTRI -->
-        <form method="GET" class="mb-4 flex items-center gap-3">
-  <div>
-    <label class="block text-xs text-gray-600">Godina</label> 
-    <select name="year"
-            onchange="this.form.submit()"
-            class="border rounded px-2 py-1 pr-8 text-sm w-28 appearance-none bg-no-repeat bg-right">
-      <option value="">Sve</option>
-      @foreach($students as $s)
-        <option value="{{ $s->year }}"
-          @if(isset($filterYear) && $filterYear == $s->year) selected @endif>
-          {{ $s->year }}
-        </option>
-      @endforeach
-    </select>
-  </div>
-
-  <div>
-    <label class="block text-xs text-gray-600">Nivo</label>
-    <select name="nivo"
-            onchange="this.form.submit()"
-            class="border rounded px-2 py-1 pr-8 text-sm w-36 appearance-none bg-no-repeat bg-right">
-      <option value="">Sve</option>
-      @foreach($nivoOptions as $n)
-        <option value="{{ $n->id }}"
-          @if(isset($filterNivo) && $filterNivo == $n->id) selected @endif>
-          {{ $n->naziv }}
-        </option>
-      @endforeach
-    </select>
-  </div>
-</form>
-
-        <!-- GRAFICI -->
-        <div class="flex gap-6 mb-6">
-          <div class="w-1/2 h-52 border border-gray-200 rounded-lg overflow-hidden">
-            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Godišnje</div>
-            <div class="h-full bg-gray-50 p-4">
-              <canvas id="studentsChart"></canvas>
-            </div>
-          </div>
-
-          <div class="w-1/2 flex gap-4">
-            <div class="w-1/2 h-28 border border-gray-200 rounded-lg overflow-hidden">
-              <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2 text-sm">Pol</div>
-              <div class="h-full bg-gray-50 p-2">
-                <canvas id="studentsGenderChart"></canvas>
-              </div>
-            </div>
-            <div class="w-1/2 h-28 border border-gray-200 rounded-lg overflow-hidden">
-              <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2 text-sm">Nivo studija</div>
-              <div class="h-full bg-gray-50 p-2">
-                <canvas id="studentsNivoChart"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- TABELA STUDENTI -->
-        <div class="overflow-x-auto flex justify-center mb-4">
-          <table class="table-fixed text-sm w-auto border border-gray-200">
-            <thead>
-              <tr class="bg-gray-100 h-7">
-                <th class="px-3 border">Godina</th>
-                <th class="px-3 border">Muško</th>
-                <th class="px-3 border">Žensko</th>
-                <th class="px-3 border">Ukupno</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($students as $row)
-                <tr class="h-7">
-                  <td class="px-3 text-center border">{{ $row->year }}</td>
-                  <td class="px-3 text-center border bg-blue-50 text-blue-700">{{ $row->musko ?? 0 }}</td>
-                  <td class="px-3 text-center border bg-red-50 text-red-700">{{ $row->zensko ?? 0 }}</td>
-                  <td class="px-3 text-center border font-medium">{{ $row->total }}</td>
-                </tr>
-              @empty
-                <tr>
-                  <td colspan="4" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
-                </tr>
-              @endforelse
-            </tbody>
-          </table>
-        </div>
-
-        <!-- DUGME IZVEZI -->
-        <div class="flex justify-end">
-          <?php $query = http_build_query(request()->except('_token')); ?>
-          <a href="{{ route('izvjestaji.export', 'students') }}{{ $query ? '?'.$query : '' }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
-            Izvezi
-          </a>
-        </div>
-      </div>
 
       <!-- ================= PREPISI ================= -->
       <div id="tab-content-prepisi" class="tab-content hidden mb-12">
@@ -162,16 +70,23 @@
         </form>
 
         <div class="flex gap-6 mb-6">
-          <div class="w-2/3 h-44 border border-gray-200 rounded-lg overflow-hidden">
-            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Godišnje</div>
+          <!-- GODIŠNJE -->
+          <div class="w-4/5 h-56 border border-gray-200 rounded-lg overflow-hidden">
+            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">
+              Godišnje
+            </div>
             <div class="h-full bg-gray-50 p-4">
-            <canvas id="prepisiChart"></canvas>
+              <canvas id="prepisiChart"></canvas>
             </div>
           </div>
-          <div class="w-1/3 h-44 border border-gray-200 rounded-lg overflow-hidden">
-            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Pol</div>
+
+          <!-- POL -->
+          <div class="w-1/5 h-56 border border-gray-200 rounded-lg overflow-hidden">
+            <div class="text-center font-small text-gray-700 bg-gray-50 border-b border-gray-200 py-2">
+              Pol
+            </div>
             <div class="h-full bg-gray-50 p-4">
-            <canvas id="prepisiGenderChart"></canvas>
+              <canvas id="prepisiGenderChart"></canvas>
             </div>
           </div>
         </div>
@@ -183,9 +98,12 @@
               <tr class="bg-gray-100 h-7">
                 <th class="px-3 py-1 border">Godina</th>
                 <th class="px-3 py-1 border">Fakultet</th>
+                <th class="px-3 py-1 border">Država</th>
                 <th class="px-3 py-1 border text-center">Ukupno</th>
                 <th class="px-3 py-1 border text-center">Muško</th>
                 <th class="px-3 py-1 border text-center">Žensko</th>
+                <th class="px-3 py-1 border text-center">%Muško</th>
+                <th class="px-3 py-1 border text-center">%Žensko</th>
               </tr>
             </thead>
             <tbody>
@@ -193,13 +111,16 @@
                 <tr class="h-7">
                   <td class="px-3 border">{{ $row->year }}</td>
                   <td class="px-3 border">{{ $row->fakultet }}</td>
+                  <td class="px-3 border">{{ $row->drzava }}</td>
                   <td class="px-3 border text-center">{{ $row->total }}</td>
                   <td class="px-3 border text-center">{{ $row->musko ?? 0 }}</td>
                   <td class="px-3 border text-center">{{ $row->zensko ?? 0 }}</td>
+                  <td class="px-3 border text-center">{{ round($row->procenat_musko) }}%</td>
+                  <td class="px-3 border text-center">{{ round($row->procenat_zensko) }}%</td>
                 </tr>
               @empty
                 <tr>
-                  <td colspan="5" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
+                  <td colspan="8" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
                 </tr>
               @endforelse
             </tbody>
@@ -221,7 +142,7 @@
           <h2 class="text-lg font-semibold m-0 p-0">Mobilnost</h2>
         </div>
 
-        <!-- FILTRI -->
+        <!-- FILTERI -->
         <form method="GET" class="mb-4 flex items-center gap-3" id="mobilnostFilterForm">
           <div>
             <label class="block text-xs text-gray-600">Godina</label>
@@ -261,58 +182,78 @@
           </div>
         </form>
 
-        <div class="flex gap-6 mb-6">
-          <div class="w-2/3 h-44 border border-gray-200 rounded-lg overflow-hidden">
-            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Godišnje</div>
-            <div class="h-full bg-gray-50 p-4"> 
-            <canvas id="mobilnostChart"></canvas>
-            </div>
-          </div>
-          <div class="w-1/3 h-44 border border-gray-200 rounded-lg overflow-hidden">
-            <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">Pol</div>
-            <div class="h-full bg-gray-50 p-4">
-            <canvas id="mobilnostGenderChart"></canvas>
-            </div>
-          </div>
-        </div>
+<div class="flex gap-6 mb-6">
+  <!-- GODISNJE -->
+  <div class="w-3/5 h-56 border border-gray-200 rounded-lg overflow-hidden">
+    <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">
+      Godišnje
+    </div>
+    <div class="h-full bg-gray-50 p-4">
+      <canvas id="mobilnostChart"></canvas>
+    </div>
+  </div>
 
-        <!-- TABELA MOBILNOST -->
-        <div class="overflow-x-auto flex justify-center mb-4">
-          <table class="table-fixed text-sm w-auto border border-gray-200">
-            <thead>
-              <tr class="bg-gray-100 h-7">
-                <th class="py-1 px-2 border">Godina</th>
-                <th class="py-1 px-2 border">Država</th>
-                <th class="py-1 px-2 w-10 text-center border">Ukupno</th>
-                <th class="py-1 px-2 w-10 text-center border">Muško</th>
-                <th class="py-1 px-2 w-16 text-center border">Žensko</th>
-                <th class="py-1 px-2 w-16 text-center border">%Muško</th>
-                <th class="py-1 px-2 w-16 text-center border">%Žensko</th>
-                <th class="py-1 px-2 w-12 text-center border">Master</th>
-                <th class="py-1 px-2 w-12 text-center border">Osnovne</th>
-              </tr>
-            </thead>
-            <tbody>
-              @forelse($mobilnosti as $row)
-                <tr class="h-7">
-                  <td class="py-1 px-2 border">{{ $row->year }}</td>
-                  <td class="py-1 px-2 border">{{ $row->drzava }}</td>
-                  <td class="py-1 px-2 text-center border">{{ $row->total }}</td>
-                  <td class="py-1 px-2 text-center border">{{ $row->musko }}</td>
-                  <td class="py-1 px-2 text-center border">{{ $row->zensko }}</td>
-                  <td class="py-1 px-2 text-center border">{{ $row->procenat_musko }}%</td>
-                  <td class="py-1 px-2 text-center border">{{ $row->procenat_zensko }}%</td>
-                  <td class="py-1 px-2 text-center border">{{ $row->master }}</td>
-                  <td class="py-1 px-2 text-center border">{{ $row->osnovne }}</td>
-                </tr>
-              @empty
-                <tr>
-                  <td colspan="9" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
-                </tr>
-              @endforelse
-            </tbody>
-          </table>
-        </div>
+  <!-- POL -->
+  <div class="w-1/5 h-56 border border-gray-200 rounded-lg overflow-hidden">
+    <div class="text-center font-small text-gray-700 bg-gray-50 border-b border-gray-200 py-2">
+      Pol
+    </div>
+    <div class="h-full bg-gray-50 p-4">
+      <canvas id="mobilnostGenderChart"></canvas>
+    </div>
+  </div>
+
+  <!-- NIV0 -->
+  <div class="w-1/5 h-56 border border-gray-200 rounded-lg overflow-hidden">
+    <div class="text-center font-medium text-gray-700 bg-gray-50 border-b border-gray-200 py-2">
+      Nivo studija
+    </div>
+    <div class="h-full bg-gray-50 p-4">
+      <canvas id="mobilnostNivoChart"></canvas>
+    </div>
+  </div>
+
+</div> <!-- end of flex container for charts -->
+
+<!-- TABELA MOBILNOST -->
+<div class="overflow-x-auto flex justify-center mb-4">
+  <table class="table-fixed text-sm w-auto border border-gray-200">
+    <thead>
+      <tr class="bg-gray-100 h-7">
+        <th class="py-1 px-2 border">Godina</th>
+        <th class="py-1 px-2 border">Država</th>
+        <th class="py-1 px-2 w-10 text-center border">Ukupno</th>
+        <th class="py-1 px-2 w-10 text-center border">Muško</th>
+        <th class="py-1 px-2 w-16 text-center border">Žensko</th>
+        <th class="py-1 px-2 w-16 text-center border">%Muško</th>
+        <th class="py-1 px-2 w-16 text-center border">%Žensko</th>
+        <th class="py-1 px-2 w-12 text-center border">Master</th>
+        <th class="py-1 px-2 w-12 text-center border">Osnovne</th>
+      </tr>
+    </thead>
+    <tbody>
+      @forelse($mobilnosti as $row)
+        <tr class="h-7">
+          <td class="py-1 px-2 border">{{ $row->year }}</td>
+          <td class="py-1 px-2 border">{{ $row->drzava }}</td>
+          <td class="py-1 px-2 text-center border">{{ $row->total }}</td>
+          <td class="py-1 px-2 text-center border">{{ $row->musko }}</td>
+          <td class="py-1 px-2 text-center border">{{ $row->zensko }}</td>
+          <td class="py-1 px-2 text-center border">{{ round($row->procenat_musko) }}%</td>
+          <td class="py-1 px-2 text-center border">{{ round($row->procenat_zensko) }}%</td>
+          <td class="py-1 px-2 text-center border">{{ $row->master }}</td>
+          <td class="py-1 px-2 text-center border">{{ $row->osnovne }}</td>
+        </tr>
+      @empty
+        <tr>
+          <td colspan="9" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
+        </tr>
+      @endforelse
+    </tbody>
+  </table>
+</div>
+
+
 
         <!-- DUGME IZVEZI -->
         <div class="flex justify-end">
@@ -335,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ================= TABOVI ================= */
   const tabs = document.querySelectorAll('.tab-btn');
   const contents = document.querySelectorAll('.tab-content');
-  let activeTab = sessionStorage.getItem('active-tab') || 'studenti';
+  let activeTab = sessionStorage.getItem('active-tab') || 'mobilnost';
 
   function showTab(tab){
     contents.forEach(c => c.classList.add('hidden'));
@@ -354,14 +295,21 @@ document.addEventListener('DOMContentLoaded', () => {
   showTab(activeTab);
 
   /* ================= PODACI ================= */
-  const studentsData = @json($students->map(fn($r)=>['year'=>$r->year,'total'=>$r->total]));
-  const cumulativeData = @json($cumulative ?? []);
-  const studentsByGender = @json($studentsByGender ?? []);
-  const studentsByNivo = @json($byNivo ?? []);
   const prepisiData = @json($prepisi->map(fn($r)=>['year'=>$r->year,'total'=>$r->total]));
   const prepisiGenderData = @json($prepisiGenderData ?? []);
-  const mobilnostiData = @json($mobilnosti->map(fn($r)=>['year'=>$r->year,'musko'=>$r->musko,'zensko'=>$r->zensko]));
+  const mobilnostiData = @json($mobilnosti);
   const mobilnostiGenderData = @json($mobilnostiGenderData ?? []);
+
+  const mobilnostiByNivo = @json($mobilnostiByNivo ?? []);
+  const mobilnostiYearData = @json($mobilnostiYearData ?? new stdClass());
+  const prepisYearData = @json($prepisYearData ?? new stdClass());
+  
+  console.log('mobilnostiYearData:', mobilnostiYearData);
+  console.log('mobilnostiData:', mobilnostiData);
+  console.log('mobilnostiGenderData:', mobilnostiGenderData);
+  console.log('mobilnostiByNivo:', mobilnostiByNivo);
+  console.log('prepisiGenderData:', prepisiGenderData);
+  console.log('prepisYearData:', prepisYearData);
 
   /* ================= HELPER ================= */
   function initBar(id, labels, datasets){
@@ -375,83 +323,406 @@ document.addEventListener('DOMContentLoaded', () => {
           x:{ offset:true, grid:{display:false} },
           y:{ beginAtZero:true, ticks:{stepSize:1} }
         },
-        plugins:{ legend:{position:'bottom'} }
+        plugins:{
+          legend:{
+            position:'bottom',
+            labels: {
+              boxWidth: 15,
+              padding: 15,
+              font: {
+                size: 14
+              }
+            }
+          }
+        }
       }
     });
   }
 
   /* ================= GRAFICI ================= */
 
-  initBar('studentsChart', studentsData.map(d=>d.year), [
-    { label:'Ukupno', data:studentsData.map(d=>d.total), backgroundColor:'#3b82f6', borderRadius:6, maxBarThickness:18 },
-    { label:'Kumulativno', data:cumulativeData.map(d=>d.cumulative ?? 0), type:'line', borderColor:'#111827', tension:.25, maxBarThickness:18 }
-  ]);
+  /* ================= PREPIS CHARTS ================= */
+  
+  // Kreiraj "Godišnje" grafik za Prepis sa tooltip-ima
+  try {
+    // Grupiraj prepise po godini
+    const prepisYearMap = {};
+    if(prepisiData && Array.isArray(prepisiData)) {
+      prepisiData.forEach(d => {
+        if(!prepisYearMap[d.year]) {
+          prepisYearMap[d.year] = { year: d.year, total: 0 };
+        }
+        prepisYearMap[d.year].total += d.total || 0;
+      });
+    }
+    
+    // Konvertuj u sortirani niz
+    const prepisYearDataArray = Object.keys(prepisYearMap).sort().map(year => prepisYearMap[year]);
+    
+    new Chart(document.getElementById('prepisiChart'), {
+      type:'bar',
+      data:{
+        labels: prepisYearDataArray.map(d => d.year),
+        datasets: [
+          { label:'Ukupno', data:prepisYearDataArray.map(d => d.total), backgroundColor:'#10b981', borderRadius:6, maxBarThickness:18 }
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{
+          x:{ offset:true, grid:{display:false} },
+          y:{ beginAtZero:true, ticks:{stepSize:1} }
+        },
+        plugins:{
+          tooltip:{
+            callbacks:{
+              afterLabel: function(ctx){
+                try {
+                  const year = ctx.label;
+                  const yearData = prepisYearData[year];
+                  if(!yearData) return '';
+                  
+                  const allStudents = [...(yearData.students_musko || []), ...(yearData.students_zensko || [])];
+                  if(!allStudents || allStudents.length === 0) return '';
+                  
+                  const lines = [];
+                  allStudents.slice(0, 15).forEach(name => {
+                    lines.push(name);
+                  });
+                  
+                  if(allStudents.length > 6) {
+                    lines.push('...');
+                  }
+                  
+                  return lines;
+                } catch(e) {
+                  console.error('Error in prepis tooltip:', e);
+                  return '';
+                }
+              }
+            }
+          },
+          legend:{
+            position:'bottom',
+            labels: {
+              boxWidth: 15,
+              padding: 15,
+              font: {
+                size: 14
+              }
+            }
+          }
+        }
+      }
+    });
+  } catch(e) {
+    console.error('Error creating prepisiChart:', e);
+  }
 
-  new Chart(document.getElementById('studentsGenderChart'), {
-    type:'doughnut',
+  // Kreiraj "Pol" grafik za Prepis sa tooltip-ima
+  try {
+    new Chart(document.getElementById('prepisiGenderChart'), {
+      type:'doughnut',
+      data:{
+        labels: (prepisiGenderData && Array.isArray(prepisiGenderData)) ? 
+                prepisiGenderData.map(d => d.label || (d.pol === 'musko' ? 'Muško' : 'Žensko')) : 
+                ['Muško','Žensko'],
+        datasets:[{
+          data: (prepisiGenderData && Array.isArray(prepisiGenderData)) ? 
+                prepisiGenderData.map(d => d.total) : 
+                [],
+          backgroundColor:['#2563eb','#ef4444']
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:true,
+        aspectRatio:1.2,
+        plugins:{
+          tooltip:{
+            callbacks:{
+              label: function(ctx){
+                try {
+                  const d = prepisiGenderData[ctx.dataIndex];
+                  if(!d) return '';
+                  
+                  const lines = [`Ukupno: ${d.total}`];
+                  
+                  if(d.students && Array.isArray(d.students)) {
+                    d.students.slice(0, 15).forEach(name => {
+                      lines.push(name);
+                    });
+                    
+                    if(d.students.length > 6) {
+                      lines.push('...');
+                    }
+                  }
+                  
+                  return lines;
+                } catch(e) {
+                  console.error('Error in prepis gender tooltip:', e);
+                  return '';
+                }
+              }
+            }
+          },
+          legend:{
+            position:'bottom',
+            labels: {
+              boxWidth: 15,
+              padding: 15,
+              font: {
+                size: 10
+              }
+            }
+          }
+        }
+      }
+    });
+  } catch(e) {
+    console.error('Error creating prepisiGenderChart:', e);
+  }
+
+// Kreiraj custom "Godišnje" grafik sa tooltip-ima
+try {
+  // Grupiraj mobilnosti po godini
+  const yearMap = {};
+  if(mobilnostiData && Array.isArray(mobilnostiData)) {
+    mobilnostiData.forEach(d => {
+      if(!yearMap[d.year]) {
+        yearMap[d.year] = { year: d.year, musko: 0, zensko: 0 };
+      }
+      yearMap[d.year].musko += d.musko || 0;
+      yearMap[d.year].zensko += d.zensko || 0;
+    });
+  }
+  
+  // Konvertuj u sortirani niz
+  const yearData = Object.keys(yearMap).sort().map(year => yearMap[year]);
+  
+  const canvasEl = document.getElementById('mobilnostChart');
+  console.log('Canvas mobilnostChart element:', canvasEl);
+  
+  const labels = yearData.map(d => d.year);
+  const musko_data = yearData.map(d => d.musko);
+  const zensko_data = yearData.map(d => d.zensko);
+  
+  console.log('Creating mobilnostChart with labels:', labels);
+  
+  new Chart(canvasEl, {
+    type:'bar',
     data:{
-      labels:['Muško','Žensko'],
-      datasets:[{
-        data: studentsByGender.map(d=>d.total),
-        backgroundColor:['#2563eb','#ef4444']
+      labels: labels,
+      datasets: [
+        { label:'Muško', data:musko_data, backgroundColor:'#2563eb', borderRadius:6, maxBarThickness:18 },
+        { label:'Žensko', data:zensko_data, backgroundColor:'#ef4444', borderRadius:6, maxBarThickness:18 }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        x:{ offset:true, grid:{display:false} },
+        y:{ beginAtZero:true, ticks:{stepSize:1} }
+      },
+      plugins:{
+        tooltip:{
+          callbacks:{
+            afterLabel: function(ctx){
+              try {
+                const year = ctx.label;
+                console.log('Tooltip year:', year);
+                console.log('mobilnostiYearData keys:', Object.keys(mobilnostiYearData));
+                console.log('mobilnostiYearData:', mobilnostiYearData);
+                
+                const yearData = mobilnostiYearData[year];
+                console.log('yearData for', year, ':', yearData);
+                
+                if(!yearData) {
+                  console.log('No yearData found for year:', year);
+                  return '';
+                }
+                
+                const isMale = ctx.datasetIndex === 0;
+                const students = isMale ? yearData.students_musko : yearData.students_zensko;
+                console.log('Students for', isMale ? 'musko' : 'zensko', ':', students);
+                
+                if(!students || !Array.isArray(students)) {
+                  console.log('Students is not an array or is null');
+                  return '';
+                }
+                
+                const lines = [];
+                students.slice(0, 15).forEach(name => {
+                  lines.push(name);
+                });
+                
+                if(students.length > 6) {
+                  lines.push('...');
+                }
+                
+                console.log('Returning lines:', lines);
+                return lines;
+              } catch(e) {
+                console.error('Error in tooltip:', e);
+                return '';
+              }
+            }
+          }
+        },
+        legend:{
+          position:'bottom',
+          labels: {
+            boxWidth: 15,
+            padding: 15,
+            font: {
+              size: 14
+            }
+          }
+        }
+      }
+    }
+  });
+  console.log('mobilnostChart created successfully');
+} catch(e) {
+  console.error('Error creating mobilnostChart:', e);
+}
+
+new Chart(document.getElementById('mobilnostGenderChart'), {
+  type: 'doughnut',
+  data: {
+    labels: (mobilnostiGenderData && Array.isArray(mobilnostiGenderData)) ? mobilnostiGenderData.map(d => d.label) : [],
+    datasets: [{
+      data: (mobilnostiGenderData && Array.isArray(mobilnostiGenderData)) ? mobilnostiGenderData.map(d => d.total) : [],
+      backgroundColor: ['#2563eb', '#ef4444']
+    }]
+  },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 1.4,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (ctx) {
+              const d = mobilnostiGenderData[ctx.dataIndex];
+              if(!d) return '';
+
+              const lines = [
+                `Ukupno: ${d.total}`,
+              ];
+
+              if(d.students && Array.isArray(d.students)) {
+                d.students.slice(0, 15).forEach(name => {
+                  lines.push(name);
+                });
+
+                if (d.students.length > 6) {
+                  lines.push('...');
+                }
+              }
+
+              return lines;
+            }
+          }
+        },
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 15,
+            padding: 25,
+            font: {
+              size: 11
+            }
+          }
+        }
+      }
+    }
+});
+/* ===== MOBILNOST → NIV0 STUDIJA ===== */
+try {
+  new Chart(document.getElementById('mobilnostNivoChart'), {
+    type:'bar',
+    data:{
+      labels: ['Osnovne','Master'],
+      datasets: [{
+        label:'Brojčano',
+        data: ['Osnovne','Master'].map(l => {
+          const nivoItem = (mobilnostiByNivo && Array.isArray(mobilnostiByNivo) && mobilnostiByNivo.find) ? mobilnostiByNivo.find(n => n.label === l) : null;
+          return nivoItem ? nivoItem.total : 0;
+        }),
+        backgroundColor: ['#10b981', '#f59e0b'],
+        borderRadius: 6,
+        maxBarThickness: 18
       }]
     },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        x:{ offset:true, grid:{display:false} },
+        y:{ beginAtZero:true, ticks:{stepSize:1} }
+      },
+      plugins:{
+        tooltip:{
+          callbacks:{
+            afterLabel: function(ctx){
+              try {
+                const label = ctx.label;
+                if(!mobilnostiByNivo || !Array.isArray(mobilnostiByNivo) || !mobilnostiByNivo.find) return '';
+                const nivoItem = mobilnostiByNivo.find(n => n.label === label);
+                if(!nivoItem || !nivoItem.students) return '';
+                
+                const lines = [];
+                nivoItem.students.slice(0, 15).forEach(name => {
+                  lines.push(name);
+                });
+                
+                if(nivoItem.students.length > 6) {
+                  lines.push('...');
+                }
+                
+                return lines;
+              } catch(e) {
+                console.error('Error in nivo tooltip:', e);
+                return '';
+              }
+            }
+          }
+        },
+        legend:{
+          display: true,
+          position: 'bottom',
+          labels: {
+            boxWidth: 3,
+            padding: 5,
+            font: {
+              size: 10
+            }
+          }
+        }
+      }
+    }
   });
-
-  const nivoMap = {};
-  studentsByNivo.forEach(n => nivoMap[n.label] = n.total);
-
-  initBar('studentsNivoChart', ['Osnovne','Master'], [
-    { label:'Broj', data:['Osnovne','Master'].map(l=>nivoMap[l] ?? 0), backgroundColor:['#10b981','#f59e0b'], borderRadius:6, maxBarThickness:18 }
-  ]);
-
-  initBar('prepisiChart', prepisiData.map(d=>d.year), [
-    { label:'Ukupno', data:prepisiData.map(d=>d.total), backgroundColor:'#10b981', borderRadius:6, maxBarThickness:18 }
-  ]);
-
-  new Chart(document.getElementById('prepisiGenderChart'), {
-    type:'doughnut',
-    data:{
-      labels:['Muško','Žensko'],
-      datasets:[{
-        data: prepisiGenderData.map(d=>d.total),
-        backgroundColor:['#2563eb','#ef4444']
-      }]
-    },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
-  });
-
-  initBar('mobilnostChart', mobilnostiData.map(d=>d.year), [
-    { label:'Muško', data:mobilnostiData.map(d=>d.musko), backgroundColor:'#2563eb', borderRadius:6, maxBarThickness:18 },
-    { label:'Žensko', data:mobilnostiData.map(d=>d.zensko), backgroundColor:'#ef4444', borderRadius:6, maxBarThickness:18 }
-  ]);
-
-  new Chart(document.getElementById('mobilnostGenderChart'), {
-    type:'doughnut',
-    data:{
-      labels:['Muško','Žensko'],
-      datasets:[{
-        data: mobilnostiGenderData.map(d=>d.total),
-        backgroundColor:['#2563eb','#ef4444']
-      }]
-    },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
-  });
-
+  console.log('mobilnostNivoChart created successfully');
+} catch(e) {
+  console.error('Error creating mobilnostNivoChart:', e);
+}
   /* ================= RESIZE ================= */
   function resizeCharts(){
     [
-      'studentsChart',
-      'studentsGenderChart',
-      'studentsNivoChart',
       'prepisiChart',
       'prepisiGenderChart',
       'mobilnostChart',
-      'mobilnostGenderChart'
+      'mobilnostGenderChart',
+      'mobilnostNivoChart'
     ].forEach(id=>{
       const c = Chart.getChart(id);
-      if(c) c.resize();
+      if(c) {
+        c.resize();
+        c.update();
+      }
     });
   }
 
