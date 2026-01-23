@@ -18,6 +18,7 @@ class PredmetController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'sifra_predmeta' => 'required|string|max:255',
             'naziv' => 'required|string|max:255',
             'ects' => 'required|integer|min:1',
             'semestar' => 'required|integer|min:1',
@@ -35,6 +36,7 @@ class PredmetController extends Controller
         $predmet = Predmet::findOrFail($id);
 
         $validated = $request->validate([
+            'sifra_predmeta' => 'required|string|max:255',
             'naziv' => 'required|string|max:255',
             'ects' => 'required|integer|min:1',
             'semestar' => 'required|integer|min:1',
