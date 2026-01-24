@@ -14,28 +14,28 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="mb-4">
-            <label for="ime" class="block text-gray-700 font-medium mb-1">First Name</label>
+            <label for="ime" class="block text-gray-700 font-medium mb-1">Ime</label>
             <input type="text" id="ime" name="ime" value="{{ old('ime', $student->ime) }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('ime') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
-            <label for="prezime" class="block text-gray-700 font-medium mb-1">Last Name</label>
+            <label for="prezime" class="block text-gray-700 font-medium mb-1">Prezime</label>
             <input type="text" id="prezime" name="prezime" value="{{ old('prezime', $student->prezime) }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('prezime') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
-            <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Index Number</label>
+            <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Broj Indexa</label>
             <input type="text" id="br_indexa" name="br_indexa" value="{{ old('br_indexa', $student->br_indexa) }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('br_indexa') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
-            <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Date of Birth</label>
+            <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Datum Rodjenja</label>
             <input type="date" id="datum_rodjenja" name="datum_rodjenja"
               value="{{ old('datum_rodjenja', $student->datum_rodjenja) }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
@@ -43,7 +43,7 @@
           </div>
 
           <div class="mb-4">
-            <label for="telefon" class="block text-gray-700 font-medium mb-1">Phone Number</label>
+            <label for="telefon" class="block text-gray-700 font-medium mb-1">Broj Telefona</label>
             <input type="text" id="telefon" name="telefon" value="{{ old('telefon', $student->telefon) }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('telefon') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
@@ -57,7 +57,7 @@
           </div>
 
           <div class="mb-4">
-            <label for="godina_studija" class="block text-gray-700 font-medium mb-1">Year of Study</label>
+            <label for="godina_studija" class="block text-gray-700 font-medium mb-1">Godina studija</label>
             <input type="number" id="godina_studija" name="godina_studija"
               value="{{ old('godina_studija', $student->godina_studija) }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
@@ -138,7 +138,7 @@
 
             <div class="mb-4 md:col-span-2">
               <div class="mb-2">
-                  <label class="block text-gray-700 font-medium">Subjects</label>
+                  <label class="block text-gray-700 font-medium">Predmeti</label>
               </div>
               
               {{-- Store full object for edit to prefill grades. fallback to old input if validation fails --}}
@@ -146,7 +146,7 @@
                    <div x-data="{ visible: false }" @faculty-changed.window="visible = ($event.detail === 'FIT')" x-show="visible" style="display: none;">
                       <button type="button" @click="$dispatch('open-tor-modal')"
                           class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-3 py-1 rounded shadow transform transition hover:scale-105">
-                          Upload ToR
+                          Pošalji ToR
                       </button>
                   </div>
               </x-subject-selector>
@@ -158,7 +158,7 @@
         <div class="flex justify-end mt-6">
           <button type="submit"
             class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-            Update Student
+            Ažuriraj Studenta
           </button>
         </div>
       </form>
@@ -217,7 +217,7 @@
                    }
                }">
               <div class="flex justify-between items-center mb-4">
-                  <h3 class="text-xl font-bold text-gray-900">Upload Transcript of Records</h3>
+                  <h3 class="text-xl font-bold text-gray-900">Pošalji Transcript of Records</h3>
                   <button @click="open = false" type="button" class="text-gray-400 hover:text-gray-500">
                       <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -226,7 +226,7 @@
               </div>
 
               <div class="mb-4">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Subject Language</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Predmetni jezik</label>
                   <div class="flex space-x-4">
                       <label class="inline-flex items-center">
                           <input type="radio" name="language" value="Engleski" x-model="language" class="form-radio text-green-600">
@@ -240,7 +240,7 @@
               </div>
 
               <div class="mb-6">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Upload Word Document (.doc, .docx)</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Posalji Word Document (.doc, .docx)</label>
                   <input type="file" x-ref="torFile" accept=".doc,.docx" class="block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-full file:border-0
@@ -252,7 +252,7 @@
               <div class="flex justify-end space-x-2">
                   <button @click="open = false" type="button"
                       class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 shadow-sm font-medium">
-                      Cancel
+                      Otkaži
                   </button>
                   <button @click="uploadTor()" type="button" :disabled="uploading"
                       class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-lg transform hover:scale-105 transition-all font-medium flex items-center">

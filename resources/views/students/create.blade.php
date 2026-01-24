@@ -2,9 +2,9 @@
   <div class="py-10 max-w-4xl mx-auto px-6">
     <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 p-6">
       <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Add Student</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Dodaj studenta</h1>
         <a href="{{ route('students.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-          &larr; Back to Student Management
+          &larr; Nazad na listu studenata
         </a>
       </div>
 
@@ -32,35 +32,35 @@
             }
           }">
           <div class="mb-4">
-            <label for="ime" class="block text-gray-700 font-medium mb-1">First Name</label>
+            <label for="ime" class="block text-gray-700 font-medium mb-1">Ime</label>
             <input type="text" id="ime" name="ime" value="{{ old('ime') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('ime') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
-            <label for="prezime" class="block text-gray-700 font-medium mb-1">Last Name</label>
+            <label for="prezime" class="block text-gray-700 font-medium mb-1">Prezime</label>
             <input type="text" id="prezime" name="prezime" value="{{ old('prezime') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('prezime') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
-            <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Index Number</label>
+            <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Broj indeksa</label>
             <input type="text" id="br_indexa" name="br_indexa" value="{{ old('br_indexa') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('br_indexa') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
-            <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Date of Birth</label>
+            <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Datum rodjenja</label>
             <input type="date" id="datum_rodjenja" name="datum_rodjenja" value="{{ old('datum_rodjenja') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('datum_rodjenja') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
-            <label for="telefon" class="block text-gray-700 font-medium mb-1">Phone Number</label>
+            <label for="telefon" class="block text-gray-700 font-medium mb-1">Broj telefona</label>
             <input type="text" id="telefon" name="telefon" value="{{ old('telefon') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('telefon') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
@@ -74,7 +74,7 @@
           </div>
 
           <div class="mb-4">
-            <label for="godina_studija" class="block text-gray-700 font-medium mb-1">Year of Study</label>
+            <label for="godina_studija" class="block text-gray-700 font-medium mb-1">Godina studija</label>
             <input type="number" id="godina_studija" name="godina_studija" value="{{ old('godina_studija') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('godina_studija') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
@@ -113,7 +113,7 @@
                 @change="window.dispatchEvent(new CustomEvent('clear-selection')); fetchSubjects(); $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())" 
                 x-init="if(selectedFaculty) { fetchSubjects(); $nextTick(() => $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())); }"
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                <option value="">Select Faculty</option>
+                <option value="">Izaberi fakultet</option>
                 @foreach($fakulteti as $f)
                   <option value="{{ $f->id }}">
                     {{ $f->naziv }}
@@ -125,7 +125,7 @@
 
           <div class="mb-4 md:col-span-2">
             <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-2">Study Level</label>
+              <label class="block text-gray-700 font-medium mb-2">Godine studija</label>
               <select name="nivo_studija_id" required
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onchange="window.dispatchEvent(new CustomEvent('study-level-changed', { detail: this.value }))"
@@ -146,7 +146,7 @@
                 <div x-data="{ visible: false }" @faculty-changed.window="visible = ($event.detail === 'FIT')" x-show="visible" style="display: none;">
                     <button type="button" @click="$dispatch('open-tor-modal')"
                         class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-3 py-1 rounded shadow transform transition hover:scale-105">
-                        Upload ToR
+                        Pošalji ToR
                     </button>
                 </div>
             </x-subject-selector>
@@ -157,7 +157,7 @@
         <div class="flex justify-end mt-6">
           <button type="submit"
             class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-            Create Student
+            Dodaj Studenta
           </button>
         </div>
       </form>
@@ -221,7 +221,7 @@
                    }
                }">
               <div class="flex justify-between items-center mb-4">
-                  <h3 class="text-xl font-bold text-gray-900">Upload Transcript of Records</h3>
+                  <h3 class="text-xl font-bold text-gray-900">Pošalji Transcript of Records</h3>
                   <button @click="open = false" type="button" class="text-gray-400 hover:text-gray-500">
                       <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -230,7 +230,7 @@
               </div>
 
               <div class="mb-4">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Subject Language</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Predmetni jezik</label>
                   <div class="flex space-x-4">
                       <label class="inline-flex items-center">
                           <input type="radio" name="language" value="Engleski" x-model="language" class="form-radio text-green-600">

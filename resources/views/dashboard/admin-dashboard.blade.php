@@ -7,14 +7,14 @@
 
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Mobilnost Kontorlna Tabla</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Mobilnost Kontrolna Tabla</h1>
         </div>
 
 
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Mobility Overview</h2>
+                <h2 class="text-lg font-semibold text-gray-800">Pregled Mobilnosti</h2>
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ $mobilnosti->count() }} Total</span>
             </div>
             
@@ -54,13 +54,13 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <a href="{{ route('admin.mobility.show', $mobilnost->id) }}"
                                         class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
-                                        Details
+                                        Pregledaj
                                     </a>
                                     <form action="{{ route('admin.mobility.destroy', $mobilnost->id) }}" method="POST" class="inline-block ml-2" onsubmit="return confirm('Are you sure you want to delete this record?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
-                                            Delete
+                                            Izbriši
                                         </button>
                                     </form>
                                 </td>
@@ -68,7 +68,7 @@
                         @empty
                             <tr>
                                 <td colspan="4" class="px-6 py-10 text-center text-gray-500">
-                                    No mobility records found.
+                                    Nema dostupnih mobilnosti.
                                 </td>
                             </tr>
                         @endforelse

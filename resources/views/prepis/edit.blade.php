@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Prepis') }}
+            {{ __('Izmijeni Prepis') }}
         </h2>
     </x-slot>
 
@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900">
                     <div class="mb-6">
                         <a href="{{ route('prepis.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                            &larr; Back to Prepis Management
+                            &larr; Nazad na upravljanje Prepisima
                         </a>
                     </div>
 
@@ -27,7 +27,7 @@
                                     <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Search Student..." autocomplete="off">
                                     <div class="search-results absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
                                     <select name="student_id" id="student_id" class="hidden" required>
-                                        <option value="">Select Student</option>
+                                        <option value="">Izaberi studenta</option>
                                         @foreach($studenti as $student)
                                             <option value="{{ $student->id }}" 
                                                 {{ $prepis->student_id == $student->id ? 'selected' : '' }}
@@ -65,12 +65,12 @@
 
                         <!-- Drag and Drop Interface -->
                         <div class="mb-6 select-none">
-                            <h3 class="text-lg font-medium mb-4">Link Subjects</h3>
+                            <h3 class="text-lg font-medium mb-4">Poveži predmete</h3>
                             
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <!-- FIT Subjects Column -->
                                 <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                    <h4 class="font-semibold text-gray-700 mb-2">Available FIT Subjects</h4>
+                                    <h4 class="font-semibold text-gray-700 mb-2">Dostupni predmeti sa FITa</h4>
                                     <input type="text" id="search-fit" placeholder="Search FIT..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     <div id="fit-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
                                         <!-- FIT Items will be injected here -->
@@ -81,14 +81,14 @@
                                 <div class="flex flex-col space-y-4">
                                     <!-- Drop Zone -->
                                     <div id="drop-zone" class="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-6 flex flex-col items-center justify-center transition-colors min-h-[150px]">
-                                        <p class="text-blue-500 font-medium text-center mb-2">Drag subjects here to link</p>
+                                        <p class="text-blue-500 font-medium text-center mb-2">Prevuci ovdje predmete da povežeš</p>
                                         <div class="flex items-center space-x-4 w-full justify-center">
                                             <div id="drop-slot-fit" class="w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2">
-                                                FIT Subject
+                                                FIT Predmeti
                                             </div>
                                             <span class="text-gray-400">+</span>
                                             <div id="drop-slot-foreign" class="w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2">
-                                                Foreign Subject
+                                                Strani Predmeti
                                             </div>
                                         </div>
                                     </div>
@@ -96,7 +96,7 @@
                                     <!-- Linked List -->
                                     <div class="flex-1 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col">
                                         <div class="p-3 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-                                            <h4 class="font-semibold text-gray-700">Linked Pairs</h4>
+                                            <h4 class="font-semibold text-gray-700">Povezani parovi</h4>
                                         </div>
                                         <div id="linked-list" class="h-[350px] overflow-y-auto p-2 space-y-2">
                                             <!-- Linked Pairs will be injected here -->
@@ -106,10 +106,10 @@
 
                                 <!-- Foreign Subjects Column -->
                                 <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                    <h4 class="font-semibold text-gray-700 mb-2">Available Foreign Subjects</h4>
+                                    <h4 class="font-semibold text-gray-700 mb-2">Dostupni strani predmeti</h4>
                                     <input type="text" id="search-foreign" placeholder="Search Foreign..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" disabled>
                                     <div id="foreign-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
-                                        <p class="text-gray-500 text-sm text-center mt-4">Select a faculty to view subjects</p>
+                                        <p class="text-gray-500 text-sm text-center mt-4">Izaberi fakultet da viđiš predmete</p>
                                     </div>
                                 </div>
                             </div>
@@ -120,10 +120,10 @@
 
                         <div class="flex justify-end mt-6 space-x-4">
                             <button type="button" onclick="openPreviewModal()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow-lg transform transition hover:scale-105">
-                                Preview Transcripts
+                                Pregledaj transkript
                             </button>
                             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transform transition hover:scale-105">
-                                Update Prepis
+                                Sačuvaj Prepis
                             </button>
                         </div>
                     </form>
@@ -152,9 +152,9 @@
                         </tbody>
                         <tfoot class="bg-gray-50 font-bold">
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">Total:</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">Ukupno:</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left" id="total-fit-ects">0</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">Total:</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">Ukupno:</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left" id="total-foreign-ects">0</td>
                             </tr>
                         </tfoot>

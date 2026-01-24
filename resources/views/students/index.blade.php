@@ -8,8 +8,8 @@
 
   @if ($errors->any())
     <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-      <strong class="font-bold">Whoops!</strong>
-      <span class="block">There were some problems with your input:</span>
+      <strong class="font-bold">Upsss!</strong>
+      <span class="block">Opa došlo je do problema sa unosima:</span>
       <ul class="mt-2 list-disc list-inside">
         @foreach ($errors->all() as $error)
           <li>{{ $error }}</li>
@@ -36,7 +36,7 @@
       <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
         <h2 class="text-lg font-semibold text-gray-800">Lista Studenata</h2>
         <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($students) }}
-          Total</span>
+          Ukupno</span>
       </div>
 
       <div class="overflow-x-auto">
@@ -50,7 +50,7 @@
                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Godina</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fakultet</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Akcija</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200" id="studentTableBody">
@@ -81,7 +81,7 @@
                   <div class="flex space-x-2">
                     <a href="{{ route('students.edit', $student->id) }}"
                       class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
-                      Edit
+                      Izmijeni
                     </a>
 
                     <form action="{{ route('students.destroy', $student->id) }}" method="POST"
@@ -90,7 +90,7 @@
                       @method('DELETE')
                       <button type="submit"
                         class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
-                        Delete
+                        Obriši
                       </button>
                     </form>
                   </div>

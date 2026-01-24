@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-2xl font-bold text-gray-800 leading-tight">
-            Add University
+            Dodaj Univerzitet
         </h2>
     </x-slot>
 
@@ -21,7 +21,7 @@
             <form action="{{ route('univerzitet.store') }}" method="POST">
                 @csrf
                 <div class="mb-4">
-                    <label class="block mb-1 font-medium">University Name</label>
+                    <label class="block mb-1 font-medium">Ime Univerziteta</label>
                     <input type="text" name="naziv" value="{{ old('naziv') }}" class="border rounded px-3 py-2 w-full" required>
                     @error('naziv')<div class="text-red-600 mt-1">{{ $message }}</div>@enderror
                 </div>
@@ -29,7 +29,7 @@
                 <div class="mb-4">
                     <label class="block mb-1 font-medium">Country</label>
                     <select name="drzava" class="border rounded px-3 py-2 w-full" required>
-                        <option value="">Select a country</option>
+                        <option value="">Izaberi državu</option>
                         @foreach($countries as $country)
                             <option value="{{ $country }}" {{ old('drzava') === $country ? 'selected' : '' }}>
                                 {{ $country }}
@@ -52,7 +52,7 @@
                 </div>
 
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded transition">
-                    Save University
+                    Sačuvaj Univerzitet
                 </button>
             </form>
         </div>

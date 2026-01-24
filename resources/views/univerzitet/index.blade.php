@@ -13,9 +13,9 @@
 
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Universities</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Univerziteti</h1>
             <button id="addUniversityBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                Add University
+                Dodaj Univerzitet
             </button>
         </div>
 
@@ -31,18 +31,18 @@
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-800">University List</h2>
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($univerziteti) }} Total</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($univerziteti) }} Ukupno</span>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ime</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Država</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grad</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Radnja</th>
                         </tr>
                     </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -68,7 +68,7 @@
                                         @method('DELETE')
                                         <button type="submit" 
                                                 class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
-                                            Delete
+                                            Izbriši
                                         </button>
                                     </form>
                                 </div>
@@ -82,7 +82,7 @@
 
 <div id="editUniversityModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-        <h2 id="modalTitle" class="text-xl font-semibold mb-4">Edit University</h2>
+        <h2 id="modalTitle" class="text-xl font-semibold mb-4">Promijeni Univerzitet</h2>
 
         <form id="editUniversityForm" method="POST">
             @csrf
@@ -91,14 +91,14 @@
             <input type="hidden" name="id" id="editUniversityId">
 
             <div class="mb-4">
-                <label for="editName" class="block text-gray-700 font-medium mb-1">University Name</label>
+                <label for="editName" class="block text-gray-700 font-medium mb-1">Ime Univerziteta</label>
                 <input type="text" id="editName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             </div>
 
                 <div class="mb-4">
                     <label class="block mb-1 font-medium">Country</label>
                     <select id="editCountry" name="drzava" class="border rounded px-3 py-2 w-full" required>
-                        <option value="">Select a country</option>
+                        <option value="">Izaberi zemlju</option>
                         @foreach($countries as $country)
                             <option value="{{ $country }}" {{ old('drzava') === $country ? 'selected' : '' }}>
                                 {{ $country }}
@@ -110,7 +110,7 @@
 
 
             <div class="mb-4">
-                <label for="editCity" class="block text-gray-700 font-medium mb-1">City</label>
+                <label for="editCity" class="block text-gray-700 font-medium mb-1">Grad</label>
                 <input type="text" id="editCity" name="grad" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             </div>
 
@@ -121,10 +121,10 @@
 
             <div class="flex justify-end space-x-2">
                 <button type="button" id="cancelEditModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
-                    Cancel
+                    Otkaži
                 </button>
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
-                    Save Changes
+                    Sačuvaj
                 </button>
             </div>
         </form>
@@ -133,20 +133,20 @@
 
 <div id="addUniversityModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-        <h2 id="modalTitleAdd" class="text-xl font-semibold mb-4">Add University</h2>
+        <h2 id="modalTitleAdd" class="text-xl font-semibold mb-4">Dodaj Univerzitet</h2>
 
         <form id="addUniversityForm" action="{{ route('univerzitet.store') }}" method="POST">
             @csrf
 
             <div class="mb-4">
-                <label for="addName" class="block text-gray-700 font-medium mb-1">University Name</label>
+                <label for="addName" class="block text-gray-700 font-medium mb-1">Ime Univerziteta</label>
                 <input type="text" id="addName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             </div>
 
             <div class="mb-4">
-                <label for="addCountry" class="block text-gray-700 font-medium mb-1">Country</label>
+                <label for="addCountry" class="block text-gray-700 font-medium mb-1">Država</label>
                 <select id="addCountry" name="drzava" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                    <option value="">Select a country</option>
+                    <option value="">Izaberi državu</option>
                     @foreach($countries as $country)
                         <option value="{{ $country }}">{{ $country }}</option>
                     @endforeach
@@ -154,7 +154,7 @@
             </div>
 
             <div class="mb-4">
-                <label for="addCity" class="block text-gray-700 font-medium mb-1">City</label>
+                <label for="addCity" class="block text-gray-700 font-medium mb-1">Grad</label>
                 <input type="text" id="addCity" name="grad" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             </div>
 
@@ -165,10 +165,10 @@
 
             <div class="flex justify-end space-x-2">
                 <button type="button" id="cancelAddModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
-                    Cancel
+                    Otkaži
                 </button>
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
-                    Save
+                    Dodaj
                 </button>
             </div>
         </form>

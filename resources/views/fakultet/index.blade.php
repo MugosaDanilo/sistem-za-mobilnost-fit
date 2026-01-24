@@ -35,7 +35,7 @@
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-800">Lista Fakulteta</h2>
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($fakulteti) }} Total</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($fakulteti) }} Ukupno</span>
             </div>
 
             <div class="overflow-x-auto">
@@ -179,7 +179,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="editWeb" class="block text-gray-700 font-medium mb-1">Web</label>
+                    <label for="editWeb" class="block text-gray-700 font-medium mb-1">Web sajt</label>
                     <input type="text" id="editWeb" name="web" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 

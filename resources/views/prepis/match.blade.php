@@ -11,18 +11,18 @@
                 <div class="p-6 text-gray-900">
                     <div class="mb-6">
                         <a href="{{ route('prepis.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                            &larr; Back to Prepis Management
+                            &larr; Nazad na Upravljanje Prepisima
                         </a>
                     </div>
 
                     <!-- Student Selection -->
                     <div class="mb-6">
-                        <label for="student_id" class="block text-sm font-medium text-gray-700">Select Student</label>
+                        <label for="student_id" class="block text-sm font-medium text-gray-700">Izaberi studenta</label>
                         <div class="relative searchable-container" data-type="student">
                             <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Search Student..." autocomplete="off">
                             <div class="search-results absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
                             <select name="student_id" id="student_id" class="hidden">
-                                <option value="">Select Student</option>
+                                <option value="">Izaberi studenta</option>
                                 @foreach($students as $student)
                                     <option value="{{ $student->id }}" data-text="{{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})">{{ $student->ime }} {{ $student->prezime }} ({{ $student->br_indexa }})</option>
                                 @endforeach
@@ -32,15 +32,15 @@
 
                     <!-- Drag and Drop Interface -->
                     <div class="mb-6 select-none">
-                        <h3 class="text-lg font-medium mb-4">Link Student Subject to Professor</h3>
+                        <h3 class="text-lg font-medium mb-4">Poveži predmet studenta sa profesorom</h3>
                         
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <!-- Student Subjects Column (Source) -->
                             <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                <h4 class="font-semibold text-gray-700 mb-2">Student's Subjects</h4>
+                                <h4 class="font-semibold text-gray-700 mb-2">Studentovi predmeti</h4>
                                 <input type="text" id="search-subject" placeholder="Search Subject..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" disabled>
                                 <div id="subject-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
-                                    <p class="text-gray-500 text-sm text-center mt-4">Select a student/faculty to view subjects</p>
+                                    <p class="text-gray-500 text-sm text-center mt-4">Izaberi studenta/fakultet da vidiš predmete</p>
                                 </div>
                             </div>
 
@@ -48,15 +48,15 @@
                             <div class="flex flex-col space-y-4">
                                 <!-- Drop Zone -->
                                 <div id="drop-zone" class="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-6 flex flex-col items-center justify-center transition-colors min-h-[150px]">
-                                    <p class="text-blue-500 font-medium text-center mb-2">Drag subject and professor here to link</p>
+                                    <p class="text-blue-500 font-medium text-center mb-2">Prevucite predmet i profesora ovdje da biste ih povezali</p>
                                     <div class="flex items-center space-x-4 w-full justify-center">
                                         
                                         <div id="drop-slot-subject" class="w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2">
-                                            Subject
+                                            Predmeti
                                         </div>
                                         <span class="text-gray-400">+</span>
                                         <div id="drop-slot-prof" class="w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2">
-                                            Professor
+                                            Profesor
                                         </div>
                                     </div>
                                 </div>
@@ -64,9 +64,9 @@
                                 <!-- Linked List -->
                                 <div class="flex-1 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col">
                                     <div class="p-3 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
-                                        <h4 class="font-semibold text-gray-700">Matched Pairs</h4>
+                                        <h4 class="font-semibold text-gray-700">Mačovani parovi</h4>
                                         <button id="send-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-3 rounded shadow transition-colors hidden">
-                                            Send Requests
+                                            Pošalji za odobrenje
                                         </button>
                                     </div>
                                     <div id="linked-list" class="h-[350px] overflow-y-auto p-2 space-y-2">
@@ -77,7 +77,7 @@
 
                             <!-- Professors Column -->
                              <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                <h4 class="font-semibold text-gray-700 mb-2">Available Professors</h4>
+                                <h4 class="font-semibold text-gray-700 mb-2">Dostupni profesori</h4>
                                 <input type="text" id="search-prof" placeholder="Search Professor..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 <div id="prof-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
                                     <!-- Professor Items will be injected here -->

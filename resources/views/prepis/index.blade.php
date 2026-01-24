@@ -7,10 +7,10 @@
 
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Prepis Management</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Upravljanje Prepisima</h1>
             <div class="flex space-x-4">
                 <a href="{{ route('prepis.match') }}" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                    Add Prepis
+                    Dodaj Prepis
                 </a>
             </div>
         </div>
@@ -20,18 +20,18 @@
         <!-- Mapping Requests Table -->
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 mt-8">
              <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Professor Mapping Requests</h2>
-                <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($mappingRequests) }} Total</span>
+                <h2 class="text-lg font-semibold text-gray-800">Zahtjevi za dodjelu profesorima</h2>
+                <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($mappingRequests) }} Ukupno</span>
             </div>
             
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student / Professor</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subjects (Student -> Professor)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student / Profesor</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Predmeti (Student -> Professor)</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Akcije</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -106,13 +106,13 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
                                         <a href="{{ route('prepis.mapping-request.show', $request->id) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
-                                            View Request
+                                            Pregledaj zahtjev
                                         </a>
                                         <form action="{{ route('prepis.mapping-request.destroy', $request->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this mapping request?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
-                                                Delete
+                                                Izbriši
                                             </button>
                                         </form>
                                     </div>
@@ -121,7 +121,7 @@
                         @empty
                             <tr>
                                 <td colspan="4" class="px-6 py-10 text-center text-gray-500 italic">
-                                    No mapping requests found.
+                                    Nema dostupnih zahtjeva za dodjelu.
                                 </td>
                             </tr>
                         @endforelse

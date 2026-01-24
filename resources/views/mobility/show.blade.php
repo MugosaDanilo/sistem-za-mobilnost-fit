@@ -14,17 +14,17 @@
         @endif
 
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Mobility Details</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Detalji Mobiliti</h1>
             <div class="flex gap-2">
             
                 <form action="{{ route('admin.mobility.export-word', $mobilnost->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                        Export Word
+                        Izvezi u Word
                     </button>
                 </form>
                 <a href="{{ route('adminDashboardShow') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                    Back to Dashboard
+                    Nazad na Kontrolnu Tablu
                 </a>
             </div>
         </div>
@@ -32,7 +32,7 @@
         <div class="bg-white shadow rounded-lg p-6 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-700">Student Information</h2>
+                    <h2 class="text-lg font-semibold text-gray-700">Informacije o studentu</h2>
                     <p class="mt-2 text-gray-600"><span class="font-medium">Name:</span> {{ $mobilnost->student->ime }} {{ $mobilnost->student->prezime }}</p>
                     <p class="text-gray-600"><span class="font-medium">Index:</span> {{ $mobilnost->student->br_indexa }}</p>
                 </div>
@@ -53,10 +53,10 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FIT Subject</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foreign Subject</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FIT Predmeti</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strani Predmeti</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ECTS</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ocjena</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -91,12 +91,12 @@
                         @if(!$mobilnost->is_locked)
                             
                             <button type="button" onclick="openDisableModal()" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                                Disable Input
+                                Onemogući Unos
                             </button>
 
                             <button type="button" onclick="saveAllGrades()" 
                                 class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transform transition hover:scale-105 duration-150 ease-in-out">
-                                Save All Grades
+                                Sačuvaj Sve Ocjene
                             </button>
 
                         @endif
@@ -112,16 +112,16 @@
     <div id="disableModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white rounded-lg shadow-lg w-1/3">
             <div class="px-6 py-4 border-b">
-                <h3 class="text-lg font-semibold text-gray-800">Confirm Disable Input</h3>
+                <h3 class="text-lg font-semibold text-gray-800">Potvrdi onemoućavanje unosa</h3>
             </div>
             <div class="p-6">
-                <p class="text-gray-600">Are you sure you want to disable all input? This action is permanent and cannot be undone.</p>
+                <p class="text-gray-600">Da li ste sigurni da želite da onemogućite sav unos? Ova radnja je trajna i ne može se opozvati.</p>
             </div>
             <div class="px-6 py-4 border-t flex justify-end gap-2">
-                <button onclick="closeDisableModal()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105 duration-150 ease-in-out">Cancel</button>
+                <button onclick="closeDisableModal()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105 duration-150 ease-in-out">Otkazi</button>
                 <form action="{{ route('admin.mobility.lock', $mobilnost->id) }}" method="POST">
                     @csrf
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105 duration-150 ease-in-out">Disable Forever</button>
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105 duration-150 ease-in-out">Onemogući za vazda</button>
                 </form>
             </div>
         </div>
