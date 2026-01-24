@@ -178,7 +178,7 @@
             form.action = "{{ route('users.store') }}";
             form.reset();
             document.getElementById('password').required = true;
-            title.textContent = 'Add User';
+            title.textContent = 'Dodaj korisnika';
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         });

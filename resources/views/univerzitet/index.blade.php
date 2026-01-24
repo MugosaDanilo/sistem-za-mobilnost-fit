@@ -30,7 +30,7 @@
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">University List</h2>
+                <h2 class="text-lg font-semibold text-gray-800">Spisak Univerziteta</h2>
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($univerziteti) }} Ukupno</span>
             </div>
 
@@ -61,7 +61,7 @@
     data-drzava="{{ $u->drzava }}"
     data-grad="{{ $u->grad }}"
     data-email="{{ $u->email }}">
-    Edit
+    Izmijeni
 </button>
                                     <form action="{{ route('univerzitet.destroy', $u->id) }}" method="POST" onsubmit="return confirm('Are you sure?')">
                                         @csrf

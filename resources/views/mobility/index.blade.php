@@ -47,7 +47,7 @@
                                 <div class="relative">
                                     <label for="student_search" class="block text-sm font-medium text-gray-700 mb-1">Izaberi studenta</label>
                                     <div class="relative">
-                                        <input type="text" id="student_search" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-4 pr-10 py-2.5 transition-colors" placeholder="Search student..." autocomplete="off">
+                                        <input type="text" id="student_search" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm pl-4 pr-10 py-2.5 transition-colors" placeholder="Nađi studenta..." autocomplete="off">
                                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
@@ -61,7 +61,7 @@
 
                                 <!-- Faculty Selection -->
                                 <div>
-                                    <label for="fakultet_id" class="block text-sm font-medium text-gray-700 mb-1">Host
+                                    <label for="fakultet_id" class="block text-sm font-medium text-gray-700 mb-1">Host-Strani
                                         Fakultet</label>
                                     <select name="fakultet_id" id="fakultet_id" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                         <option value="">-- Izaberi Fakultet --</option>
@@ -131,7 +131,7 @@
                             <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Dostupni predmeti</h2>
 
                             <div class="mb-4">
-                                <input type="text" id="subjectFilter" placeholder="Filter subjects..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3">
+                                <input type="text" id="subjectFilter" placeholder="Prefiltriraj predmete..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3">
                             </div>
 
                             <div id="available-subjects" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
