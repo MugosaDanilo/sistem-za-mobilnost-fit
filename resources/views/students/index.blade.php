@@ -8,7 +8,7 @@
 
     @if ($errors->any())
     <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-<<<<<<< HEAD
+
       <strong class="font-bold">Whoops!</strong>
       <span class="block">There were some problems with your input:</span>
       <ul class="mt-2 list-disc list-inside">
@@ -105,7 +105,7 @@
 
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Studenti</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Studenti </h1>
             <a href="{{ route('students.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
                 Dodaj studenta
             </a>
