@@ -8,7 +8,7 @@
     @if ($errors->any())
         <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
             <strong class="font-bold">Whoops!</strong>
-            <span class="block">There were some problems with your input:</span>
+            <span class="block">Postoji poblem sa unosima:</span>
             <ul class="mt-2 list-disc list-inside">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -20,7 +20,7 @@
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="mb-6">
             <a href="{{ route('fakulteti.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                &larr; Back to Faculty Management
+                &larr; Nazad na upravljanje Fakultetima
             </a>
         </div>
 
@@ -32,7 +32,7 @@
                     Dodaj Predmet
                 </button>
                 <button id="importSubjectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                    Import Subjects
+                    Uvezi Predmete
                 </button>
             </div>
         </div>
@@ -40,12 +40,12 @@
         <!-- Import Modal -->
         <div id="importSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
             <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-                <h2 class="text-xl font-semibold mb-4">Import Subjects from Excel</h2>
+                <h2 class="text-xl font-semibold mb-4">Uvezi predmete iz Excela</h2>
                 <form action="{{ route('fakulteti.predmeti.import', $fakultet->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-medium mb-1">Study Level</label>
+                        <label class="block text-gray-700 font-medium mb-1">Nivo studija</label>
                         <div class="flex items-center space-x-4">
                             <label class="inline-flex items-center">
                                 <input type="radio" name="level" value="basic" checked class="form-radio text-blue-600">
@@ -71,8 +71,8 @@
                     </div>
                     
                     <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelImportModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">Cancel</button>
-                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">Import</button>
+                        <button type="button" id="cancelImportModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">Otkaži</button>
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">Uvezi</button>
                     </div>
                 </form>
             </div>
@@ -88,7 +88,7 @@
                 <h2 class="text-lg font-semibold text-gray-800">Lista Predmeta</h2>
                 <span
                     class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($predmeti) }}
-                    Total</span>
+                    Ukupno</span>
             </div>
 
             <div class="overflow-x-auto">
@@ -105,8 +105,8 @@
                                 Semestar</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Nivo Studija</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Akcije</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Radnje</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
