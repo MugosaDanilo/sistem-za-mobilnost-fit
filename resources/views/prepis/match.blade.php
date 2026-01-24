@@ -64,7 +64,7 @@
                                 <!-- Linked List -->
                                 <div class="flex-1 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col">
                                     <div class="p-3 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
-                                        <h4 class="font-semibold text-gray-700">Mačovani parovi</h4>
+                                        <h4 class="font-semibold text-gray-700">Mačovani predmeti</h4>
                                         <button id="send-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-3 rounded shadow transition-colors hidden">
                                             Pošalji za odobrenje
                                         </button>
