@@ -108,7 +108,7 @@
 
           <div class="mb-4 md:col-span-2">
             <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-2">Faculty</label>
+              <label class="block text-gray-700 font-medium mb-2">Fakultet</label>
               <select name="fakultet_id" x-model="selectedFaculty" 
                 @change="window.dispatchEvent(new CustomEvent('clear-selection')); fetchSubjects(); $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())" 
                 x-init="if(selectedFaculty) { fetchSubjects(); $nextTick(() => $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())); }"
@@ -130,7 +130,7 @@
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onchange="window.dispatchEvent(new CustomEvent('study-level-changed', { detail: this.value }))"
                 x-init="$nextTick(() => window.dispatchEvent(new CustomEvent('study-level-changed', { detail: $el.value })))">
-                <option value="">Select Study Level</option>
+                <option value="">Izaberi Godinu Studija</option>
                 @foreach($nivoStudija as $nivo)
                   <option value="{{ $nivo->id }}" {{ old('nivo_studija_id') == $nivo->id ? 'selected' : '' }}>
                     {{ $nivo->naziv }}
@@ -183,7 +183,7 @@
                        
                        let facultySelect = document.querySelector('select[name=\'fakultet_id\']');
                         if (!facultySelect || !facultySelect.value) {
-                            alert('Please select a faculty first.');
+                            alert('Moliću izaberi fakultet prvo.');
                             return;
                         }
 

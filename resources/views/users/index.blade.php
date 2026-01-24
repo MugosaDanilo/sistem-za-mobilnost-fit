@@ -191,7 +191,7 @@
     function openEditModal(id, name, email) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-        title.textContent = 'Edit User';
+        title.textContent = 'Izmijeni korisnika';
         form.action = `/admin/users/${id}`;
         form.method = 'POST';
 
