@@ -80,7 +80,7 @@
                                 </div>
                                 <div>
                                     <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Datum završetka</label>
-                                    <input type="date" name="end_date" id="end_date" required placeholder="GGGG-MM-DD" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <input type="date" name="end_date" id="end_date" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                             </div>
                         </div>
@@ -88,7 +88,7 @@
                         <!-- Subjects Card -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                             <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2 flex items-center justify-between">
-                                <span>Student Subjects</span>
+                                <span>Predmeti studenata</span>
                             </h2>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

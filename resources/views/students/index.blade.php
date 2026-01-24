@@ -28,7 +28,7 @@
     </div>
 
     <div class="mb-4">
-      <input type="text" id="searchStudent" placeholder="Pretrazi.."
+      <input type="text" id="searchStudent" placeholder="Pretraži.."
         class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
     </div>
 
@@ -50,7 +50,7 @@
                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Godina</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fakultet</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Radnja</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Radnja</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200" id="studentTableBody">
