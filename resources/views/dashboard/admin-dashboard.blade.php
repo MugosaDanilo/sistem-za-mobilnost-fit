@@ -7,7 +7,7 @@
 
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Mobility Dashboard</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Mobilnost Kontorlna Tabla</h1>
         </div>
 
 
@@ -23,9 +23,9 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faculty</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fakultet</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Akcija</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
