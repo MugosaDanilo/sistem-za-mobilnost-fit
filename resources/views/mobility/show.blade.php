@@ -14,7 +14,7 @@
         @endif
 
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Detalji Mobiliti</h1>
+            <h1 class="text-2xl font-bold text-gray-800">Detalji o Mobilnosti</h1>
             <div class="flex gap-2">
             
                 <form action="{{ route('admin.mobility.export-word', $mobilnost->id) }}" method="POST">
@@ -37,8 +37,8 @@
                     <p class="text-gray-600"><span class="font-medium">Index:</span> {{ $mobilnost->student->br_indexa }}</p>
                 </div>
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-700">Mobility Information</h2>
-                    <p class="mt-2 text-gray-600"><span class="font-medium">Faculty:</span> {{ $mobilnost->fakultet->naziv }}</p>
+                    <h2 class="text-lg font-semibold text-gray-700">Informacije o mobilnosti</h2>
+                    <p class="mt-2 text-gray-600"><span class="font-medium">Fakultet:</span> {{ $mobilnost->fakultet->naziv }}</p>
                     <p class="text-gray-600"><span class="font-medium">Period:</span> {{ \Carbon\Carbon::parse($mobilnost->datum_pocetka)->format('d.m.Y') }} - {{ \Carbon\Carbon::parse($mobilnost->datum_kraja)->format('d.m.Y') }}</p>
                 </div>
             </div>
