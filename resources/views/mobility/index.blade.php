@@ -80,7 +80,7 @@
                                 </div>
                                 <div>
                                     <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Datum završetka</label>
-                                    <input type="date" name="end_date" id="end_date" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <input type="date" name="end_date" id="end_date" required placeholder="GGGG-MM-DD" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
                                 </div>
                             </div>
                         </div>
@@ -416,7 +416,7 @@
 
                     div.addEventListener('click', () => {
                         if (!activeLeft) {
-                            alert('Please select a student subject (left side) first.');
+                            alert('Iaberite predmete za studenta prvo (lijeva strana).');
                             return;
                         }
                         toggleLink(activeLeft, div);
@@ -507,11 +507,11 @@
             function submitForm(actionStr) {
                 const studentId = studentIdInput.value;
                 if (!studentId) {
-                    alert('Please select a student.');
+                    alert('Molimo izaberite studenta.');
                     return;
                 }
                 if (Object.keys(currentMappings).length === 0) {
-                    if (!confirm('No subjects linked. Continue?')) return;
+                    if (!confirm('Nema povezanih predmeta. Želite li da nastavite?')) return;
                 }
 
                 // Prepare JSON
