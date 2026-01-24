@@ -19,7 +19,7 @@
                     <div class="mb-6">
                         <label for="student_id" class="block text-sm font-medium text-gray-700">Izaberi studenta</label>
                         <div class="relative searchable-container" data-type="student">
-                            <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Search Student..." autocomplete="off">
+                            <input type="text" class="search-input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Pretraži studenta..." autocomplete="off">
                             <div class="search-results absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto hidden"></div>
                             <select name="student_id" id="student_id" class="hidden">
                                 <option value="">Izaberi studenta</option>
@@ -38,7 +38,7 @@
                             <!-- Student Subjects Column (Source) -->
                             <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
                                 <h4 class="font-semibold text-gray-700 mb-2">Studentovi predmeti</h4>
-                                <input type="text" id="search-subject" placeholder="Search Subject..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" disabled>
+                                <input type="text" id="search-subject" placeholder="Pretraži predmet..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" disabled>
                                 <div id="subject-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
                                     <p class="text-gray-500 text-sm text-center mt-4">Izaberi studenta/fakultet da vidiš predmete</p>
                                 </div>
@@ -78,7 +78,7 @@
                             <!-- Professors Column -->
                              <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
                                 <h4 class="font-semibold text-gray-700 mb-2">Dostupni profesori</h4>
-                                <input type="text" id="search-prof" placeholder="Search Professor..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <input type="text" id="search-prof" placeholder="Pretraži Profesore..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 <div id="prof-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
                                     <!-- Professor Items will be injected here -->
                                 </div>
@@ -277,7 +277,7 @@
                     }
                     
                     if (pair.isLocked) {
-                        matchInfo += `<div class="text-yellow-600 text-xs font-semibold mt-1">Pending Professor Review</div>`;
+                        matchInfo += `<div class="text-yellow-600 text-xs font-semibold mt-1">Čeka se odobrenje profesora</div>`;
                     }
 
                     let deleteBtn = `<button type="button" class="ml-3 text-red-500 hover:text-red-700 font-bold px-2" onclick="unlinkPair(${index})">&times;</button>`;
@@ -302,7 +302,7 @@
                     els.dropSlotProf.className = "w-1/2 h-12 bg-indigo-50 border border-indigo-300 text-indigo-700 rounded flex items-center justify-center text-xs text-center px-2 font-medium relative group cursor-pointer";
                     els.dropSlotProf.innerHTML += `<span class="hidden group-hover:flex absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 items-center justify-center text-[10px]" onclick="clearSlot('professor', event)">x</span>`;
                 } else {
-                    els.dropSlotProf.textContent = "Professor";
+                    els.dropSlotProf.textContent = "Profesori";
                     els.dropSlotProf.className = "w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2";
                 }
 
@@ -311,7 +311,7 @@
                     els.dropSlotSubject.className = "w-1/2 h-12 bg-indigo-50 border border-indigo-300 text-indigo-700 rounded flex items-center justify-center text-xs text-center px-2 font-medium relative group cursor-pointer";
                     els.dropSlotSubject.innerHTML += `<span class="hidden group-hover:flex absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-4 h-4 items-center justify-center text-[10px]" onclick="clearSlot('subject', event)">x</span>`;
                 } else {
-                    els.dropSlotSubject.textContent = "Subject";
+                    els.dropSlotSubject.textContent = "Predmeti";
                     els.dropSlotSubject.className = "w-1/2 h-12 bg-white border border-gray-200 rounded flex items-center justify-center text-xs text-gray-400 text-center px-2";
                 }
             }

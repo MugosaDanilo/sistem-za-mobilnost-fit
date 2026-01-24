@@ -49,7 +49,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
                                     <div class="mb-2 text-xs text-gray-500">
-                                        <span class="font-medium">Professors:</span>
+                                        <span class="font-medium">Profesor:</span>
                                         {{ $request->subjects->pluck('professor.name')->unique()->filter()->join(', ') ?: 'None assigned' }}
                                     </div>
                                     <ul class="list-disc pl-4 space-y-1">
@@ -77,9 +77,9 @@
                                             default => 'bg-yellow-100 text-yellow-800',
                                         };
                                         $statusText = match($request->status) {
-                                            'accepted' => 'Accepted',
-                                            'rejected' => 'Rejected',
-                                            default => 'Pending',
+                                            'accepted' => 'Prihvaćen',
+                                            'rejected' => 'Razočaran',
+                                            default => 'U obradi',
                                         };
                                         
                                         $totalSubjects = $request->subjects->count();
@@ -95,9 +95,9 @@
                                     </span>
                                     @if($request->status == 'pending')
                                         @if($allRejected)
-                                            <div class="text-xs text-red-600 mt-1 font-bold">Professor Rejected All</div>
+                                            <div class="text-xs text-red-600 mt-1 font-bold">Profesor je odbio sve</div>
                                         @elseif($allProcessed)
-                                            <div class="text-xs text-green-600 mt-1 font-bold">Ready for Review</div>
+                                            <div class="text-xs text-green-600 mt-1 font-bold">Spremno za reviziju</div>
                                         @else
                                             <div class="text-xs text-yellow-600 mt-1">Waiting for Professor ({{ $processedSubjects }}/{{ $totalSubjects }})</div>
                                         @endif
