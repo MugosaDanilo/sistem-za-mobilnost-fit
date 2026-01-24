@@ -8,8 +8,8 @@
 
     @if ($errors->any())
         <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong class="font-bold">Whoops!</strong>
-            <span class="block">There were some problems with your input:</span>
+            <strong class="font-bold">OOOpaaaa!</strong>
+            <span class="block">Desili su se neki problemi sa unosima:</span>
             <ul class="mt-2 list-disc list-inside">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -38,7 +38,7 @@
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-800">Lista Korisnika</h2>
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($users) }} Total</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($users) }} Ukupno</span>
             </div>
 
             <div class="overflow-x-auto">
@@ -48,8 +48,8 @@
 
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tip</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Radnje</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="userTableBody">
@@ -79,13 +79,13 @@
                                     <button
                                         onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}')"
                                         class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
-                                        Edit
+                                        Izmijeni
                                     </button>
 
                                     @if((int)$user->type === 1)
                                         <a href="{{ route('users.subjects.index', $user->id) }}"
                                            class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md transition-colors inline-block">
-                                            Subjects
+                                            Pregled Predmeta
                                         </a>
                                     @endif
 
@@ -95,7 +95,7 @@
                                         @method('DELETE')
                                         <button type="submit"
                                                 class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors">
-                                            Delete
+                                            Izbriši
                                         </button>
                                     </form>
                                 </div>
@@ -111,14 +111,14 @@
 
     <div id="userModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-            <h2 id="modalTitle" class="text-xl font-semibold mb-4">Add User</h2>
+            <h2 id="modalTitle" class="text-xl font-semibold mb-4">Dodaj korisnika</h2>
 
             <form id="userForm" action="{{ route('users.store') }}" method="POST" >
                 @csrf
                 <input type="hidden" name="id" id="userId">
 
                 <div class="mb-4">
-                    <label for="name" class="block text-gray-700 font-medium mb-1">Name</label>
+                    <label for="name" class="block text-gray-700 font-medium mb-1">Ime</label>
                     <input type="text" id="name" name="name"
                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                            required>
@@ -132,19 +132,19 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="password" class="block text-gray-700 font-medium mb-1">Password</label>
+                    <label for="password" class="block text-gray-700 font-medium mb-1">Šifra</label>
                     <input type="password" id="password" name="password"
                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
                 <div class="mb-4">
-                    <label for="password" class="block text-gray-700 font-medium mb-1">Password</label>
+                    <label for="password" class="block text-gray-700 font-medium mb-1">Šifra opet</label>
                       <input type="password" id="password_confirmation" name="password_confirmation"
                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-gray-700 font-medium mb-1">User Type</label>
+                    <label class="block text-gray-700 font-medium mb-1">Tip korisnika</label>
                     <select name="type" class="border p-2 w-full">
                         <option value="0">Admin</option>
                         <option value="1">Profesor</option>
@@ -154,11 +154,11 @@
                 <div class="flex justify-end space-x-2">
                     <button type="button" id="cancelUserModal"
                             class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
-                        Cancel
+                        Otkaži
                     </button>
                     <button type="submit"
                             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
-                        Save
+                        Sačuvaj
                     </button>
                 </div>
             </form>

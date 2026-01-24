@@ -95,7 +95,7 @@
                                 <!-- Unpassed Subjects -->
                                 <div class="flex flex-col h-full">
                                     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Nepoloženi
-                                        (Previous Years)</h3>
+                                        (Prijethodne godine)</h3>
                                     <div id="unpassedSubjectsBox" class="flex-1 min-h-[250px] bg-gray-50 rounded-lg border border-gray-200 p-3 overflow-y-auto space-y-2 transition-all hover:border-gray-300">
                                         <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
                                             <svg class="w-8 h-8 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">

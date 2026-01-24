@@ -19,11 +19,11 @@
                     @if($user)
                         @if((int) $user->type === 0)
                             <x-nav-link :href="route('adminDashboardShow')" :active="request()->routeIs('adminDashboardShow')">
-                                {{ __('Dashboard') }}
+                                {{ __('Kontrolna Tabla') }}
                             </x-nav-link>
 
                             <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
-                                {{ __('User') }}
+                                {{ __('Korisnik') }}
                             </x-nav-link>
 
                             <x-nav-link :href="route('students.index')" :active="request()->routeIs('students.*')">
@@ -47,13 +47,13 @@
                             </x-nav-link>
 
                             <x-nav-link :href="route('izvjestaji.index')" :active="request()->routeIs('izvjestaji.*')">
-                                {{ __('Izvjestaji') }}
+                                {{ __('Izvještaji') }}
                             </x-nav-link>
 
                         @elseif((int) $user->type === 1)
                             <x-nav-link :href="route('profesorDashboardShow')"
                                 :active="request()->routeIs('profesorDashboardShow')">
-                                {{ __('Dashboard') }}
+                                {{ __('KontorlnaTabla') }}
                             </x-nav-link>
 
                             <x-nav-link :href="route('profesor.mobility')" :active="request()->routeIs('profesor.mobility')">
@@ -87,7 +87,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            {{ __('Profil') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -96,7 +96,7 @@
 
                             <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                {{ __('Napušti app') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -130,11 +130,11 @@
                 @if((int) $user->type === 0)
                     <x-responsive-nav-link :href="route('adminDashboardShow')"
                         :active="request()->routeIs('adminDashboardShow')">
-                        {{ __('Dashboard') }}
+                        {{ __('KontorlnaTabla') }}
                     </x-responsive-nav-link>
 
                     <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
-                        {{ __('User') }}
+                        {{ __('Korisnik') }}
                     </x-responsive-nav-link>
 
                     <x-responsive-nav-link :href="route('students.index')" :active="request()->routeIs('students.*')">
@@ -158,14 +158,14 @@
                     </x-responsive-nav-link>
 
                     <x-responsive-nav-link :href="route('izvjestaji.index')" :active="request()->routeIs('izvjestaji.*')">
-                        {{ __('Izvjestaji') }}
+                        {{ __('Izvještaji') }}
                     </x-responsive-nav-link>
 
 
                 @elseif((int) $user->type === 1)
                     <x-responsive-nav-link :href="route('profesorDashboardShow')"
                         :active="request()->routeIs('profesorDashboardShow')">
-                        {{ __('Dashboard') }}
+                        {{ __('Kontrolna Tabla') }}
                     </x-responsive-nav-link>
 
                     <x-responsive-nav-link :href="route('profesor.mobility')" :active="request()->routeIs('profesor.mobility')">
@@ -194,7 +194,7 @@
 
                     <x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                        {{ __('Napušti app') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
