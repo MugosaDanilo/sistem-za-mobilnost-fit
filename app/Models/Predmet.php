@@ -44,6 +44,7 @@ use HasFactory;
 
     public function nastavnaLista()
 {
+    
     return $this->hasOne(NastavnaLista::class, 'predmet_id');
 }
 

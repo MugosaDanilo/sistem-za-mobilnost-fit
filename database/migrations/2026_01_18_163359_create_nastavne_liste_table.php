@@ -10,14 +10,23 @@ return new class extends Migration
     {
         Schema::create('nastavne_liste', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('predmet_id');
-            $table->unsignedBigInteger('fakultet_id');
-            $table->string('link');
-            $table->timestamps();
 
-            $table->foreign('predmet_id')->references('id')->on('predmeti')->onDelete('cascade');
-            $table->foreign('fakultet_id')->references('id')->on('fakulteti')->onDelete('cascade');
-            $table->unique(['predmet_id', 'fakultet_id']);
+            $table->foreignId('predmet_id')->constrained('predmeti')->cascadeOnDelete();
+            $table->foreignId('fakultet_id')->constrained('fakulteti')->cascadeOnDelete();
+
+            $table->string('studijska_godina', 20);
+
+            // Može biti ili link ili fajl
+            $table->string('link')->nullable();
+            $table->string('file_path')->nullable();
+            $table->string('file_name')->nullable();
+            $table->string('mime_type')->nullable();
+
+            // Dozvoljavamo više nastavnih lista za isti predmet i fakultet,
+            // ali ne duplikat iste godine za isti predmet na istom fakultetu
+            $table->unique(['predmet_id', 'fakultet_id', 'studijska_godina'], 'nl_unique_version');
+
+            $table->timestamps();
         });
     }
 

@@ -10,17 +10,31 @@ use Illuminate\Http\Request;
 class MappingRequestController extends Controller
 {
     public function show($id)
-    {
-        $mappingRequest = MappingRequest::with(['fakultet', 'subjects.straniPredmet', 'subjects.fitPredmet'])->findOrFail($id);
-        
-        if (!$mappingRequest->subjects()->where('professor_id', auth()->id())->exists()) {
-             abort(403);
-        }
+{
+    $mappingRequest = MappingRequest::with([
+        'fakultet', 
+        'subjects.straniPredmet', 
+        'subjects.fitPredmet'
+    ])->findOrFail($id);
 
-        $professorSubjects = auth()->user()->predmeti;
-
-        return view('mapping_request.show', compact('mappingRequest', 'professorSubjects'));
+    if (!$mappingRequest->subjects()->where('professor_id', auth()->id())->exists()) {
+        abort(403);
     }
+
+    $professorSubjects = auth()->user()->predmeti;
+
+    //  Učitavanje nastavnih listi za fakultet
+    $nastavneListe = \App\Models\NastavnaLista::where('fakultet_id', $mappingRequest->fakultet_id)
+        ->get()
+        ->groupBy('predmet_id');
+
+    return view('mapping_request.show', compact(
+        'mappingRequest', 
+        'professorSubjects', 
+        'nastavneListe' 
+    ));
+}
+
 
     public function update(Request $request, $id)
     {

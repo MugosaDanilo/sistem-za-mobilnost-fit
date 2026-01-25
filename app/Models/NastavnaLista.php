@@ -14,7 +14,11 @@ class NastavnaLista extends Model
     protected $fillable = [
         'predmet_id',
         'fakultet_id',
+        'studijska_godina',
         'link',
+        'file_path',
+        'file_name',
+        'mime_type',
     ];
 
     public function predmet()

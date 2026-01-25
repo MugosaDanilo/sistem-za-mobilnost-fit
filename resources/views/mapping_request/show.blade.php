@@ -20,40 +20,57 @@
                         
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <!-- Foreign Subjects Column -->
-                            <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                <h4 class="font-semibold text-gray-700 mb-2">Foreign Subjects ({{ $mappingRequest->fakultet->naziv }})</h4>
-                                <div id="foreign-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
-    @foreach($mappingRequest->subjects as $reqSubject)
-        @if(!$reqSubject->fit_predmet_id)
-            @php
-                $isMySubject = $reqSubject->professor_id == auth()->id();
-                $hasNL = \DB::table('nastavne_liste')->where('predmet_id', $reqSubject->straniPredmet->id)
-                            ->where('fakultet_id', $mappingRequest->fakultet->id)->exists();
-            @endphp
-            <div class="draggable-item bg-white p-2 rounded border border-gray-200 shadow-sm text-sm flex justify-between items-center group
-                 {{ $isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']) ? 'hover:border-indigo-400 transition-colors cursor-grab' : 'opacity-50 cursor-not-allowed bg-gray-100' }}"
-                 @if($isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']))
-                     draggable="true"
-                     data-id="{{ $reqSubject->id }}"
-                     data-name="{{ $reqSubject->straniPredmet->naziv }}"
-                     data-type="foreign"
-                 @endif>
-                <span>
-                    {{ $reqSubject->straniPredmet->naziv }} ({{ $reqSubject->straniPredmet->ects }} ECTS)
-                    @if($hasNL)
-                       <a href="{{ route('nastavna-lista.show', $reqSubject->straniPredmet->id) }}" target="_blank">*</a>
+<div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+    <h4 class="font-semibold text-gray-700 mb-2">Foreign Subjects ({{ $mappingRequest->fakultet->naziv }})</h4>
+    <div id="foreign-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
+        @foreach($mappingRequest->subjects as $reqSubject)
+            @if(!$reqSubject->fit_predmet_id)
+                @php
+                    $isMySubject = $reqSubject->professor_id == auth()->id();
+                    $nlItems = \DB::table('nastavne_liste')
+                                ->where('predmet_id', $reqSubject->straniPredmet->id)
+                                ->where('fakultet_id', $mappingRequest->fakultet->id)
+                                ->get();
+                @endphp
 
+                <div class="draggable-item bg-white p-2 rounded border border-gray-200 shadow-sm text-sm flex justify-between items-center group
+                     {{ $isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']) ? 'hover:border-indigo-400 transition-colors cursor-grab' : 'opacity-50 cursor-not-allowed bg-gray-100' }}"
+                     @if($isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']))
+                         draggable="true"
+                         data-id="{{ $reqSubject->id }}"
+                         data-name="{{ $reqSubject->straniPredmet->naziv }}"
+                         data-type="foreign"
+                     @endif>
+                    
+                    <span class="flex-1">
+                        {{ $reqSubject->straniPredmet->naziv }} ({{ $reqSubject->straniPredmet->ects }} ECTS)
+                        @if($nlItems->count() > 0)
+                            <a href="#" onclick="showNL({{ $reqSubject->straniPredmet->id }}); return false;" class="text-green-600 font-bold ml-1">*</a>
+                        @endif
+                        @if(!$isMySubject)
+                            <span class="text-xs text-gray-400 block ml-1">(Assigned to: {{ $reqSubject->professor->name ?? 'Unknown' }})</span>
+                        @endif
+                    </span>
+
+                    <!-- Opcionalno: proširenje za NL odmah ispod -->
+                    @if($nlItems->count() > 0)
+                        <div class="ml-2 mt-1 flex flex-col space-y-1 max-h-24 overflow-y-auto border border-gray-100 rounded p-1 bg-gray-50">
+                            @foreach($nlItems as $nl)
+                                @if($nl->link)
+                                    <a href="{{ $nl->link }}" target="_blank" class="text-blue-600 underline text-xs truncate" title="Open NL">{{ $nl->studijska_godina }}</a>
+                                @elseif($nl->file_path)
+                                    <a href="{{ asset('storage/' . $nl->file_path) }}" target="_blank" class="text-blue-600 underline text-xs truncate" title="Download NL">{{ $nl->studijska_godina }} (File)</a>
+                                @endif
+                            @endforeach
+                        </div>
                     @endif
-                    @if(!$isMySubject)
-                        <span class="text-xs text-gray-400 block ml-1">(Assigned to: {{ $reqSubject->professor->name ?? 'Unknown' }})</span>
-                    @endif
-                </span>
-            </div>
-        @endif
-    @endforeach
+
+                </div>
+            @endif
+        @endforeach
+    </div>
 </div>
 
-                            </div>
 
                             <!-- Drop Zone & Linked List -->
                             <div class="flex flex-col space-y-4">
@@ -489,5 +506,7 @@
                     initMappings();
                     setupDragAndDrop();
                 });
+
+                
             </script>
 </x-app-layout>

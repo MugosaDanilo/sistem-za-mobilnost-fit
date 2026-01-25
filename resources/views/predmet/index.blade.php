@@ -49,6 +49,7 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Šifra</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naziv</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ECTS</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Semestar</th>
@@ -59,6 +60,7 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($predmeti as $p)
                             <tr class="subject-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($p->naziv) }}">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $p->sifra_predmeta }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $p->naziv }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->ects }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->semestar }}</td>
@@ -66,7 +68,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
                                         <button class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors openEditModal"
-                                            data-id="{{ $p->id }}" data-naziv="{{ $p->naziv }}" data-ects="{{ $p->ects }}"
+                                            data-id="{{ $p->id }}" data-sifra="{{ $p->sifra_predmeta }}" data-naziv="{{ $p->naziv }}" data-ects="{{ $p->ects }}"
                                             data-semestar="{{ $p->semestar }}" data-nivo="{{ $p->nivo_studija_id }}">
                                             Izmeni
                                         </button>
@@ -89,47 +91,203 @@
         </div>
     </div>
 
-<!-- NL Modal -->
-<div id="nlModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <h2 class="text-xl font-semibold mb-4">Nastavna lista - <span id="nlSubjectName"></span></h2>
-        <form id="nlForm" method="POST" action="{{ route('nastavne-liste.store') }}">
-            @csrf
-            <input type="hidden" name="predmet_id" id="nlSubjectId">
-            <input type="hidden" name="fakultet_id" id="nlFakultetId">
-            <div class="mb-4">
-                <label for="nlLink" class="block text-gray-700 font-medium mb-1">Link nastavne liste</label>
-                <input type="text" id="nlLink" name="nl_link" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="https://..." required>
-            </div>
-            <div class="flex justify-end space-x-2">
-                <button type="button" id="cancelNlModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">Otkaži</button>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Sačuvaj</button>
-            </div>
-        </form>
+    <!-- Add Subject Modal -->
+    <div id="addSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-screen">
+            <h2 class="text-xl font-semibold mb-4">Dodaj Predmet</h2>
+            <form action="{{ route('predmeti.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="fakultet_id" value="{{ $fakultet->id }}">
+                <div class="mb-4">
+                    <label for="addSifra" class="block text-gray-700 font-medium mb-1">Šifra Predmeta</label>
+                    <input type="text" id="addSifra" name="sifra_predmeta" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="addName" class="block text-gray-700 font-medium mb-1">Naziv</label>
+                    <input type="text" id="addName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="addNivo" class="block text-gray-700 font-medium mb-1">Nivo Studija</label>
+                    <select id="addNivo" name="nivo_studija_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        <option value="">Odaberite nivo studija</option>
+                        @foreach($nivoStudija as $nivo)
+                            <option value="{{ $nivo->id }}">{{ $nivo->naziv }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="addEcts" class="block text-gray-700 font-medium mb-1">ECTS</label>
+                    <input type="number" id="addEcts" name="ects" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
+                </div>
+                <div class="mb-4">
+                    <label for="addSemester" class="block text-gray-700 font-medium mb-1">Semestar</label>
+                    <input type="number" id="addSemester" name="semestar" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelAddModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">Otkaži</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+
+    <!-- Import Subjects Modal -->
+    <div id="importSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Import Subjects from Excel</h2>
+            <form action="{{ route('fakulteti.predmeti.import', $fakultet->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Study Level</label>
+                    <div class="flex items-center space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="level" value="basic" checked class="form-radio text-blue-600">
+                            <span class="ml-2">Osnovne Studije</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="level" value="master" class="form-radio text-blue-600">
+                            <span class="ml-2">Master Studije</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Upload .xlsx File</label>
+                    <input type="file" name="file" accept=".xlsx, .xls" required class="w-full border p-2 rounded">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelImportModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">Otkaži</button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Subject Modal -->
+    <div id="editSubjectModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-screen">
+            <h2 class="text-xl font-semibold mb-4">Izmeni Predmet</h2>
+            <form id="editSubjectForm" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="id" id="editSubjectId">
+                <input type="hidden" name="fakultet_id" value="{{ $fakultet->id }}">
+                <div class="mb-4">
+                    <label for="editSifra" class="block text-gray-700 font-medium mb-1">Šifra Predmeta</label>
+                    <input type="text" id="editSifra" name="sifra_predmeta" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="editName" class="block text-gray-700 font-medium mb-1">Naziv</label>
+                    <input type="text" id="editName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="editNivo" class="block text-gray-700 font-medium mb-1">Nivo Studija</label>
+                    <select id="editNivo" name="nivo_studija_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                        <option value="">Odaberite nivo studija</option>
+                        @foreach($nivoStudija as $nivo)
+                            <option value="{{ $nivo->id }}">{{ $nivo->naziv }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="editEcts" class="block text-gray-700 font-medium mb-1">ECTS</label>
+                    <input type="number" id="editEcts" name="ects" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
+                </div>
+                <div class="mb-4">
+                    <label for="editSemester" class="block text-gray-700 font-medium mb-1">Semestar</label>
+                    <input type="number" id="editSemester" name="semestar" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required min="1">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelEditModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">Otkaži</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Sačuvaj izmene</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NL Modal -->
+    <div id="nlModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Nastavna lista - <span id="nlSubjectName"></span></h2>
+            <form id="nlForm" method="POST" action="{{ route('nastavne-liste.store') }}" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="predmet_id" id="nlSubjectId">
+                <input type="hidden" name="fakultet_id" id="nlFakultetId">
+                <div class="mb-4">
+                    <label for="studijskaGodina" class="block text-gray-700 font-medium mb-1">Studijska godina</label>
+                    <input type="text" id="studijskaGodina" name="studijska_godina" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="npr. 2025/26" required>
+                </div>
+                <div class="mb-4">
+                    <label for="nlLink" class="block text-gray-700 font-medium mb-1">Link nastavne liste</label>
+                    <input type="text" id="nlLink" name="nl_link" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="https://...">
+                </div>
+                <div class="mb-4">
+                    <label for="nlFile" class="block text-gray-700 font-medium mb-1">Upload dokumenta (opciono)</label>
+                    <input type="file" id="nlFile" name="nl_file" class="w-full">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelNlModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100">Otkaži</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Sačuvaj</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const nlModal = document.getElementById('nlModal');
-    const nlForm = document.getElementById('nlForm');
-    const cancelNl = document.getElementById('cancelNlModal');
+    // Add Modal
+    const addModal = document.getElementById('addSubjectModal');
+    const addBtn = document.getElementById('addSubjectBtn');
+    const cancelAdd = document.getElementById('cancelAddModal');
+    addBtn.addEventListener('click', () => { addModal.classList.remove('hidden'); addModal.classList.add('flex'); });
+    cancelAdd.addEventListener('click', () => { addModal.classList.add('hidden'); addModal.classList.remove('flex'); });
 
-    document.querySelectorAll('.openNlModal').forEach(button => {
+    // Import Modal
+    const importModal = document.getElementById('importSubjectModal');
+    const importBtn = document.getElementById('importSubjectBtn');
+    const cancelImport = document.getElementById('cancelImportModal');
+    importBtn.addEventListener('click', () => { importModal.classList.remove('hidden'); importModal.classList.add('flex'); });
+    cancelImport.addEventListener('click', () => { importModal.classList.add('hidden'); importModal.classList.remove('flex'); });
+
+    // Edit Modal
+    const editModal = document.getElementById('editSubjectModal');
+    const cancelEdit = document.getElementById('cancelEditModal');
+    const editForm = document.getElementById('editSubjectForm');
+    document.querySelectorAll('.openEditModal').forEach(button => {
         button.addEventListener('click', () => {
-            nlForm.predmet_id.value = button.dataset.id;
-            nlForm.fakultet_id.value = button.dataset.fakultet;
-            nlForm.nl_link.value = button.dataset.nl;
-            document.getElementById('nlSubjectName').textContent = button.dataset.naziv;
-            nlModal.classList.remove('hidden');
-            nlModal.classList.add('flex');
+            document.getElementById('editSubjectId').value = button.dataset.id;
+            document.getElementById('editSifra').value = button.dataset.sifra;
+            document.getElementById('editName').value = button.dataset.naziv;
+            document.getElementById('editEcts').value = button.dataset.ects;
+            document.getElementById('editSemester').value = button.dataset.semestar;
+            document.getElementById('editNivo').value = button.dataset.nivo;
+            editForm.action = `/predmeti/${button.dataset.id}`; // PUT route
+            editModal.classList.remove('hidden'); editModal.classList.add('flex');
         });
     });
+    cancelEdit.addEventListener('click', () => { editModal.classList.add('hidden'); editModal.classList.remove('flex'); });
 
-    cancelNl.addEventListener('click', () => {
-        nlModal.classList.add('hidden');
-        nlModal.classList.remove('flex');
+    // NL Modal
+    const nlModal = document.getElementById('nlModal');
+    const cancelNl = document.getElementById('cancelNlModal');
+    document.querySelectorAll('.openNlModal').forEach(button => {
+        button.addEventListener('click', () => {
+            document.getElementById('nlSubjectId').value = button.dataset.id;
+            document.getElementById('nlFakultetId').value = button.dataset.fakultet;
+            document.getElementById('nlSubjectName').textContent = button.dataset.naziv;
+            document.getElementById('nlLink').value = button.dataset.nl;
+            nlModal.classList.remove('hidden'); nlModal.classList.add('flex');
+        });
+    });
+    cancelNl.addEventListener('click', () => { nlModal.classList.add('hidden'); nlModal.classList.remove('flex'); });
+
+    // Search
+    const searchInput = document.getElementById('searchSubject');
+    const rows = document.querySelectorAll('.subject-row');
+    searchInput.addEventListener('input', function () {
+        const term = this.value.toLowerCase().trim();
+        rows.forEach(row => row.style.display = row.dataset.search.includes(term) ? '' : 'none');
     });
 });
 </script>
+
 </x-app-layout>

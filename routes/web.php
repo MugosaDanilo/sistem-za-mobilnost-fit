@@ -95,7 +95,11 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::get('/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'index'])->name('fakulteti.predmeti.index');
     Route::get('/api/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'getSubjectsByFaculty'])->name('api.fakulteti.predmeti');
 
-   
+ 
+    Route::post('/nastavne-liste', [NastavnaListaController::class, 'store'])->name('nastavne-liste.store');
+    Route::delete('/nastavne-liste/{id}', [NastavnaListaController::class, 'destroy'])->name('nastavne-liste.destroy');
+    Route::get('/nastavne-liste/{id}/edit', [NastavnaListaController::class, 'edit'])->name('nastavne-liste.edit');
+
 
     Route::get('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'index'])->name('users.subjects.index');
     Route::post('/users/{id}/subjects', [App\Http\Controllers\ProfesorPredmetController::class, 'store'])->name('users.subjects.store');
@@ -117,10 +121,8 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::post('/prepis-agreement/{id}/accept', [App\Http\Controllers\PrepisAgreementController::class, 'accept'])->name('prepis-agreement.accept');
     Route::post('/prepis-agreement/{id}/reject', [App\Http\Controllers\PrepisAgreementController::class, 'reject'])->name('prepis-agreement.reject');
 
- Route::post('/nastavne-liste', [NastavnaListaController::class, 'store'])->name('nastavne-liste.store');
-    Route::delete('/nastavne-liste/{id}', [NastavnaListaController::class, 'destroy'])->name('nastavne-liste.destroy');
-    Route::get('/nastavne-liste/{id}/edit', [NastavnaListaController::class, 'edit'])->name('nastavne-liste.edit');
-Route::get('/nastavna-lista/{id}', [NastavnaListaController::class, 'show'])->name('nastavna-lista.show');
+
+Route::get('/nastavna-lista/{predmetId}', [NastavnaListaController::class, 'show'])->name('nastavna-lista.show');
 
 
     Route::get('/mapping-request/{id}', [\App\Http\Controllers\MappingRequestController::class, 'show'])->name('mapping-request.show');
