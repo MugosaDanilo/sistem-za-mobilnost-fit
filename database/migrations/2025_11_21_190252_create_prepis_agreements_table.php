@@ -1,42 +1,55 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace Database\Seeders;
 
-return new class extends Migration
+use App\Models\Fakultet;
+use App\Models\LearningAgreement;
+use App\Models\Prepis;
+use App\Models\PrepisAgreement;
+use Illuminate\Database\Seeder;
+
+class PrepisAgreementSeeder extends Seeder
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function run(): void
     {
-        Schema::create('prepis_agreements', function (Blueprint $table) {
-            $table->id();
+        $fit = Fakultet::where('naziv', 'FIT')->first();
+        if (!$fit) {
+            return;
+        }
 
-            $table->enum('status', ['u procesu', 'odobren', 'odbijen'])->default('u procesu');
+        $prepisi = Prepis::all();
+        if ($prepisi->isEmpty()) {
+            return;
+        }
 
-            $table->foreignId('prepis_id')
-                  ->constrained('prepisi')
-                  ->onDelete('cascade');
+        $statusi = ['u procesu', 'odobren', 'odbijen'];
 
-            $table->foreignId('fit_predmet_id')
-                  ->constrained('predmeti')
-                  ->onDelete('cascade');
+        foreach ($prepisi as $i => $prepis) {
+            $agreements = LearningAgreement::whereHas('mobilnost', function ($q) use ($prepis) {
+                $q->where('student_id', $prepis->student_id)
+                  ->where('fakultet_id', $prepis->fakultet_id);
+            })->get();
 
-            $table->foreignId('strani_predmet_id')
-                  ->constrained('predmeti')
-                  ->onDelete('cascade');
+            if ($agreements->isEmpty()) {
+                continue;
+            }
 
-            $table->timestamps();
-        });
+            $count = min(3, $agreements->count());
+
+            for ($k = 0; $k < $count; $k++) {
+                $la = $agreements[$k];
+
+                PrepisAgreement::updateOrCreate(
+                    [
+                        'prepis_id' => $prepis->id,
+                        'fit_predmet_id' => $la->fit_predmet_id,
+                        'strani_predmet_id' => $la->strani_predmet_id,
+                    ],
+                    [
+                        'status' => $statusi[($i + $k) % count($statusi)],
+                    ]
+                );
+            }
+        }
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('prepis_agreements');
-    }
-};
+}

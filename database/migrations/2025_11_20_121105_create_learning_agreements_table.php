@@ -1,43 +1,56 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace Database\Seeders;
 
-return new class extends Migration
+use App\Models\Fakultet;
+use App\Models\LearningAgreement;
+use App\Models\Mobilnost;
+use App\Models\Predmet;
+use Illuminate\Database\Seeder;
+
+class LearningAgreementSeeder extends Seeder
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function run(): void
     {
-        Schema::create('learning_agreements', function (Blueprint $table) {
-            $table->id();
-            $table->text('napomena')->nullable();
+        $fit = Fakultet::where('naziv', 'FIT')->first();
+        if (!$fit) {
+            return;
+        }
 
-            $table->string('ocjena')->nullable();
-            
-            $table->foreignId('mobilnost_id')
-                  ->constrained('mobilnosti')->onDelete('cascade')
-                  ->onDelete('cascade');
+        $fitPredmeti = Predmet::where('fakultet_id', $fit->id)->get();
+        $straniPredmeti = Predmet::where('fakultet_id', '!=', $fit->id)->get();
 
-            $table->foreignId('fit_predmet_id')
-                  ->constrained('predmeti')
-                  ->onDelete('cascade');
+        if ($fitPredmeti->isEmpty() || $straniPredmeti->isEmpty()) {
+            return;
+        }
 
-            $table->foreignId('strani_predmet_id')
-                  ->constrained('predmeti')
-                  ->onDelete('cascade');
-            
-            $table->timestamps();
-        });
+        $mobilnosti = Mobilnost::all();
+        if ($mobilnosti->isEmpty()) {
+            return;
+        }
+
+        $ocjene = ['6', '7', '8', '9', '10', null];
+
+        foreach ($mobilnosti as $i => $m) {
+            $count = 3 + ($i % 3);
+
+            for ($k = 0; $k < $count; $k++) {
+                $fitP = $fitPredmeti[($i * 7 + $k * 3) % $fitPredmeti->count()];
+                $strP = $straniPredmeti[($i * 11 + $k * 5) % $straniPredmeti->count()];
+                $ocjena = $ocjene[($i + $k) % count($ocjene)];
+
+                LearningAgreement::updateOrCreate(
+                    [
+                        'mobilnost_id' => $m->id,
+                        'fit_predmet_id' => $fitP->id,
+                        'strani_predmet_id' => $strP->id,
+                    ],
+                    [
+                        'napomena' => $k === 0 ? 'Razmjena - inicijalni LA' : null,
+                        'ocjena' => $ocjena,
+                    ]
+                );
+            }
+        }
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('learning_agreements');
-    }
-};
+}
