@@ -177,7 +177,7 @@
                    uploadTor() {
                        let fileInput = $refs.torFile;
                        if (!fileInput.files.length) {
-                           alert('Please select a file');
+                           alert('Moliću izaberi fajl za upload.');
                            return;
                        }
                        

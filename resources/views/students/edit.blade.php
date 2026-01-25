@@ -104,7 +104,7 @@
             }
           }">
             <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-2">Faculty</label>
+              <label class="block text-gray-700 font-medium mb-2">Fakultet</label>
               <select name="fakultet_id" x-model="selectedFaculty" 
                 @change="window.dispatchEvent(new CustomEvent('clear-selection')); fetchSubjects(); $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())" 
                 x-init="if(selectedFaculty) { fetchSubjects(); $nextTick(() => $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())); }"
@@ -121,12 +121,12 @@
 
           <div class="mb-4 md:col-span-2">
             <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-2">Study Level</label>
+              <label class="block text-gray-700 font-medium mb-2">Nivo studija</label>
               <select name="nivo_studija_id" required
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onchange="window.dispatchEvent(new CustomEvent('study-level-changed', { detail: this.value }))"
                 x-init="$nextTick(() => window.dispatchEvent(new CustomEvent('study-level-changed', { detail: $el.value })))">
-                <option value="">Select Study Level</option>
+                <option value="">Izaberi nivo studija</option>
                 @foreach($nivoStudija as $nivo)
                   <option value="{{ $nivo->id }}" {{ old('nivo_studija_id', $student->nivo_studija_id) == $nivo->id ? 'selected' : '' }}>
                     {{ $nivo->naziv }}

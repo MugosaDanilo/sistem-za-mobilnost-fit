@@ -111,7 +111,7 @@
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                <span x-text="currentLevelId === '' ? 'Select Study Level First' : 'Select Subjects'"></span>
+                <span x-text="currentLevelId === '' ? 'Selektuj nivo studija prvo' : 'Selektuj Predmete'"></span>
             </button>
             {{ $slot ?? '' }}
         </div>
@@ -198,7 +198,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 bg-gray-50 p-4 rounded-lg">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Pretraži po imenu</label>
-                    <input x-model="search" type="text" placeholder="Enter name..."
+                    <input x-model="search" type="text" placeholder="Unesi ime..."
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                 </div>
                 <div>

@@ -90,7 +90,7 @@
                                     @endif
 
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                          onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                          onsubmit="return confirm('Jeste li sigurni da želite obrisati ovaj profil?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"

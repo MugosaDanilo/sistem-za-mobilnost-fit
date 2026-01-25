@@ -33,8 +33,8 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-700">Informacije o studentu</h2>
-                    <p class="mt-2 text-gray-600"><span class="font-medium">Name:</span> {{ $mobilnost->student->ime }} {{ $mobilnost->student->prezime }}</p>
-                    <p class="text-gray-600"><span class="font-medium">Index:</span> {{ $mobilnost->student->br_indexa }}</p>
+                    <p class="mt-2 text-gray-600"><span class="font-medium">Ime:</span> {{ $mobilnost->student->ime }} {{ $mobilnost->student->prezime }}</p>
+                    <p class="text-gray-600"><span class="font-medium">Indeks:</span> {{ $mobilnost->student->br_indexa }}</p>
                 </div>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-700">Informacije o mobilnosti</h2>
@@ -164,14 +164,14 @@
             })
             .then(res => res.json())
             .then(data => {
-                msgSpan.textContent = 'All grades saved successfully!';
+                msgSpan.textContent = 'Sve ocjene uspješno sačuvane!';
                 msgSpan.className = 'text-sm font-medium text-green-600';
                 setTimeout(() => {
                     msgSpan.textContent = '';
                 }, 3000);
             })
             .catch(err => {
-                msgSpan.textContent = 'Error saving grades.';
+                msgSpan.textContent = 'Greška prilikom čuvanja ocjene.';
                 msgSpan.className = 'text-sm font-medium text-red-600';
                 console.error(err);
             });
