@@ -166,12 +166,7 @@ class StudentController extends Controller
         }
     }
 
-    if ($student->prepisi) {
-        foreach ($student->prepisi as $prepis) {
-            $prepis->agreements()->delete();
-            $prepis->delete();
-        }
-    }
+
     
     $student->predmeti()->detach();
     $student->fakulteti()->detach();

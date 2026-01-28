@@ -49,8 +49,4 @@ class Student extends Model
         return $this->hasMany(MappingRequest::class, 'student_id');
     }
 
-    public function prepisi()
-    {
-        return $this->hasMany(Prepis::class, 'student_id');
-    }
 }
