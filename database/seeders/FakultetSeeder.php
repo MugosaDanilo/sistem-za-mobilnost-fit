@@ -24,7 +24,7 @@ class FakultetSeeder extends Seeder
             'telefon' => '033111222',
             'web' => 'etf.ucg.cg',
             'uputstvo_za_ocjene' => null,
-            'univerzitet_id' => $ucg->id,
+             'univerzitet_id' => $ucg->id ?? null,
         ]);
 
         Fakultet::create([
@@ -33,7 +33,7 @@ class FakultetSeeder extends Seeder
             'telefon' => '1111111',
             'web' => 'fit.unimed.cg',
             'uputstvo_za_ocjene' => null,
-            'univerzitet_id' => $unimed->id,
+             'univerzitet_id' => $unimed->id ?? null,
         ]);
 
      Fakultet::create([
@@ -42,7 +42,8 @@ class FakultetSeeder extends Seeder
     'telefon' => '+4621101300',
     'web' => 'https://www.mdu.se/en/malardalen-university/about-mdu/organisation/school-of-innovation-design-and-engineering',
     'uputstvo_za_ocjene' => null,
-    'univerzitet_id' => $malardalen->id,
+     'univerzitet_id' => $malardalen->id ?? null,
+    
 ]);
 
 

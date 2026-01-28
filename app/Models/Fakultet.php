@@ -11,7 +11,7 @@ class Fakultet extends Model
 
     public function univerzitet()
     {
-        return $this->belongsTo(Univerzitet::class);
+         return $this->belongsTo(Univerzitet::class)->withDefault();
     }
 
     public function predmeti()

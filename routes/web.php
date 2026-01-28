@@ -65,13 +65,6 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::delete('/students/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
 
 
-    Route::get('/univerzitet', [UniverzitetController::class, 'index'])->name('univerzitet.index');
-    Route::get('/univerzitet/create', [UniverzitetController::class, 'create'])->name('univerzitet.create');
-    Route::post('/univerzitet', [UniverzitetController::class, 'store'])->name('univerzitet.store');
-    Route::get('/univerzitet/{id}/edit', [UniverzitetController::class, 'edit'])->name('univerzitet.edit');
-    Route::put('/univerzitet/{id}', [UniverzitetController::class, 'update'])->name('univerzitet.update');
-    Route::delete('/univerzitet/{id}', [UniverzitetController::class, 'destroy'])->name('univerzitet.destroy');
-
     // Route::get('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'professorMatch'])->name('prepis.professor-match'); // Removed
     // Route::post('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'storeProfessorMatch'])->name('prepis.professor-match.store'); // Removed
     
