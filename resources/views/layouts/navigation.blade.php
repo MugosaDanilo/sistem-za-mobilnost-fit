@@ -34,9 +34,7 @@
                                 {{ __('Mobilnost') }}
                             </x-nav-link>
 
-                            <x-nav-link :href="route('univerzitet.index')" :active="request()->routeIs('univerzitet.*')">
-                                {{ __('Univerzitet') }}
-                            </x-nav-link>
+                         
 
                             <x-nav-link :href="route('fakulteti.index')" :active="request()->routeIs('fakulteti.*')">
                                 {{ __('Fakulteti') }}
@@ -145,9 +143,6 @@
                         {{ __('Mobilnost') }}
                     </x-responsive-nav-link>
 
-                    <x-responsive-nav-link :href="route('univerzitet.index')" :active="request()->routeIs('univerzitet.*')">
-                        {{ __('Univerzitet') }}
-                    </x-responsive-nav-link>
 
                     <x-responsive-nav-link :href="route('fakulteti.index')" :active="request()->routeIs('fakulteti.*')">
                         {{ __('Fakulteti') }}

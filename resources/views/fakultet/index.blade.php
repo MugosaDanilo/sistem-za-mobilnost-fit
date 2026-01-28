@@ -125,15 +125,23 @@
                     <input type="text" id="addWeb" name="web" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
-                <div class="mb-4">
-                    <label for="addUniversity" class="block text-gray-700 font-medium mb-1">Univerzitet</label>
-                    <select id="addUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                        <option value="">Izaberite univerzitet</option>
-                        @foreach($univerziteti as $u)
-                            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
-                        @endforeach
-                    </select>
-                </div>
+<div class="mb-4">
+    <label class="block text-gray-700 font-medium mb-1">Univerzitet (opciono)</label>
+
+    <!-- Select za postojeće univerzitete -->
+    <select id="addUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 mb-2">
+        <option value="">Izaberite univerzitet</option>
+        @foreach($univerziteti as $u)
+            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
+        @endforeach
+    </select>
+
+    <!-- Polje za dodavanje novog univerziteta -->
+    <input type="text" id="newUniversity" name="new_univerzitet" placeholder="Dodajte novi univerzitet ako nije u listi"
+           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+    <p class="text-gray-400 text-sm mt-1">Ako unesete novi univerzitet, on će biti kreiran i povezan sa fakultetom.</p>
+</div>
+
 
                 <div class="mb-4">
                     <label for="addInstructions" class="block text-gray-700 font-medium mb-1">Uputstvo za ocjene</label>
@@ -183,15 +191,23 @@
                     <input type="text" id="editWeb" name="web" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
-                <div class="mb-4">
-                    <label for="editUniversity" class="block text-gray-700 font-medium mb-1">Univerzitet</label>
-                    <select id="editUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
-                        <option value="">Izaberite univerzitet</option>
-                        @foreach($univerziteti as $u)
-                            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
-                        @endforeach
-                    </select>
-                </div>
+              <div class="mb-4">
+    <label class="block text-gray-700 font-medium mb-1">Univerzitet (opciono)</label>
+
+    <!-- Select za postojeće univerzitete -->
+    <select id="addUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 mb-2">
+        <option value="">Izaberite univerzitet</option>
+        @foreach($univerziteti as $u)
+            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
+        @endforeach
+    </select>
+
+    <!-- Polje za dodavanje novog univerziteta -->
+    <input type="text" id="newUniversity" name="new_univerzitet" placeholder="Dodajte novi univerzitet ako nije u listi"
+           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+    <p class="text-gray-400 text-sm mt-1">Ako unesete novi univerzitet, on će biti kreiran i povezan sa fakultetom.</p>
+</div>
+
 
                 <div class="mb-4">
                     <label for="editInstructions" class="block text-gray-700 font-medium mb-1">Uputstvo za ocjene</label>
@@ -228,31 +244,31 @@
         });
 
         // Edit Modal Logic
-        const editModal = document.getElementById('editFacultyModal');
-        const cancelEdit = document.getElementById('cancelEditModal');
-        const editForm = document.getElementById('editFacultyForm');
+const editModal = document.getElementById('editFacultyModal');
+const cancelEdit = document.getElementById('cancelEditModal');
+const editForm = document.getElementById('editFacultyForm');
 
-        document.querySelectorAll('.openEditModal').forEach(button => {
-            button.addEventListener('click', () => {
-                const id = button.getAttribute('data-id');
-                document.getElementById('editFacultyId').value = id;
-                document.getElementById('editName').value = button.getAttribute('data-naziv');
-                document.getElementById('editEmail').value = button.getAttribute('data-email');
-                document.getElementById('editPhone').value = button.getAttribute('data-telefon');
-                document.getElementById('editWeb').value = button.getAttribute('data-web');
-                document.getElementById('editInstructions').value = button.getAttribute('data-uputstvo');
-                document.getElementById('editUniversity').value = button.getAttribute('data-univerzitet');
+document.querySelectorAll('.openEditModal').forEach(button => {
+    button.addEventListener('click', () => {
+        const id = button.getAttribute('data-id');
+        document.getElementById('editFacultyId').value = id;
+        document.getElementById('editName').value = button.getAttribute('data-naziv');
+        document.getElementById('editEmail').value = button.getAttribute('data-email');
+        document.getElementById('editPhone').value = button.getAttribute('data-telefon');
+        document.getElementById('editWeb').value = button.getAttribute('data-web');
+        document.getElementById('editInstructions').value = button.getAttribute('data-uputstvo');
 
-                editForm.action = `{{ route('fakulteti.index') }}/${id}`;
-                editModal.classList.remove('hidden');
-                editModal.classList.add('flex');
-            });
-        });
+        editForm.action = `{{ route('fakulteti.index') }}/${id}`;
+        editModal.classList.remove('hidden');
+        editModal.classList.add('flex');
+    });
+});
 
-        cancelEdit.addEventListener('click', () => {
-            editModal.classList.add('hidden');
-            editModal.classList.remove('flex');
-        });
+cancelEdit.addEventListener('click', () => {
+    editModal.classList.add('hidden');
+    editModal.classList.remove('flex');
+});
+
 
         // Search Logic
         const searchInput = document.getElementById('searchFaculty');
@@ -271,5 +287,7 @@
             });
         });
     });
+
+
     </script>
 </x-app-layout>
