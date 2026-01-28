@@ -158,6 +158,24 @@ class StudentController extends Controller
   public function destroy($id)
   {
     $student = Student::findOrFail($id);
+    
+    if ($student->mappingRequests) {
+        foreach ($student->mappingRequests as $req) {
+            $req->subjects()->delete();
+            $req->delete();
+        }
+    }
+
+    if ($student->prepisi) {
+        foreach ($student->prepisi as $prepis) {
+            $prepis->agreements()->delete();
+            $prepis->delete();
+        }
+    }
+    
+    $student->predmeti()->detach();
+    $student->fakulteti()->detach();
+
     $student->delete();
 
     return redirect()->route('students.index')

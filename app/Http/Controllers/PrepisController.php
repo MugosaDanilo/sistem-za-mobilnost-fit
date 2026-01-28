@@ -8,6 +8,7 @@ use App\Models\Prepis;
 use App\Models\PrepisAgreement;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use App\Services\WordExportService;
 
 class PrepisController extends Controller
 {
@@ -335,34 +336,43 @@ class PrepisController extends Controller
             return redirect()->back()->with('error', 'Request is not pending.');
         }
 
-        // Update Student Faculty to FIT (ID 2) and Sync Subjects
-        $student = $mappingRequest->student;
-        // Student has many-to-many relationship with Faculty
-        $student->fakulteti()->sync([2]);
+        $fitFaculty = Fakultet::where('naziv', 'FIT')->first();
+        if (!$fitFaculty) {
+             return redirect()->back()->with('error', 'Faculty "FIT" not found in database.');
+        }
+        $fitFacultyId = $fitFaculty->id;
 
-        $newSubjectIds = $mappingRequest->subjects()
-            ->whereNotNull('fit_predmet_id')
-            ->pluck('fit_predmet_id')
-            ->toArray();
+        $student = $mappingRequest->student;
+        $student->fakulteti()->sync([$fitFacultyId]); 
+
+        $syncData = [];
+        
+        $student->load('predmeti');
+
+        foreach ($mappingRequest->subjects as $mappingSubject) {
+            if ($mappingSubject->fit_predmet_id) {
+                $foreignSubject = $student->predmeti->firstWhere('id', $mappingSubject->strani_predmet_id);
+                
+                $grade = $foreignSubject ? $foreignSubject->pivot->grade : null;
+                
+                $syncData[$mappingSubject->fit_predmet_id] = ['grade' => $grade];
+            }
+        }
             
-        $student->predmeti()->sync($newSubjectIds);
+        // Use syncWithoutDetaching to ADD new subjects while keeping the Foreign ones
+        if (!empty($syncData)) {
+            $student->predmeti()->syncWithoutDetaching($syncData);
+        }
 
         // Create Prepis
         $prepis = Prepis::create([
             'student_id' => $mappingRequest->student_id,
-            'fakultet_id' => 2, // Ensure Prepis is also linked to FIT
+            'fakultet_id' => $fitFacultyId, // FIT
             'datum' => now(), 
-            'status' => 'odobren', // Accepted
+            'status' => 'odobren',
         ]);
 
         foreach ($mappingRequest->subjects as $subject) {
-            // Only add agreements if they are matched (have fit_predmet_id)
-            // Or should we add all? Unmatched ones can't be added to PrepisAgreement usually without fit_predmet_id?
-            // PrepisAgreement requires fit_predmet_id and strani_predmet_id?
-            // Let's check migration of PrepisAgreement.
-            // If fit_predmet_id is nullable mostly no?
-            // Assuming we only add matched ones.
-            
             if ($subject->fit_predmet_id) {
                 PrepisAgreement::create([
                     'prepis_id' => $prepis->id,
@@ -375,7 +385,7 @@ class PrepisController extends Controller
 
         $mappingRequest->update(['status' => 'accepted']);
 
-        return redirect()->back()->with('success', 'Mapping request accepted and Prepis created.');
+        return redirect()->back()->with('success', 'Mapping request accepted, grades transferred, and Prepis created.');
     }
 
     public function rejectMappingRequest($id)
@@ -396,5 +406,18 @@ class PrepisController extends Controller
         $mappingRequest = \App\Models\MappingRequest::findOrFail($id);
         $mappingRequest->delete();
         return redirect()->back()->with('success', 'Mapping request deleted successfully.');
+    }
+
+    public function exportWord($id, WordExportService $service)
+    {
+        $mappingRequest = \App\Models\MappingRequest::with(['student.predmeti', 'subjects.straniPredmet', 'subjects.fitPredmet', 'subjects.professor', 'fakultet'])->findOrFail($id);
+
+        if ($mappingRequest->status !== 'accepted') {
+            return redirect()->back()->with('error', 'Only accepted requests can be exported.');
+        }
+
+        $filePath = $service->generatePrepis($mappingRequest);
+
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 }

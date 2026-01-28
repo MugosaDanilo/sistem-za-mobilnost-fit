@@ -423,8 +423,20 @@
             @endif
 
             <!-- Global Actions -->
-            @if(in_array($mappingRequest->status, ['pending', 'completed']))
             <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                @if($mappingRequest->status === 'accepted')
+                     <form action="{{ route('prepis.mapping-request.export-word', $mappingRequest->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg transform transition hover:scale-105 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export Prepis
+                        </button>
+                    </form>
+                @endif
+                
+                @if(in_array($mappingRequest->status, ['pending', 'completed']))
                 <form action="{{ route('prepis.mapping-request.reject', $mappingRequest->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to REJECT this entire request?');">
                     @csrf
                     <button type="submit" class="bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 font-semibold px-4 py-2 rounded-lg shadow-sm transition-colors">
@@ -438,8 +450,8 @@
                         Accept Request
                     </button>
                 </form>
+                @endif
             </div>
-            @endif
         </div>
     </div>
 </x-app-layout>
