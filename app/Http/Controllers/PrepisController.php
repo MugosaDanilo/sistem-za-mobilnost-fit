@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Fakultet;
 use App\Models\Predmet;
-use App\Models\Prepis;
-use App\Models\PrepisAgreement;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Services\WordExportService;
@@ -14,12 +12,12 @@ class PrepisController extends Controller
 {
     public function index()
     {
-        $prepisi = Prepis::with(['student', 'fakultet'])->latest()->get();
+        // Consolidate into just mapping requests for the main UI
         $mappingRequests = \App\Models\MappingRequest::with(['professor', 'student', 'subjects.straniPredmet', 'subjects.fitPredmet'])
             ->latest()
             ->get();
             
-        return view('prepis.index', compact('prepisi', 'mappingRequests'));
+        return view('prepis.index', compact('mappingRequests'));
     }
 
 
@@ -114,7 +112,11 @@ class PrepisController extends Controller
     public function match()
     {
         $professors = \App\Models\User::where('type', 1)->get();
-        $students = Student::whereHas('predmeti')->get();
+        $students = Student::whereHas('predmeti')
+            ->whereDoesntHave('fakulteti', function ($query) {
+                $query->where('naziv', 'FIT');
+            })
+            ->get();
         
         $previousMatches = \App\Models\MappingRequestSubject::whereNotNull('fit_predmet_id')
             ->with(['professor', 'fitPredmet'])
@@ -364,28 +366,13 @@ class PrepisController extends Controller
             $student->predmeti()->syncWithoutDetaching($syncData);
         }
 
-        // Create Prepis
-        $prepis = Prepis::create([
-            'student_id' => $mappingRequest->student_id,
-            'fakultet_id' => $fitFacultyId, // FIT
-            'datum' => now(), 
-            'status' => 'odobren',
+        // Update mapping request with finalization data
+        $mappingRequest->update([
+            'status' => 'accepted',
+            'datum_finalizacije' => now(),
         ]);
 
-        foreach ($mappingRequest->subjects as $subject) {
-            if ($subject->fit_predmet_id) {
-                PrepisAgreement::create([
-                    'prepis_id' => $prepis->id,
-                    'fit_predmet_id' => $subject->fit_predmet_id,
-                    'strani_predmet_id' => $subject->strani_predmet_id,
-                    'status' => 'odobren',
-                ]);
-            }
-        }
-
-        $mappingRequest->update(['status' => 'accepted']);
-
-        return redirect()->back()->with('success', 'Mapping request accepted, grades transferred, and Prepis created.');
+        return redirect()->back()->with('success', 'Mapping request accepted and grades transferred.');
     }
 
     public function rejectMappingRequest($id)
@@ -404,7 +391,7 @@ class PrepisController extends Controller
     public function destroyMappingRequest($id)
     {
         $mappingRequest = \App\Models\MappingRequest::findOrFail($id);
-        $mappingRequest->delete();
+        $mappingRequest->delete(); // Cascade will handle agreements and subjects
         return redirect()->back()->with('success', 'Mapping request deleted successfully.');
     }
 
