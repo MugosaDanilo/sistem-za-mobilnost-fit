@@ -19,7 +19,7 @@
                     @if($user)
                         @if((int) $user->type === 0)
                             <x-nav-link :href="route('adminDashboardShow')" :active="request()->routeIs('adminDashboardShow')">
-                                {{ __('Kontrolna Tabla') }}
+                                {{ __('Mobilnosti') }}
                             </x-nav-link>
 
                             <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
@@ -30,9 +30,7 @@
                                 {{ __('Studenti') }}
                             </x-nav-link>
 
-                            <x-nav-link :href="route('admin.mobility')" :active="request()->routeIs('admin.mobility')">
-                                {{ __('Mobilnost') }}
-                            </x-nav-link>
+
 
                          
 
@@ -49,9 +47,8 @@
                             </x-nav-link>
 
                         @elseif((int) $user->type === 1)
-                            <x-nav-link :href="route('profesorDashboardShow')"
-                                :active="request()->routeIs('profesorDashboardShow')">
-                                {{ __('KontorlnaTabla') }}
+                            <x-nav-link :href="route('profesorDashboardShow')" :active="request()->routeIs('profesorDashboardShow')">
+                                {{ __('Mobilnosti') }}
                             </x-nav-link>
 
                             <x-nav-link :href="route('profesor.mobility')" :active="request()->routeIs('profesor.mobility')">
@@ -126,10 +123,9 @@
 
             @if($user)
                 @if((int) $user->type === 0)
-                    <x-responsive-nav-link :href="route('adminDashboardShow')"
-                        :active="request()->routeIs('adminDashboardShow')">
-                        {{ __('KontorlnaTabla') }}
-                    </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('adminDashboardShow')" :active="request()->routeIs('adminDashboardShow')">
+                            {{ __('Mobilnosti') }}
+                        </x-responsive-nav-link>
 
                     <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                         {{ __('Korisnik') }}
@@ -139,9 +135,7 @@
                         {{ __('Studenti') }}
                     </x-responsive-nav-link>
 
-                    <x-responsive-nav-link :href="route('admin.mobility')" :active="request()->routeIs('admin.mobility')">
-                        {{ __('Mobilnost') }}
-                    </x-responsive-nav-link>
+
 
 
                     <x-responsive-nav-link :href="route('fakulteti.index')" :active="request()->routeIs('fakulteti.*')">
@@ -158,10 +152,9 @@
 
 
                 @elseif((int) $user->type === 1)
-                    <x-responsive-nav-link :href="route('profesorDashboardShow')"
-                        :active="request()->routeIs('profesorDashboardShow')">
-                        {{ __('Kontrolna Tabla') }}
-                    </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('profesorDashboardShow')" :active="request()->routeIs('profesorDashboardShow')">
+                            {{ __('Mobilnosti') }}
+                        </x-responsive-nav-link>
 
                     <x-responsive-nav-link :href="route('profesor.mobility')" :active="request()->routeIs('profesor.mobility')">
                         {{ __('Mobilnost') }}
