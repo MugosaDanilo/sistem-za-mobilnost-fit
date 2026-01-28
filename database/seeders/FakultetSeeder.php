@@ -24,7 +24,7 @@ class FakultetSeeder extends Seeder
             'telefon' => '033111222',
             'web' => 'etf.ucg.cg',
             'uputstvo_za_ocjene' => null,
-             'univerzitet_id' => $ucg->id ?? null,
+            'univerzitet_id' => $ucg->id ?? null,
         ]);
 
         Fakultet::create([
@@ -33,18 +33,18 @@ class FakultetSeeder extends Seeder
             'telefon' => '1111111',
             'web' => 'fit.unimed.cg',
             'uputstvo_za_ocjene' => null,
-             'univerzitet_id' => $unimed->id ?? null,
+            'univerzitet_id' => $unimed->id ?? null,
         ]);
 
      Fakultet::create([
-    'naziv' => 'School of Innovation, Design and Engineering (IDT)',
-    'email' => 'idt-international@mdu.se',
-    'telefon' => '+4621101300',
-    'web' => 'https://www.mdu.se/en/malardalen-university/about-mdu/organisation/school-of-innovation-design-and-engineering',
-    'uputstvo_za_ocjene' => null,
-     'univerzitet_id' => $malardalen->id ?? null,
-    
-]);
+        'naziv' => 'School of Innovation, Design and Engineering (IDT)',
+        'email' => 'idt-international@mdu.se',
+        'telefon' => '+4621101300',
+        'web' => 'https://www.mdu.se/en/malardalen-university/about-mdu/organisation/school-of-innovation-design-and-engineering',
+        'uputstvo_za_ocjene' => null,
+        'univerzitet_id' => $malardalen->id ?? null,
+        
+    ]);
 
 
     }
