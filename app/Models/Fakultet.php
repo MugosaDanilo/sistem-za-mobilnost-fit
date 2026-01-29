@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Fakultet extends Model
 {
+    use HasFactory;
     protected $table = 'fakulteti';
-    protected $fillable = ['naziv', 'email', 'telefon', 'web', 'uputstvo_za_ocjene', 'univerzitet_id'];
+    protected $fillable = ['naziv', 'email', 'telefon', 'web', 'univerzitet_id'];
 
     public function univerzitet()
     {
