@@ -31,7 +31,7 @@ class MappingRequestController extends Controller
         }
 
         if (in_array($mappingRequest->status, ['accepted', 'rejected'])) {
-            return response()->json(['message' => 'Request is finalized and cannot be modified.'], 403);
+            return response()->json(['message' => 'Zahtjev je finalizovan i ne može se mijenjati.'], 403);
         }
 
         $request->validate([
@@ -55,7 +55,6 @@ class MappingRequestController extends Controller
                     'is_rejected' => false
                 ]);
 
-                // Auto-match logic: Propagate to other pending requests
                 if ($fitPredmetId) {
                     MappingRequestSubject::where('professor_id', auth()->id())
                         ->where('strani_predmet_id', $subject->strani_predmet_id)
@@ -77,8 +76,8 @@ class MappingRequestController extends Controller
             }
         }
 
-        session()->flash('success', 'Mappings saved successfully.');
+        session()->flash('success', 'Mapiranja uspješno sačuvana.');
 
-        return response()->json(['message' => 'Mappings saved successfully.']);
+        return response()->json(['message' => 'Povezani predmeti uspješno sačuvani.']);
     }
 }

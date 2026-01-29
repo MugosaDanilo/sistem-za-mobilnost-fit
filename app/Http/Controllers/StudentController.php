@@ -152,7 +152,7 @@ class StudentController extends Controller
     }
 
     return redirect()->route('students.index')
-      ->with('success', 'Student updated successfully!');
+      ->with('success', 'Student uspješno izmijenjen!');
   }
 
   public function destroy($id)

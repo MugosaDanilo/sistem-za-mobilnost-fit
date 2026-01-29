@@ -20,7 +20,7 @@
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Pregled Mobilnosti</h2>
+                <h2 class="text-lg font-semibold text-gray-800">Pregled mobilnosti</h2>
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ $mobilnosti->count() }} Ukupno</span>
             </div>
             
@@ -80,7 +80,7 @@
                         @empty
                             <tr>
                                 <td colspan="5" class="px-6 py-10 text-center text-gray-500">
-                                    Nema dostupnih mobilnosti.
+                                    Nema mobilnosti.
                                 </td>
                             </tr>
                         @endforelse

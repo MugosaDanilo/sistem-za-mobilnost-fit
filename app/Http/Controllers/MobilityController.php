@@ -38,7 +38,7 @@ class MobilityController extends Controller
     {
         try {
             $mobilnost = $this->storeMobility($request);
-            return redirect()->route('admin.mobility.show', $mobilnost->id)->with('success', 'Mobility saved successfully.');
+            return redirect()->route('admin.mobility.show', $mobilnost->id)->with('success', 'Mobilnost uspješno sačuvana.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Save failed: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to save mobility: ' . $e->getMessage())->withInput();
@@ -655,7 +655,7 @@ class MobilityController extends Controller
         $mobilnost = Mobilnost::findOrFail($id);
         $mobilnost->update(['is_locked' => true]);
         
-        return redirect()->back()->with('success', 'Mobility locked successfully.');
+        return redirect()->back()->with('success', 'Mobilnost uspješno zaključena.');
     }
 
     public function documents(Request $request, $id)

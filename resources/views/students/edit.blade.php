@@ -2,9 +2,9 @@
   <div class="py-10 max-w-4xl mx-auto px-6">
     <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 p-6">
       <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Edit Student</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Izmijeni studenta</h1>
         <a href="{{ route('students.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-          &larr; Back to Student Management
+          &larr; Nazad
         </a>
       </div>
 
@@ -56,14 +56,14 @@
           </div>
 
           <div class="mb-4">
-            <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Broj Indexa</label>
+            <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Broj indeksa</label>
             <input type="text" id="br_indexa" name="br_indexa" value="{{ old('br_indexa', $student->br_indexa) }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('br_indexa') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
-            <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Datum Rodjenja</label>
+            <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Datum rodjenja</label>
             <input type="date" id="datum_rodjenja" name="datum_rodjenja"
               value="{{ old('datum_rodjenja', $student->datum_rodjenja) }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
@@ -71,7 +71,7 @@
           </div>
 
           <div class="mb-4">
-            <label for="telefon" class="block text-gray-700 font-medium mb-1">Broj Telefona</label>
+            <label for="telefon" class="block text-gray-700 font-medium mb-1">Broj telefona</label>
             <input type="text" id="telefon" name="telefon" value="{{ old('telefon', $student->telefon) }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('telefon') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
@@ -123,7 +123,7 @@
                 @change="window.dispatchEvent(new CustomEvent('clear-selection')); fetchSubjects(); $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())" 
                 x-init="if(selectedFaculty) { fetchSubjects(); $nextTick(() => $dispatch('faculty-changed', $el.selectedOptions[0].text.trim())); }"
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                <option value="">Select Faculty</option>
+                <option value="">Odaberi fakultet</option>
                 @foreach($fakulteti as $f)
                   <option value="{{ $f->id }}">
                     {{ $f->naziv }}
@@ -196,7 +196,7 @@
         <div class="flex justify-end mt-6">
           <button type="submit"
             class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-            Ažuriraj Studenta
+            Ažuriraj studenta
           </button>
         </div>
       </form>

@@ -29,10 +29,10 @@
             <div class="flex items-center space-x-2">
                 <button id="addSubjectBtn"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                    Dodaj Predmet
+                    Dodaj predmet
                 </button>
                 <button id="importSubjectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                    Uvezi Predmete
+                    Uvezi predmete
                 </button>
             </div>
         </div>

@@ -19,7 +19,7 @@
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Fakulteti</h1>
             <button id="addFacultyBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
-                Dodaj Fakultet
+                Dodaj fakultet
             </button>
         </div>
 
@@ -34,7 +34,7 @@
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-800">Lista Fakulteta</h2>
+                <h2 class="text-lg font-semibold text-gray-800">Lista fakulteta</h2>
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($fakulteti) }} Ukupno</span>
             </div>
 
@@ -101,7 +101,7 @@
     <!-- Add Faculty Modal -->
     <div id="addFacultyModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-screen">
-            <h2 class="text-xl font-semibold mb-4">Dodaj Fakultet</h2>
+            <h2 class="text-xl font-semibold mb-4">Dodaj fakultet</h2>
 
             <form action="{{ route('fakulteti.store') }}" method="POST">
                 @csrf
@@ -224,7 +224,7 @@
                         Otkaži
                     </button>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-lg transform transition hover:scale-105">
-                        Sačuvaj Izmjene
+                        Sačuvaj izmjene
                     </button>
                 </div>
             </form>

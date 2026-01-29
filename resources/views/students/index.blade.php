@@ -8,8 +8,7 @@
 
   @if ($errors->any())
     <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-      <strong class="font-bold">Upsss!</strong>
-      <span class="block">Opa došlo je do problema sa unosima:</span>
+      <span class="block">Došlo je do greške pri unosu:</span>
       <ul class="mt-2 list-disc list-inside">
         @foreach ($errors->all() as $error)
           <li>{{ $error }}</li>
@@ -34,7 +33,7 @@
 
     <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
       <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-        <h2 class="text-lg font-semibold text-gray-800">Lista Studenata</h2>
+        <h2 class="text-lg font-semibold text-gray-800">Lista studenata</h2>
         <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($students) }}
           Ukupno</span>
       </div>
@@ -85,7 +84,7 @@
                     </a>
 
                     <form action="{{ route('students.destroy', $student->id) }}" method="POST"
-                      onsubmit="return confirm('Are you sure you want to delete this student?')">
+                      onsubmit="return confirm('Jeste li sigurni da želite da obrišete studenta?')">
                       @csrf
                       @method('DELETE')
                       <button type="submit"
@@ -106,7 +105,7 @@
 
   <div id="studentModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-      <h2 id="modalTitle" class="text-xl font-semibold mb-4">Add Student</h2>
+      <h2 id="modalTitle" class="text-xl font-semibold mb-4">Dodaj studenta</h2>
 
       <form id="studentForm" action="{{ route('students.store') }}" method="POST">
         @csrf

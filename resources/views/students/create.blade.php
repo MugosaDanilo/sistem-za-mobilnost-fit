@@ -144,7 +144,7 @@
                 class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 @change="window.dispatchEvent(new CustomEvent('study-level-changed', { detail: $el.value }))"
                 x-init="$nextTick(() => window.dispatchEvent(new CustomEvent('study-level-changed', { detail: $el.value })))">
-                <option value="">Izaberi Godinu Studija</option>
+                <option value="">Izaberi godinu studija</option>
                 @foreach($nivoStudija as $nivo)
                   <option value="{{ $nivo->id }}" 
                     x-bind:disabled="parseInt(studyYear) > 4 && '{{ $nivo->naziv }}' !== 'Master'"
