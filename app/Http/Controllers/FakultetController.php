@@ -23,7 +23,7 @@ class FakultetController extends Controller
         'email' => 'required|email|max:255|unique:fakulteti,email',
         'telefon' => 'required|string|max:255',
         'web' => 'nullable|string|max:255',
-        'uputstvo_za_ocjene' => 'nullable|string',
+
         'univerzitet_naziv' => 'nullable|string|max:255', // ime univerziteta iz inputa
     ], [
         'email.unique' => 'Fakultet sa ovim emailom već postoji.',
@@ -34,7 +34,7 @@ class FakultetController extends Controller
     $fakultet->email = $validated['email'];
     $fakultet->telefon = $validated['telefon'];
     $fakultet->web = $validated['web'] ?? null;
-    $fakultet->uputstvo_za_ocjene = $validated['uputstvo_za_ocjene'] ?? null;
+
 
    // Ako korisnik unese novi univerzitet
 if ($request->filled('new_univerzitet')) {
@@ -61,8 +61,9 @@ public function update(Request $request, $id)
         'email' => ['required','email','max:255', Rule::unique('fakulteti')->ignore($fakultet->id)],
         'telefon' => 'required|string|max:255',
         'web' => 'nullable|string|max:255',
-        'uputstvo_za_ocjene' => 'nullable|string',
+
         'univerzitet_naziv' => 'nullable|string|max:255',
+        'file' => 'nullable|file|max:10240', // 10MB max
     ], [
         'email.unique' => 'Fakultet sa ovim emailom već postoji.',
     ]);
@@ -71,7 +72,15 @@ public function update(Request $request, $id)
     $fakultet->email = $validated['email'];
     $fakultet->telefon = $validated['telefon'];
     $fakultet->web = $validated['web'] ?? null;
-    $fakultet->uputstvo_za_ocjene = $validated['uputstvo_za_ocjene'] ?? null;
+
+
+    if ($request->hasFile('file')) {
+        if ($fakultet->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($fakultet->file_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($fakultet->file_path);
+        }
+        $path = $request->file('file')->store('fakulteti_files', 'public');
+        $fakultet->file_path = $path;
+    }
 
     // Ako korisnik unese novi univerzitet
 if ($request->filled('new_univerzitet')) {
@@ -93,8 +102,20 @@ if ($request->filled('new_univerzitet')) {
     public function destroy($id)
     {
         $fakultet = Fakultet::findOrFail($id);
+        if ($fakultet->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($fakultet->file_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($fakultet->file_path);
+        }
         $fakultet->delete();
 
         return redirect()->route('fakulteti.index')->with('success', 'Fakultet uspješno obrisan!');
+    }
+
+    public function downloadFile($id)
+    {
+        $fakultet = Fakultet::findOrFail($id);
+        if (!$fakultet->file_path || !\Illuminate\Support\Facades\Storage::disk('public')->exists($fakultet->file_path)) {
+            return redirect()->back()->with('error', 'Fajl ne postoji.');
+        }
+        return \Illuminate\Support\Facades\Storage::disk('public')->download($fakultet->file_path);
     }
 }

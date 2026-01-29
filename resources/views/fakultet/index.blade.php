@@ -71,8 +71,9 @@
                                         data-email="{{ $f->email }}"
                                         data-telefon="{{ $f->telefon }}"
                                         data-web="{{ $f->web }}"
-                                        data-uputstvo="{{ $f->uputstvo_za_ocjene }}"
-                                        data-univerzitet="{{ $f->univerzitet_id }}">
+
+                                        data-univerzitet="{{ $f->univerzitet_id }}"
+                                        data-file-path="{{ $f->file_path ? route('fakulteti.download', $f->id) : '' }}">
                                         Izmijeni
                                     </button>
                                     <a href="{{ route('fakulteti.predmeti.index', $f->id) }}" class="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md transition-colors">
@@ -143,10 +144,7 @@
 </div>
 
 
-                <div class="mb-4">
-                    <label for="addInstructions" class="block text-gray-700 font-medium mb-1">Uputstvo za ocjene</label>
-                    <textarea id="addInstructions" name="uputstvo_za_ocjene" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
-                </div>
+
 
                 <div class="flex justify-end space-x-2">
                     <button type="button" id="cancelAddModal" class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 shadow-lg transform transition hover:scale-105">
@@ -165,7 +163,7 @@
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative overflow-y-auto max-h-screen">
             <h2 class="text-xl font-semibold mb-4">Izmijeni Fakultet</h2>
 
-            <form id="editFacultyForm" method="POST">
+            <form id="editFacultyForm" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 
@@ -191,27 +189,34 @@
                     <input type="text" id="editWeb" name="web" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
-              <div class="mb-4">
-    <label class="block text-gray-700 font-medium mb-1">Univerzitet (opciono)</label>
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-1">Univerzitet (opciono)</label>
 
-    <!-- Select za postojeće univerzitete -->
-    <select id="addUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 mb-2">
-        <option value="">Izaberite univerzitet</option>
-        @foreach($univerziteti as $u)
-            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
-        @endforeach
-    </select>
+                    <!-- Select za postojeće univerzitete -->
+                    <select id="editUniversity" name="univerzitet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 mb-2">
+                        <option value="">Izaberite univerzitet</option>
+                        @foreach($univerziteti as $u)
+                            <option value="{{ $u->id }}">{{ $u->naziv }}</option>
+                        @endforeach
+                    </select>
 
-    <!-- Polje za dodavanje novog univerziteta -->
-    <input type="text" id="newUniversity" name="new_univerzitet" placeholder="Dodajte novi univerzitet ako nije u listi"
-           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
-    <p class="text-gray-400 text-sm mt-1">Ako unesete novi univerzitet, on će biti kreiran i povezan sa fakultetom.</p>
-</div>
+                    <!-- Polje za dodavanje novog univerziteta -->
+                    <input type="text" id="editNewUniversity" name="new_univerzitet" placeholder="Dodajte novi univerzitet ako nije u listi"
+                           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <p class="text-gray-400 text-sm mt-1">Ako unesete novi univerzitet, on će biti kreiran i povezan sa fakultetom.</p>
+                </div>
+
+
 
 
                 <div class="mb-4">
-                    <label for="editInstructions" class="block text-gray-700 font-medium mb-1">Uputstvo za ocjene</label>
-                    <textarea id="editInstructions" name="uputstvo_za_ocjene" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    <label for="editFile" class="block text-gray-700 font-medium mb-1">Uputstvo za ocjene</label>
+                    <div id="currentFileContainer" class="hidden mb-2">
+                        <span class="text-sm text-gray-600">Trenutni fajl: </span>
+                        <a id="currentFileLink" href="#" class="text-blue-600 hover:underline text-sm font-medium">Preuzmi</a>
+                    </div>
+                    <input type="file" id="editFile" name="file" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <p class="text-xs text-gray-500 mt-1">Opciono. Upload-ujte fajl sa uputstvom za ocjenjivanje.</p>
                 </div>
 
                 <div class="flex justify-end space-x-2">
@@ -256,7 +261,20 @@ document.querySelectorAll('.openEditModal').forEach(button => {
         document.getElementById('editEmail').value = button.getAttribute('data-email');
         document.getElementById('editPhone').value = button.getAttribute('data-telefon');
         document.getElementById('editWeb').value = button.getAttribute('data-web');
-        document.getElementById('editInstructions').value = button.getAttribute('data-uputstvo');
+
+        document.getElementById('editUniversity').value = button.getAttribute('data-univerzitet');
+
+        const filePath = button.getAttribute('data-file-path');
+        const fileContainer = document.getElementById('currentFileContainer');
+        const fileLink = document.getElementById('currentFileLink');
+
+        if (filePath) {
+            fileContainer.classList.remove('hidden');
+            fileLink.href = filePath;
+        } else {
+            fileContainer.classList.add('hidden');
+            fileLink.href = '#';
+        }
 
         editForm.action = `{{ route('fakulteti.index') }}/${id}`;
         editModal.classList.remove('hidden');

@@ -23,7 +23,7 @@ class FakultetSeeder extends Seeder
             'email' => 'etf@ucg.cg',
             'telefon' => '033111222',
             'web' => 'etf.ucg.cg',
-            'uputstvo_za_ocjene' => null,
+
             'univerzitet_id' => $ucg->id ?? null,
         ]);
 
@@ -32,7 +32,7 @@ class FakultetSeeder extends Seeder
             'email' => 'fit@unimed.cg',
             'telefon' => '1111111',
             'web' => 'fit.unimed.cg',
-            'uputstvo_za_ocjene' => null,
+
             'univerzitet_id' => $unimed->id ?? null,
         ]);
 
@@ -41,7 +41,7 @@ class FakultetSeeder extends Seeder
         'email' => 'idt-international@mdu.se',
         'telefon' => '+4621101300',
         'web' => 'https://www.mdu.se/en/malardalen-university/about-mdu/organisation/school-of-innovation-design-and-engineering',
-        'uputstvo_za_ocjene' => null,
+
         'univerzitet_id' => $malardalen->id ?? null,
         
     ]);

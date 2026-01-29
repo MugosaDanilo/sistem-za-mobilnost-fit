@@ -90,6 +90,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::get('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'index'])->name('fakulteti.index');
     Route::post('/fakulteti', [\App\Http\Controllers\FakultetController::class, 'store'])->name('fakulteti.store');
     Route::put('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');
+    Route::get('/fakulteti/{id}/download', [\App\Http\Controllers\FakultetController::class, 'downloadFile'])->name('fakulteti.download');
     Route::delete('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
     
     Route::post('/fakulteti/{fakultet}/predmeti/import', [\App\Http\Controllers\PredmetController::class, 'import'])->name('fakulteti.predmeti.import');
