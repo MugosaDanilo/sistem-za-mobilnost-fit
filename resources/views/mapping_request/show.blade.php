@@ -22,6 +22,7 @@
                             <!-- Foreign Subjects Column -->
                             <div class="flex flex-col bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
                                 <h4 class="font-semibold text-gray-700 mb-2">Strani predmeti ({{ $mappingRequest->fakultet->naziv }})</h4>
+                                <input type="text" id="search-foreign" placeholder="Pretraži predmet..." class="mb-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 <div id="foreign-list" class="h-[500px] overflow-y-auto space-y-2 p-1 border border-gray-100 rounded bg-gray-50">
                                     @foreach($mappingRequest->subjects as $reqSubject)
                                         @if(!$reqSubject->fit_predmet_id)
@@ -36,12 +37,21 @@
                                                      data-name="{{ $reqSubject->straniPredmet->naziv }}"
                                                      data-type="foreign"
                                                  @endif>
-                                                <span>
-                                                    {{ $reqSubject->straniPredmet->naziv }} ({{ $reqSubject->straniPredmet->ects }} ECTS)
+                                                <span class="flex flex-col flex-1 min-w-0">
+                                                    <span class="truncate font-medium">{{ $reqSubject->straniPredmet->naziv }}</span>
+                                                    <span class="text-[10px] text-gray-500">{{ $reqSubject->straniPredmet->ects }} ECTS</span>
                                                     @if(!$isMySubject)
-                                                        <span class="text-xs text-gray-400 block ml-1">(Dodijeljeno: {{ $reqSubject->professor->name ?? 'Nepoznato' }})</span>
+                                                        <span class="text-[10px] text-gray-400 block">(Dodijeljeno: {{ $reqSubject->professor->name ?? 'Nepoznato' }})</span>
                                                     @endif
                                                 </span>
+                                                <a href="{{ route('nastavne-liste.index', $reqSubject->strani_predmet_id) }}" 
+                                                   class="ml-2 text-gray-400 hover:text-blue-500 transition-colors" 
+                                                   title="Nastavna lista"
+                                                   onclick="event.stopPropagation()">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                                    </svg>
+                                                </a>
                                             </div>
                                         @endif
                                     @endforeach
@@ -100,19 +110,27 @@
                                                      data-foreign-name="{{ $reqSubject->straniPredmet->naziv }}"
                                                      data-local-name="{{ $reqSubject->fitPredmet->naziv }}">
                                                     <div class="flex-1 flex items-center gap-2 min-w-0">
-                                                        <div class="flex-1 truncate font-medium text-gray-800" title="{{ $reqSubject->straniPredmet->naziv }}">
-                                                            {{ $reqSubject->straniPredmet->naziv }}
-                                                            @if(!$isMySubject) <span class="text-xs text-gray-400 block">({{ $reqSubject->professor->name ?? '?' }})</span> @endif
+                                                        <div class="flex-1 truncate font-medium text-gray-800 flex items-center gap-1" title="{{ $reqSubject->straniPredmet->naziv }}">
+                                                            <a href="{{ route('nastavne-liste.index', $reqSubject->strani_predmet_id) }}" class="text-gray-400 hover:text-blue-500">
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                                            </a>
+                                                            <span class="truncate">{{ $reqSubject->straniPredmet->naziv }}</span>
+                                                            @if(!$isMySubject) <span class="text-[10px] text-gray-400 block whitespace-nowrap">({{ $reqSubject->professor->name ?? '?' }})</span> @endif
                                                         </div>
                                                         <div class="flex-shrink-0 text-gray-400">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                                             </svg>
                                                         </div>
-                                                        <div class="flex-1 truncate text-gray-600 text-right" title="{{ $reqSubject->fitPredmet->naziv }}">{{ $reqSubject->fitPredmet->naziv }}</div>
+                                                        <div class="flex-1 truncate text-gray-600 text-right flex items-center justify-end gap-1" title="{{ $reqSubject->fitPredmet->naziv }}">
+                                                            <span class="truncate">{{ $reqSubject->fitPredmet->naziv }}</span>
+                                                            <a href="{{ route('nastavne-liste.index', $reqSubject->fit_predmet_id) }}" class="text-gray-400 hover:text-blue-500">
+                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                                            </a>
+                                                        </div>
                                                     </div>
                                                     @if($isMySubject && !in_array($mappingRequest->status, ['accepted', 'rejected']))
-                                                        <button type="button" class="ml-3 text-red-500 hover:text-red-700 font-bold px-2" onclick="unlinkPair(this, '{{ $reqSubject->id }}', '{{ $reqSubject->straniPredmet->naziv }}', '{{ $reqSubject->straniPredmet->ects }}')">&times;</button>
+                                                        <button type="button" class="ml-3 text-red-500 hover:text-red-700 font-bold px-2" onclick="unlinkPair(this, '{{ $reqSubject->id }}', '{{ $reqSubject->straniPredmet->naziv }}', '{{ $reqSubject->straniPredmet->ects }}', '{{ $reqSubject->strani_predmet_id }}')">&times;</button>
                                                     @endif
                                                 </div>
                                             @endif
@@ -134,7 +152,18 @@
                                              data-id="{{ $subject->id }}"
                                              data-name="{{ $subject->naziv }}"
                                              data-type="local">
-                                            <span>{{ $subject->naziv }} ({{ $subject->ects }} ECTS)</span>
+                                            <span class="flex-1 min-w-0">
+                                                <span class="truncate block font-medium">{{ $subject->naziv }}</span>
+                                                <span class="text-[10px] text-gray-500">{{ $subject->ects }} ECTS</span>
+                                            </span>
+                                            <a href="{{ route('nastavne-liste.index', $subject->id) }}" 
+                                               class="ml-2 text-gray-400 hover:text-blue-500 transition-colors" 
+                                               title="Nastavna lista"
+                                               onclick="event.stopPropagation()">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                                </svg>
+                                            </a>
                                         </div>
                                     @endforeach
                                 </div>
@@ -229,6 +258,7 @@
                         dropSlotForeign: document.getElementById('drop-slot-foreign'),
                         dropSlotLocal: document.getElementById('drop-slot-local'),
                         searchLocal: document.getElementById('search-local'),
+                        searchForeign: document.getElementById('search-foreign'),
                         saveBtn: document.getElementById('save-btn'),
                         // Modal
                         confirmModal: document.getElementById('confirm-modal'),
@@ -366,7 +396,7 @@
                         });
                     }
 
-                    window.unlinkPair = function(btn, reqId, name, ects) {
+                    window.unlinkPair = function(btn, reqId, name, ects, straniPredmetId) {
                         const idx = state.mappings.findIndex(m => m.request_subject_id == reqId);
                         if (idx > -1) {
                             state.mappings.splice(idx, 1);
@@ -377,7 +407,24 @@
                         div.dataset.id = reqId;
                         div.dataset.name = name;
                         div.dataset.type = 'foreign';
-                        div.innerHTML = `<span>${name}</span>`;
+                        
+                        // Recreate the syllabus link
+                        const syllabusUrl = `{{ route('nastavne-liste.index', ':id') }}`.replace(':id', straniPredmetId);
+                        
+                        div.innerHTML = `
+                            <span class="flex flex-col flex-1 min-w-0">
+                                <span class="truncate font-medium">${name}</span>
+                                <span class="text-[10px] text-gray-500">${ects} ECTS</span>
+                            </span>
+                            <a href="${syllabusUrl}" 
+                               class="ml-2 text-gray-400 hover:text-blue-500 transition-colors" 
+                               title="Nastavna lista"
+                               onclick="event.stopPropagation()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                            </a>
+                        `;
                         
                         div.addEventListener('dragstart', (e) => {
                             div.classList.add('dragging');
@@ -405,6 +452,18 @@
                     els.searchLocal.addEventListener('input', () => {
                         const query = els.searchLocal.value.toLowerCase();
                         const items = els.localList.querySelectorAll('.draggable-item');
+                        items.forEach(item => {
+                            if (item.dataset.name.toLowerCase().includes(query)) {
+                                item.classList.remove('hidden');
+                            } else {
+                                item.classList.add('hidden');
+                            }
+                        });
+                    });
+
+                    els.searchForeign.addEventListener('input', () => {
+                        const query = els.searchForeign.value.toLowerCase();
+                        const items = els.foreignList.querySelectorAll('.draggable-item');
                         items.forEach(item => {
                             if (item.dataset.name.toLowerCase().includes(query)) {
                                 item.classList.remove('hidden');
