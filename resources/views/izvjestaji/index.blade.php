@@ -58,15 +58,7 @@
               @endforeach
             </select>
           </div>
-          <div>
-            <label class="block text-xs text-gray-600">Država</label>
-            <select name="drzava" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm appearance-none bg-no-repeat bg-right">
-              <option value="">Sve</option>
-              @foreach($drzave as $d)
-                <option value="{{ $d }}" @if($filterDrzava == $d) selected @endif>{{ $d }}</option>
-              @endforeach
-            </select>
-          </div>
+
         </form>
 
         <div class="flex gap-6 mb-6">
@@ -98,7 +90,7 @@
               <tr class="bg-gray-100 h-7">
                 <th class="px-3 py-1 border">Godina</th>
                 <th class="px-3 py-1 border">Fakultet</th>
-                <th class="px-3 py-1 border">Država</th>
+
                 <th class="px-3 py-1 border text-center">Ukupno</th>
                 <th class="px-3 py-1 border text-center">Muško</th>
                 <th class="px-3 py-1 border text-center">Žensko</th>
@@ -111,7 +103,7 @@
                 <tr class="h-7">
                   <td class="px-3 border">{{ $row->year }}</td>
                   <td class="px-3 border">{{ $row->fakultet }}</td>
-                  <td class="px-3 border">{{ $row->drzava }}</td>
+
                   <td class="px-3 border text-center">{{ $row->total }}</td>
                   <td class="px-3 border text-center">{{ $row->musko ?? 0 }}</td>
                   <td class="px-3 border text-center">{{ $row->zensko ?? 0 }}</td>
@@ -120,7 +112,7 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="8" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
+                  <td colspan="7" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
                 </tr>
               @endforelse
             </tbody>
@@ -171,15 +163,7 @@
               @endforeach
             </select>
           </div>
-          <div>
-            <label class="block text-xs text-gray-600">Država</label>
-            <select name="drzava" onchange="this.form.submit()" class="border rounded px-2 py-1 pr-8 text-sm appearance-none bg-no-repeat bg-right">
-              <option value="">Sve</option>
-              @foreach($drzave as $d)
-                <option value="{{ $d }}" @if($filterDrzava == $d) selected @endif>{{ $d }}</option>
-              @endforeach
-            </select>
-          </div>
+
         </form>
 
 <div class="flex gap-6 mb-6">
@@ -221,7 +205,7 @@
     <thead>
       <tr class="bg-gray-100 h-7">
         <th class="py-1 px-2 border">Godina</th>
-        <th class="py-1 px-2 border">Država</th>
+
         <th class="py-1 px-2 w-10 text-center border">Ukupno</th>
         <th class="py-1 px-2 w-10 text-center border">Muško</th>
         <th class="py-1 px-2 w-16 text-center border">Žensko</th>
@@ -235,7 +219,7 @@
       @forelse($mobilnosti as $row)
         <tr class="h-7">
           <td class="py-1 px-2 border">{{ $row->year }}</td>
-          <td class="py-1 px-2 border">{{ $row->drzava }}</td>
+
           <td class="py-1 px-2 text-center border">{{ $row->total }}</td>
           <td class="py-1 px-2 text-center border">{{ $row->musko }}</td>
           <td class="py-1 px-2 text-center border">{{ $row->zensko }}</td>
@@ -246,7 +230,7 @@
         </tr>
       @empty
         <tr>
-          <td colspan="9" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
+          <td colspan="8" class="px-3 py-2 text-center text-gray-500 border">Nema podataka</td>
         </tr>
       @endforelse
     </tbody>
