@@ -224,6 +224,12 @@
                             </ul>
                             <p id="none-rejected" class="text-gray-400 text-sm italic hidden">Nema odbijenih predmeta.</p>
                         </div>
+                        
+                        <!-- Comment Section -->
+                        <div class="mt-4">
+                            <label for="professor-comment" class="block text-sm font-medium text-gray-700 mb-1">Napomena / Komentar (opciono)</label>
+                            <textarea id="professor-comment" rows="3" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Ovdje možete ostaviti komentar za admina..."></textarea>
+                        </div>
                     </div>
 
                     <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
@@ -542,7 +548,8 @@
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                 },
                                 body: JSON.stringify({
-                                    mappings: mappings
+                                    mappings: mappings,
+                                    comment: document.getElementById('professor-comment').value
                                 })
                             });
 

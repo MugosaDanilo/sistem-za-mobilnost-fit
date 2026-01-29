@@ -320,7 +320,7 @@ class PrepisController extends Controller
 
         $subject->update(['fit_predmet_id' => $request->fit_predmet_id]);
 
-        return redirect()->back()->with('success', 'Mapiranje predmeta ažurirano.');
+        return redirect()->back()->with('success', 'Povezivanje ažurirano.');
     }
 
     public function removeMappingRequestSubject($id)

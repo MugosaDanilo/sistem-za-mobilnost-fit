@@ -88,6 +88,24 @@
                 </div>
             </div>
 
+            <!-- Professor Comments -->
+            @if($mappingRequest->comments->isNotEmpty())
+                <div class="mt-6 bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 p-6">
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Napomene profesora</h3>
+                    <div class="space-y-4">
+                        @foreach($mappingRequest->comments as $comment)
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="font-medium text-gray-900">{{ $comment->professor->name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $comment->created_at->format('d.m.Y H:i') }}</div>
+                                    </div>
+                                <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ $comment->comment }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <!-- Subject Mappings -->
             <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">

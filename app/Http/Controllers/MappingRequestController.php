@@ -38,7 +38,21 @@ class MappingRequestController extends Controller
             'mappings' => 'array',
             'mappings.*.request_subject_id' => 'required|exists:mapping_request_subjects,id',
             'mappings.*.fit_predmet_id' => 'required|exists:predmeti,id',
+            'comment' => 'nullable|string'
         ]);
+
+        // Handle Comment
+        if ($request->has('comment')) {
+            \App\Models\ProfessorRequestComment::updateOrCreate(
+                [
+                    'mapping_request_id' => $mappingRequest->id,
+                    'professor_id' => auth()->id(),
+                ],
+                [
+                    'comment' => $request->comment
+                ]
+            );
+        }
 
         $mySubjects = MappingRequestSubject::where('mapping_request_id', $mappingRequest->id)
             ->where('professor_id', auth()->id())
@@ -76,8 +90,8 @@ class MappingRequestController extends Controller
             }
         }
 
-        session()->flash('success', 'Mapiranja uspješno sačuvana.');
+        session()->flash('success', 'Povezani predmeti i komentar uspješno sačuvani.');
 
-        return response()->json(['message' => 'Povezani predmeti uspješno sačuvani.']);
+        return response()->json(['message' => 'Povezani predmeti i komentar uspješno sačuvani.']);
     }
 }
