@@ -507,8 +507,8 @@ try {
       responsive:true,
       maintainAspectRatio:false,
       scales:{
-        x:{ offset:true, grid:{display:false} },
-        y:{ beginAtZero:true, ticks:{stepSize:1} }
+        x:{ offset:true, grid:{display:false}, stacked: true },
+        y:{ beginAtZero:true, ticks:{stepSize:1}, stacked: true }
       },
       plugins:{
         tooltip:{
@@ -645,8 +645,8 @@ try {
       responsive:true,
       maintainAspectRatio:false,
       scales:{
-        x:{ offset:true, grid:{display:false} },
-        y:{ beginAtZero:true, ticks:{stepSize:1} }
+        x:{ offset:true, grid:{display:false}, stacked: true },
+        y:{ beginAtZero:true, ticks:{stepSize:1}, stacked: true }
       },
       plugins:{
         tooltip:{
