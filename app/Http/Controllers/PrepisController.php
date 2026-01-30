@@ -112,7 +112,8 @@ class PrepisController extends Controller
     public function match()
     {
         $professors = \App\Models\User::where('type', 1)->get();
-        $students = Student::whereHas('predmeti')
+        $students = Student::where('status', 'prepis')
+            ->whereHas('predmeti')
             ->whereDoesntHave('fakulteti', function ($query) {
                 $query->where('naziv', 'FIT');
             })

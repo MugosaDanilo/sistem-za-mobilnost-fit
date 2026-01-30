@@ -99,7 +99,7 @@
             @error('jmbg') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
-          <div class="mb-4">
+          <div class="mb-4 md:col-span-2">
             <label class="block text-gray-700 font-medium mb-1">Pol</label>
             <div class="flex items-center space-x-6">
               <label class="inline-flex items-center">
@@ -114,6 +114,16 @@
                 <span class="ml-2 text-gray-700">Ženski</span>
               </label>
             </div>
+          </div>
+
+          <div class="mb-4 md:col-span-2">
+            <label class="block text-gray-700 font-medium mb-1">Status</label>
+            <select name="status" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                <option value="" disabled>Izaberi status</option>
+                <option value="mobilnost" {{ old('status', $student->status) == 'mobilnost' ? 'selected' : '' }}>Mobilnost</option>
+                <option value="prepis" {{ old('status', $student->status) == 'prepis' ? 'selected' : '' }}>Prepis</option>
+            </select>
+            @error('status') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4 md:col-span-2">

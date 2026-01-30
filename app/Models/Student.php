@@ -20,7 +20,8 @@ class Student extends Model
         'godina_studija',
         'jmbg',
         'nivo_studija_id',
-        'pol'
+        'pol',
+        'status'
     ];
 
     protected $casts = [

@@ -26,9 +26,17 @@
       </a>
     </div>
 
-    <div class="mb-4">
+    <div class="mb-4 flex flex-col md:flex-row gap-4">
       <input type="text" id="searchStudent" placeholder="Pretraži.."
         class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+      
+      <form method="GET" action="{{ route('students.index') }}" class="w-full max-w-xs">
+          <select name="status" onchange="this.form.submit()" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+              <option value="">Svi statusi</option>
+              <option value="mobilnost" {{ request('status') == 'mobilnost' ? 'selected' : '' }}>Mobilnost</option>
+              <option value="prepis" {{ request('status') == 'prepis' ? 'selected' : '' }}>Prepis</option>
+          </select>
+      </form>
     </div>
 
     <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
@@ -38,6 +46,7 @@
           Ukupno</span>
       </div>
 
+      @if($students->count() > 0)
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200" id="studentTable">
           <thead class="bg-gray-50">
@@ -100,6 +109,11 @@
         </table>
 
       </div>
+      @else
+      <div class="p-6 text-center text-gray-500">
+          Nema studenata za prikaz.
+      </div>
+      @endif
     </div>
   </div>
 

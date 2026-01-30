@@ -12,9 +12,15 @@ use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
 {
-  public function index()
+  public function index(Request $request)
   {
-    $students = Student::with(['nivoStudija', 'fakulteti'])->orderBy('created_at', 'desc')->get();
+    $query = Student::with(['nivoStudija', 'fakulteti']);
+
+    if ($request->has('status') && in_array($request->status, ['mobilnost', 'prepis'])) {
+        $query->where('status', $request->status);
+    }
+    
+    $students = $query->orderBy('created_at', 'desc')->get();
     $nivoStudija = NivoStudija::all();
     $fakulteti = Fakultet::all();
 
@@ -57,6 +63,7 @@ class StudentController extends Controller
       'predmeti' => 'array',
       'predmeti.*' => 'array', // Each item in predmeti should be an array (e.g., ['grade' => 7])
       'predmeti.*.grade' => 'required|integer|min:6|max:10', // Validate grades if present
+      'status' => 'required|in:mobilnost,prepis',
     ]);
 
     $student = Student::create($validated);
@@ -126,6 +133,7 @@ class StudentController extends Controller
       'predmeti' => 'array',
       'predmeti.*' => 'array', // Each item in predmeti should be an array (e.g., ['grade' => 7])
       'predmeti.*.grade' => 'required|integer|min:6|max:10', // Validate grades if present
+      'status' => 'required|in:mobilnost,prepis',
     ]);
 
     $student->update($validated);
