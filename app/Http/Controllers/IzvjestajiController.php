@@ -23,6 +23,23 @@ class IzvjestajiController extends Controller
         $filterYear = $request->get('year');
         $filterNivo = $request->get('nivo');
 
+        // Fetch all available years for Prepis filter (independent of current filter)
+        $driver = DB::getDriverName();
+        if ($driver === 'sqlite') {
+            $yearSql = "strftime('%Y', datum_finalizacije)";
+        } elseif ($driver === 'pgsql') {
+            $yearSql = "EXTRACT(YEAR FROM datum_finalizacije)";
+        } else {
+            $yearSql = "YEAR(datum_finalizacije)";
+        }
+        $prepisYears = MappingRequest::selectRaw("$yearSql as year")
+            ->where('status', 'accepted')
+            ->whereNotNull('datum_finalizacije')
+            ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
         $prepisRaw = MappingRequest::with('fakultet.univerzitet', 'student')
             ->where('status', 'accepted')
             ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
@@ -57,7 +74,7 @@ class IzvjestajiController extends Controller
         $prepisiGenderData = collect();
         $prepisYearAgg = []; // Za godišnje podatke
         $genderCounts = ['musko' => 0, 'zensko' => 0]; // Broji jedinstvene studente
-        $seenStudents = ['musko' => [], 'zensko' => []]; // Prati koje studente smo videli
+        $seenStudents = ['musko' => [], 'zensko' => []]; // Prati koje studente smo vidjeli
         
         foreach ($prepisRaw as $p) {
             $pol = $p->student ? $p->student->pol : null;
@@ -106,6 +123,22 @@ class IzvjestajiController extends Controller
                 'students_zensko' => $data['zensko']
             ];
         }
+
+        // --- NOVO: Podaci za tabelarne prikaze po Studentima i Fakultetima (Prepisi) ---
+        $prepisiByStudent = $prepisRaw->map(function($p) {
+            return (object)[
+                'ime_prezime' => ($p->student->ime ?? '') . ' ' . ($p->student->prezime ?? ''),
+                'fakultet' => $p->fakultet->naziv ?? '',
+                'godina' => \Carbon\Carbon::parse($p->datum_finalizacije)->format('Y'),
+            ];
+        })->sortBy('ime_prezime');
+
+        $prepisiByFakultet = $prepisRaw->groupBy('fakultet_id')->map(function($items) {
+            return (object)[
+                'naziv' => $items->first()->fakultet->naziv ?? '',
+                'count' => $items->count(),
+            ];
+        })->sortByDesc('count');
 
         // available nivo options for filter
         $nivoOptions = NivoStudija::orderBy('id')->get();
@@ -220,6 +253,22 @@ class IzvjestajiController extends Controller
             return (object) $r;
         });
 
+        // --- NOVO: Podaci za tabelarne prikaze po Studentima i Fakultetima ---
+        $mobilnostiByStudent = $mobilnostiRaw->map(function($m) {
+            return (object)[
+                'ime_prezime' => ($m->student->ime ?? '') . ' ' . ($m->student->prezime ?? ''),
+                'fakultet' => $m->fakultet->naziv ?? '',
+                'godina' => \Carbon\Carbon::parse($m->datum_pocetka)->format('Y'),
+            ];
+        })->sortBy('ime_prezime');
+
+        $mobilnostiByFakultet = $mobilnostiRaw->groupBy('fakultet_id')->map(function($items) {
+            return (object)[
+                'naziv' => $items->first()->fakultet->naziv ?? '',
+                'count' => $items->count(),
+            ];
+        })->sortByDesc('count');
+
         // Generiši mobilnostiByNivo sa studentima
         $mobilnostiByNivo = [];
         foreach (['Osnovne', 'Master'] as $label) {
@@ -272,6 +321,22 @@ class IzvjestajiController extends Controller
 
         $fakulteti = Fakultet::orderBy('naziv')->get();
         
+        // Fetch all available years for Mobilnost filter
+        $driver = DB::getDriverName();
+        if ($driver === 'sqlite') {
+            $yearSql = "strftime('%Y', datum_pocetka)";
+        } elseif ($driver === 'pgsql') {
+            $yearSql = "EXTRACT(YEAR FROM datum_pocetka)";
+        } else {
+            $yearSql = "YEAR(datum_pocetka)";
+        }
+        $mobilnostYears = Mobilnost::selectRaw("$yearSql as year")
+            ->whereNotNull('datum_pocetka')
+            ->when($filterFakultet, function($q) use ($filterFakultet) { return $q->where('fakultet_id', $filterFakultet); })
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
         // Get all unique countries from universities
 
         
@@ -286,7 +351,13 @@ return view('izvjestaji.index', compact(
     'prepisYearData',
     'mobilnostiGenderData',
     'mobilnostiByNivo',
-    'mobilnostiYearData'
+    'mobilnostiYearData',
+    'mobilnostYears',
+    'prepisYears',
+    'mobilnostiByStudent',
+    'mobilnostiByFakultet',
+    'prepisiByStudent',
+    'prepisiByFakultet'
 ));
     
 }
