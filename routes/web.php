@@ -37,14 +37,19 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/mobility/save', [MobilityController::class, 'save'])->name('admin.mobility.save');
     Route::get('/mobility/student-subjects', [MobilityController::class, 'getStudentSubjects'])->name('admin.mobility.student-subjects');
     Route::get('/mobility/faculty-subjects', [MobilityController::class, 'getFacultySubjects'])->name('admin.mobility.faculty-subjects');
+    Route::get('/mobility/categories', [MobilityController::class, 'getCategories'])->name('admin.mobility.categories');
+    Route::post('/mobility/categories', [MobilityController::class, 'storeCategory'])->name('admin.mobility.categories.store');
+
     Route::get('/mobility/{id}', [MobilityController::class, 'show'])->name('admin.mobility.show');
     Route::post('/mobility/grade/{id}', [MobilityController::class, 'updateGrade'])->name('admin.mobility.update-grade');
     Route::post('/mobility/{id}/grades', [MobilityController::class, 'updateGrades'])->name('admin.mobility.update-grades');
     Route::post('/mobility/{id}/export-word', [MobilityController::class, 'exportWord'])->name('admin.mobility.export-word');
     Route::post('/mobility/{id}/lock', [MobilityController::class, 'lock'])->name('admin.mobility.lock');
     
+
     Route::get('/mobility/{id}/documents', [MobilityController::class, 'documents'])->name('admin.mobility.documents');
     Route::post('/mobility/{id}/documents', [MobilityController::class, 'uploadDocument'])->name('admin.mobility.documents.upload');
+    Route::get('/mobility/{id}/documents/{docId}/download', [MobilityController::class, 'downloadDocument'])->name('admin.mobility.documents.download');
     Route::delete('/mobility/{id}/documents/{docId}', [MobilityController::class, 'deleteDocument'])->name('admin.mobility.documents.delete');
     Route::get('/mobility/{id}/documents/zip', [MobilityController::class, 'exportZip'])->name('admin.mobility.documents.zip');
 

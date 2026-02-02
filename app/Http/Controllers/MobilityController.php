@@ -22,6 +22,8 @@ use App\Models\MobilnostDokument;
 use ZipArchive;
 
 
+use App\Models\MobilityCategory;
+
 class MobilityController extends Controller
 {
     public function index()
@@ -650,6 +652,18 @@ class MobilityController extends Controller
         return response()->json($subjects);
     }
 
+    public function getCategories()
+    {
+        return response()->json(MobilityCategory::all());
+    }
+
+    public function storeCategory(Request $request)
+    {
+        $request->validate(['name' => 'required|string|unique:mobility_categories,name|max:255']);
+        $category = MobilityCategory::create(['name' => $request->name]);
+        return response()->json($category);
+    }
+
     public function lock($id)
     {
         $mobilnost = Mobilnost::findOrFail($id);
@@ -665,7 +679,7 @@ class MobilityController extends Controller
         // Ensure default documents exist
         $this->ensureDefaultDocuments($mobilnost);
         
-        $documents = $mobilnost->documents()->get();
+        $documents = $mobilnost->documents()->with('category')->get();
         
         return response()->json($documents);
     }
@@ -680,6 +694,7 @@ class MobilityController extends Controller
 
         $request->validate([
             'file' => 'required|file|max:10240', // 10MB max
+            'category_id' => 'required|exists:mobility_categories,id', // Make category mandatory or optional? User said "select category where I put that"
         ]);
 
         $file = $request->file('file');
@@ -691,7 +706,8 @@ class MobilityController extends Controller
             'mobilnost_id' => $mobilnost->id,
             'name' => $filename,
             'path' => $path,
-            'type' => 'other'
+            'type' => 'other',
+            'category_id' => $request->category_id
         ]);
 
         return response()->json($doc);
@@ -715,6 +731,24 @@ class MobilityController extends Controller
         $doc->delete();
 
         return response()->json(['message' => 'Document deleted successfully.']);
+    }
+
+    public function downloadDocument($id, $docId)
+    {
+        $mobilnost = Mobilnost::findOrFail($id);
+        $doc = MobilnostDokument::where('mobilnost_id', $id)->findOrFail($docId);
+
+        // Security check? 
+        // For admin, just ensure it belongs to mobility.
+
+        if (!Storage::exists($doc->path)) {
+            // Check if file exists in absolute path (some legacy issues might cause path diffs)
+             if (!file_exists($doc->path) && !file_exists(Storage::path($doc->path))) {
+                 return redirect()->back()->with('error', 'File not found on server.');
+             }
+        }
+
+        return Storage::download($doc->path, $doc->name);
     }
 
     public function exportZip($id)
@@ -743,6 +777,8 @@ class MobilityController extends Controller
 
     private function ensureDefaultDocuments(Mobilnost $mobilnost)
     {
+        $defaultCategory = MobilityCategory::firstOrCreate(['name' => 'Default']);
+        
         $laPath = $this->generateLearningAgreement($mobilnost);
         MobilnostDokument::updateOrCreate(
             [
@@ -751,7 +787,8 @@ class MobilityController extends Controller
             ],
             [
                 'name' => 'Learning Agreement.docx',
-                'path' => $laPath
+                'path' => $laPath,
+                'category_id' => $defaultCategory->id
             ]
         );
 
@@ -763,7 +800,8 @@ class MobilityController extends Controller
             ],
             [
                 'name' => 'Ocjene nakon mobilnosti.docx',
-                'path' => $trPath
+                'path' => $trPath,
+                'category_id' => $defaultCategory->id
             ]
         );
     }

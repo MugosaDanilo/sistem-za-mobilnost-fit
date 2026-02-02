@@ -14,4 +14,9 @@ class MobilnostDokument extends Model
     {
         return $this->belongsTo(Mobilnost::class);
     }
+
+    public function category()
+    {
+        return $this->belongsTo(MobilityCategory::class, 'category_id');
+    }
 }
