@@ -44,7 +44,7 @@
                                                         <span class="text-[10px] text-gray-400 block">(Dodijeljeno: {{ $reqSubject->professor->name ?? 'Nepoznato' }})</span>
                                                     @endif
                                                 </span>
-                                                <a href="{{ route('nastavne-liste.index', $reqSubject->strani_predmet_id) }}" 
+                                                <a href="{{ route('nastavne-liste.index', ['predmet' => $reqSubject->strani_predmet_id, 'mapping_request_id' => $mappingRequest->id]) }}" 
                                                    class="ml-2 text-gray-400 hover:text-blue-500 transition-colors" 
                                                    title="Nastavna lista"
                                                    onclick="event.stopPropagation()">
@@ -111,7 +111,7 @@
                                                      data-local-name="{{ $reqSubject->fitPredmet->naziv }}">
                                                     <div class="flex-1 flex items-center gap-2 min-w-0">
                                                         <div class="flex-1 truncate font-medium text-gray-800 flex items-center gap-1" title="{{ $reqSubject->straniPredmet->naziv }}">
-                                                            <a href="{{ route('nastavne-liste.index', $reqSubject->strani_predmet_id) }}" class="text-gray-400 hover:text-blue-500">
+                                                            <a href="{{ route('nastavne-liste.index', ['predmet' => $reqSubject->strani_predmet_id, 'mapping_request_id' => $mappingRequest->id]) }}" class="text-gray-400 hover:text-blue-500">
                                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                                             </a>
                                                             <span class="truncate">{{ $reqSubject->straniPredmet->naziv }}</span>
@@ -124,7 +124,7 @@
                                                         </div>
                                                         <div class="flex-1 truncate text-gray-600 text-right flex items-center justify-end gap-1" title="{{ $reqSubject->fitPredmet->naziv }}">
                                                             <span class="truncate">{{ $reqSubject->fitPredmet->naziv }}</span>
-                                                            <a href="{{ route('nastavne-liste.index', $reqSubject->fit_predmet_id) }}" class="text-gray-400 hover:text-blue-500">
+                                                            <a href="{{ route('nastavne-liste.index', ['predmet' => $reqSubject->fit_predmet_id, 'mapping_request_id' => $mappingRequest->id]) }}" class="text-gray-400 hover:text-blue-500">
                                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                                             </a>
                                                         </div>
@@ -156,7 +156,7 @@
                                                 <span class="truncate block font-medium">{{ $subject->naziv }}</span>
                                                 <span class="text-[10px] text-gray-500">{{ $subject->ects }} ECTS</span>
                                             </span>
-                                            <a href="{{ route('nastavne-liste.index', $subject->id) }}" 
+                                            <a href="{{ route('nastavne-liste.index', ['predmet' => $subject->id, 'mapping_request_id' => $mappingRequest->id]) }}" 
                                                class="ml-2 text-gray-400 hover:text-blue-500 transition-colors" 
                                                title="Nastavna lista"
                                                onclick="event.stopPropagation()">
@@ -415,7 +415,7 @@
                         div.dataset.type = 'foreign';
                         
                         // Recreate the syllabus link
-                        const syllabusUrl = `{{ route('nastavne-liste.index', ':id') }}`.replace(':id', straniPredmetId);
+                        const syllabusUrl = `{{ route('nastavne-liste.index', ['predmet' => ':id', 'mapping_request_id' => $mappingRequest->id]) }}`.replace(':id', straniPredmetId);
                         
                         div.innerHTML = `
                             <span class="flex flex-col flex-1 min-w-0">

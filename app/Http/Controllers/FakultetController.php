@@ -21,6 +21,7 @@ class FakultetController extends Controller
     $validated = $request->validate([
         'naziv' => 'required|string|max:255',
         'email' => 'required|email|max:255|unique:fakulteti,email',
+        'drzava' => 'nullable|string|max:255',
         'telefon' => 'required|string|max:255',
         'web' => 'nullable|string|max:255',
 
@@ -31,6 +32,7 @@ class FakultetController extends Controller
 
     $fakultet = new Fakultet();
     $fakultet->naziv = $validated['naziv'];
+    $fakultet->drzava = $validated['drzava'] ?? null;
     $fakultet->email = $validated['email'];
     $fakultet->telefon = $validated['telefon'];
     $fakultet->web = $validated['web'] ?? null;
@@ -59,6 +61,7 @@ public function update(Request $request, $id)
     $validated = $request->validate([
         'naziv' => 'required|string|max:255',
         'email' => ['required','email','max:255', Rule::unique('fakulteti')->ignore($fakultet->id)],
+        'drzava' => 'nullable|string|max:255',
         'telefon' => 'required|string|max:255',
         'web' => 'nullable|string|max:255',
 
@@ -69,6 +72,7 @@ public function update(Request $request, $id)
     ]);
 
     $fakultet->naziv = $validated['naziv'];
+    $fakultet->drzava = $validated['drzava'] ?? null;
     $fakultet->email = $validated['email'];
     $fakultet->telefon = $validated['telefon'];
     $fakultet->web = $validated['web'] ?? null;

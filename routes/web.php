@@ -86,6 +86,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/prepisi/mapping-request/{id}/add-subjects-bulk', [\App\Http\Controllers\PrepisController::class, 'storeBulkSubjects'])->name('prepis.mapping-request.subject.bulk-add');
     Route::delete('/prepisi/mapping-request/{id}', [\App\Http\Controllers\PrepisController::class, 'destroyMappingRequest'])->name('prepis.mapping-request.destroy');
     Route::post('/prepisi/mapping-request/{id}/export-word', [\App\Http\Controllers\PrepisController::class, 'exportWord'])->name('prepis.mapping-request.export-word');
+    Route::post('/prepisi/mapping-request/{id}/export-solution', [\App\Http\Controllers\PrepisController::class, 'exportSolution'])->name('prepis.mapping-request.export-solution');
 
     Route::resource('prepisi', \App\Http\Controllers\PrepisController::class)->names('prepis')->except(['create', 'store']);
 

@@ -404,7 +404,19 @@ class PrepisController extends Controller
             return redirect()->back()->with('error', 'Samo prihvaćeni zahtjevi se mogu eksportovati.');
         }
 
-        $filePath = $service->generatePrepis($mappingRequest);
+        $filePath = $service->generisiPredlog($mappingRequest);
+
+        return response()->download($filePath)->deleteFileAfterSend(true);
+    }
+    public function exportSolution($id, WordExportService $service)
+    {
+        $mappingRequest = \App\Models\MappingRequest::with(['student.predmeti', 'subjects.straniPredmet', 'subjects.fitPredmet', 'subjects.professor', 'fakultet'])->findOrFail($id);
+
+        if ($mappingRequest->status !== 'accepted') {
+            return redirect()->back()->with('error', 'Samo prihvaćeni zahtjevi se mogu eksportovati.');
+        }
+
+        $filePath = $service->generisiRjesenje($mappingRequest);
 
         return response()->download($filePath)->deleteFileAfterSend(true);
     }

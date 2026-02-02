@@ -44,6 +44,7 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Naziv</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Država</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefon</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Web</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Univerzitet</th>
@@ -55,6 +56,7 @@
                         <tr class="faculty-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($f->naziv . ' ' . $f->email . ' ' . $f->univerzitet->naziv) }}">
                             <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $f->naziv }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $f->email }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ $f->drzava }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $f->telefon }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">
                                 @if($f->web)
@@ -68,6 +70,7 @@
                                         class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors openEditModal"
                                         data-id="{{ $f->id }}"
                                         data-naziv="{{ $f->naziv }}"
+                                        data-drzava="{{ $f->drzava }}"
                                         data-email="{{ $f->email }}"
                                         data-telefon="{{ $f->telefon }}"
                                         data-web="{{ $f->web }}"
@@ -109,6 +112,11 @@
                 <div class="mb-4">
                     <label for="addName" class="block text-gray-700 font-medium mb-1">Naziv</label>
                     <input type="text" id="addName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="addDrzava" class="block text-gray-700 font-medium mb-1">Država</label>
+                    <input type="text" id="addDrzava" name="drzava" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
                 <div class="mb-4">
@@ -172,6 +180,11 @@
                 <div class="mb-4">
                     <label for="editName" class="block text-gray-700 font-medium mb-1">Naziv</label>
                     <input type="text" id="editName" name="naziv" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="editDrzava" class="block text-gray-700 font-medium mb-1">Država</label>
+                    <input type="text" id="editDrzava" name="drzava" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
                 <div class="mb-4">
@@ -258,6 +271,7 @@ document.querySelectorAll('.openEditModal').forEach(button => {
         const id = button.getAttribute('data-id');
         document.getElementById('editFacultyId').value = id;
         document.getElementById('editName').value = button.getAttribute('data-naziv');
+        document.getElementById('editDrzava').value = button.getAttribute('data-drzava');
         document.getElementById('editEmail').value = button.getAttribute('data-email');
         document.getElementById('editPhone').value = button.getAttribute('data-telefon');
         document.getElementById('editWeb').value = button.getAttribute('data-web');
