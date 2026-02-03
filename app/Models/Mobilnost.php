@@ -9,7 +9,7 @@ class Mobilnost extends Model
 {
     use HasFactory;
     protected $table = 'mobilnosti';
-    protected $fillable = ['datum_pocetka', 'datum_kraja', 'student_id', 'fakultet_id', 'is_locked', 'tip_mobilnosti'];
+    protected $fillable = ['datum_pocetka', 'datum_kraja', 'student_id', 'fakultet_id', 'is_locked', 'tip_mobilnosti', 'studijska_godina'];
 
     protected static function booted()
     {

@@ -25,6 +25,7 @@ class FakultetSeeder extends Seeder
             'web' => 'etf.ucg.cg',
 
             'univerzitet_id' => $ucg->id ?? null,
+            'drzava' => 'Crna Gora',
         ]);
 
         Fakultet::create([
@@ -34,6 +35,7 @@ class FakultetSeeder extends Seeder
             'web' => 'fit.unimed.cg',
 
             'univerzitet_id' => $unimed->id ?? null,
+            'drzava' => 'Crna Gora',
         ]);
 
      Fakultet::create([
@@ -43,7 +45,7 @@ class FakultetSeeder extends Seeder
         'web' => 'https://www.mdu.se/en/malardalen-university/about-mdu/organisation/school-of-innovation-design-and-engineering',
 
         'univerzitet_id' => $malardalen->id ?? null,
-        
+        'drzava' => 'Švedska',
     ]);
 
 

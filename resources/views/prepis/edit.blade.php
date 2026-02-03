@@ -598,7 +598,7 @@
                         
                         resultsDiv.innerHTML = '';
                         if (filtered.length === 0) {
-                            resultsDiv.innerHTML = '<div class="px-4 py-2 text-gray-500 italic">No results found</div>';
+                            resultsDiv.innerHTML = '<div class="px-4 py-2 text-gray-500 italic">Nema rezultata</div>';
                         } else {
                             filtered.forEach(res => {
                                 const div = document.createElement('div');

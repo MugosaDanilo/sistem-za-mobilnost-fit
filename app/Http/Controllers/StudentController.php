@@ -19,8 +19,18 @@ class StudentController extends Controller
     if ($request->has('status') && in_array($request->status, ['mobilnost', 'prepis'])) {
         $query->where('status', $request->status);
     }
-    
-    $students = $query->orderBy('created_at', 'desc')->get();
+
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('ime', 'ilike', "%{$search}%")
+              ->orWhere('prezime', 'ilike', "%{$search}%")
+              ->orWhere('br_indexa', 'ilike', "%{$search}%")
+              ->orWhere('email', 'ilike', "%{$search}%");
+        });
+    }
+
+    $students = $query->orderBy('created_at', 'desc')->paginate(7)->withQueryString();
     $nivoStudija = NivoStudija::all();
     $fakulteti = Fakultet::all();
 
@@ -249,9 +259,9 @@ class StudentController extends Controller
               $student->predmeti()->syncWithoutDetaching($syncData);
           }
 
-          $msg = "ToR processed. Matched $matchedCount out of $totalCount courses.";
+          $msg = "Tor je učitan. Učitano je $matchedCount od $totalCount predmeta.";
           if (count($missedSubjects) > 0) {
-              $msg .= " Missed: " . count($missedSubjects) . ". Check logs for details.";
+              $msg .= " Predmeti koji nisu učitani: " . implode(', ', $missedSubjects);
           }
 
           return redirect()->route('students.edit', $student->id)
@@ -318,10 +328,15 @@ class StudentController extends Controller
               }
           }
 
+          $msg = "Tor je učitan. Učitano je $matchedCount od $totalCount predmeta.";
+          if (count($missedSubjects) > 0) {
+              $msg .= " Predmeti koji nisu učitani: " . implode(', ', $missedSubjects);
+          }
+
           return response()->json([
               'success' => true,
               'matched' => $results,
-              'message' => "ToR processed. Matched $matchedCount out of $totalCount courses.",
+              'message' => $msg,
               'missed' => $missedSubjects
           ]);
 

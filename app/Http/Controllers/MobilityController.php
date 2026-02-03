@@ -32,7 +32,8 @@ class MobilityController extends Controller
             $query->where('naziv', 'FIT');
         })->orderBy('ime')->orderBy('prezime')->get();
         $fakulteti = Fakultet::with('predmeti')->orderBy('naziv')->get();
-        return view('mobility.index', compact('students', 'fakulteti'));
+        $existingAcademicYears = Mobilnost::whereNotNull('studijska_godina')->distinct()->pluck('studijska_godina');
+        return view('mobility.index', compact('students', 'fakulteti', 'existingAcademicYears'));
     }
 
 
@@ -200,6 +201,7 @@ class MobilityController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'tip_mobilnosti' => 'required|in:Semestralna mobilnost,Godišnja mobilnost',
+            'studijska_godina' => 'nullable|string|max:20',
             'courses' => 'nullable|string', // JSON string
         ]);
 
@@ -221,6 +223,7 @@ class MobilityController extends Controller
             'datum_pocetka' => $datumPocetka,
             'datum_kraja' => $datumKraja,
             'tip_mobilnosti' => $tipMobilnosti,
+            'studijska_godina' => $request->studijska_godina,
         ]);
 
         // Process courses mapping
@@ -824,6 +827,8 @@ class MobilityController extends Controller
     private function ensureDefaultDocuments(Mobilnost $mobilnost)
     {
         $defaultCategory = MobilityCategory::firstOrCreate(['name' => 'Default']);
+        $student = $mobilnost->student;
+        $studentSuffix = "_{$student->ime}_{$student->prezime}_{$student->br_indexa}";
         
         $laPath = $this->generateLearningAgreement($mobilnost);
         MobilnostDokument::updateOrCreate(
@@ -832,7 +837,7 @@ class MobilityController extends Controller
                 'type' => 'learning_agreement'
             ],
             [
-                'name' => 'Learning Agreement.docx',
+                'name' => "Learning Agreement{$studentSuffix}.docx",
                 'path' => $laPath,
                 'category_id' => $defaultCategory->id
             ]
@@ -845,7 +850,7 @@ class MobilityController extends Controller
                 'type' => 'transcript'
             ],
             [
-                'name' => 'Ocjene nakon mobilnosti.docx',
+                'name' => "Ocjene nakon mobilnosti{$studentSuffix}.docx",
                 'path' => $trPath,
                 'category_id' => $defaultCategory->id
             ]
@@ -858,7 +863,7 @@ class MobilityController extends Controller
                 'type' => 'mobility_decision'
             ],
             [
-                'name' => 'Odluka o priznavaju ispita.docx',
+                'name' => "Odluka o priznavaju ispita{$studentSuffix}.docx",
                 'path' => $odlukaPath,
                 'category_id' => $defaultCategory->id
             ]
@@ -870,7 +875,9 @@ class MobilityController extends Controller
         $service = app(\App\Services\WordExportService::class);
         $tempPath = $service->generisiOdlukuZaMobilnost($mobilnost);
         
-        $fileName = 'Odluka_o_priznavaju_ispita.docx';
+        $student = $mobilnost->student;
+        $fileBase = "Odluka_o_priznavaju_ispita_{$student->ime}_{$student->prezime}_{$student->br_indexa}";
+        $fileName = $fileBase . '.docx';
         $path = "mobility_docs/{$mobilnost->id}/" . $fileName;
         $fullPath = Storage::path($path);
         
@@ -965,7 +972,6 @@ class MobilityController extends Controller
                     $textRun->addTextBreak();
                 }
             }
-
             $table->addCell(800)->addText($totalForeignEcts);
         }
 
@@ -973,7 +979,8 @@ class MobilityController extends Controller
         $section->addText('Dekan,', ['bold' => true]);
         $section->addText('___________________________');
 
-        $fileName = 'Learning_Agreement_' . $mobilnost->id . '.docx';
+        $student = $mobilnost->student;
+        $fileName = "Learning_Agreement_{$student->ime}_{$student->prezime}_{$student->br_indexa}.docx";
         $path = "mobility_docs/{$mobilnost->id}/" . $fileName;
         
         // Save to storage
@@ -1052,41 +1059,44 @@ class MobilityController extends Controller
                     if (isset($gradeMap[$rawGrade])) {
                         $gradeSum += $gradeMap[$rawGrade];
                         $gradeCount++;
-                    } elseif (is_numeric($rawGrade)) {
-                        $gradeSum += (float) $rawGrade;
+                    } elseif (is_numeric($la->ocjena)) {
+                        $gradeSum += (float) $la->ocjena;
                         $gradeCount++;
                     }
                 }
             }
-
-            if ($gradeCount > 0) {
-                $numericGrade = (int) round($gradeSum / $gradeCount);
-                $reverseMap = [10 => 'A', 9 => 'B', 8 => 'C', 7 => 'D', 6 => 'E'];
-                $grade = $reverseMap[$numericGrade] ?? $numericGrade;
-            } else {
-                $grade = '';
-            }
-
-            $foreignSubjectsString = implode(', ', $foreignSubjects);
 
             $table->addRow();
             $table->addCell(800)->addText($rowNum++);
             $table->addCell(3000)->addText($fitSubjectName);
             $table->addCell(1000)->addText($semester);
             $table->addCell(1000)->addText($fitEcts);
-            $table->addCell(3000)->addText($foreignSubjectsString);
-            $table->addCell(1000)->addText($grade);
+
+            $textRun = $table->addCell(4000)->addTextRun();
+            foreach ($foreignSubjects as $i => $subj) {
+                $textRun->addText($subj);
+                if ($i < count($foreignSubjects) - 1) {
+                    $textRun->addTextBreak();
+                }
+            }
+
+            $avg = $gradeCount > 0 ? ($gradeSum / $gradeCount) : null;
+            $table->addCell(1000)->addText($avg ? number_format($avg, 1) : '-');
             $table->addCell(1000)->addText($totalForeignEcts);
         }
 
-        $fileName = 'Transcript_' . $mobilnost->id . '.docx';
+        $section->addTextBreak(2);
+        $section->addText('Dekan,', ['bold' => true], ['alignment' => Jc::RIGHT]);
+        $section->addText('___________________________', [], ['alignment' => Jc::RIGHT]);
+
+        $student = $mobilnost->student;
+        $fileName = "Ocjene_nakon_mobilnosti_{$student->ime}_{$student->prezime}_{$student->br_indexa}.docx";
         $path = "mobility_docs/{$mobilnost->id}/" . $fileName;
         
         $fullPath = Storage::path($path);
         if (!file_exists(dirname($fullPath))) {
             mkdir(dirname($fullPath), 0755, true);
         }
-
         $writer = IOFactory::createWriter($phpWord, 'Word2007');
         $writer->save($fullPath);
 

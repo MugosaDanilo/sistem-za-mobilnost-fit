@@ -10,12 +10,27 @@ use App\Services\WordExportService;
 
 class PrepisController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Consolidate into just mapping requests for the main UI
-        $mappingRequests = \App\Models\MappingRequest::with(['professor', 'student', 'subjects.straniPredmet', 'subjects.fitPredmet'])
-            ->latest()
-            ->get();
+        $query = \App\Models\MappingRequest::with(['professor', 'student', 'fakultet', 'subjects.straniPredmet', 'subjects.fitPredmet'])->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                // Search student
+                $q->whereHas('student', function($qs) use ($search) {
+                    $qs->where('ime', 'ilike', "%{$search}%")
+                      ->orWhere('prezime', 'ilike', "%{$search}%")
+                      ->orWhere('br_indexa', 'ilike', "%{$search}%");
+                })
+                // Search faculty
+                ->orWhereHas('fakultet', function($qf) use ($search) {
+                    $qf->where('naziv', 'ilike', "%{$search}%");
+                });
+            });
+        }
+
+        $mappingRequests = $query->paginate(7)->withQueryString();
             
         return view('prepis.index', compact('mappingRequests'));
     }
@@ -200,7 +215,7 @@ class PrepisController extends Controller
 
     public function showMappingRequest($id)
     {
-        $mappingRequest = \App\Models\MappingRequest::with(['professor', 'student', 'subjects.straniPredmet', 'subjects.fitPredmet'])->findOrFail($id);
+        $mappingRequest = \App\Models\MappingRequest::with(['professor', 'student', 'fakultet', 'subjects.straniPredmet', 'subjects.fitPredmet'])->findOrFail($id);
         $fitSubjects = Predmet::where('fakultet_id', 1)->get(); 
         
         // Fetch existing foreign subjects in this request to exclude them

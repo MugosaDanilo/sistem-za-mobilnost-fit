@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class ProfesorPredmetController extends Controller
 {
-    public function index($userId)
+    public function index(Request $request, $userId)
     {
         $user = User::findOrFail($userId);
         
@@ -16,9 +16,18 @@ class ProfesorPredmetController extends Controller
              return redirect()->route('users.index')->with('error', 'User is not a professor');
         }
 
+        $search = $request->query('search');
+        
+        $assignedSubjects = $user->predmeti()
+            ->when($search, function($query) use ($search) {
+                return $query->where('naziv', 'ILIKE', "%{$search}%");
+            })
+            ->paginate(10)
+            ->withQueryString();
+
         $predmeti = \App\Models\Predmet::select('id', 'naziv', 'ects')->get();
 
-        return view('users.subjects', compact('user', 'predmeti'));
+        return view('users.subjects', compact('user', 'predmeti', 'assignedSubjects'));
     }
 
     public function store(Request $request, $userId)

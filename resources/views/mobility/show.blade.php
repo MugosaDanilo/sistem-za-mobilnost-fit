@@ -31,6 +31,7 @@
                     <h2 class="text-lg font-semibold text-gray-700">Informacije o studentu</h2>
                     <p class="mt-2 text-gray-600"><span class="font-medium">Ime:</span> {{ $mobilnost->student->ime }} {{ $mobilnost->student->prezime }}</p>
                     <p class="text-gray-600"><span class="font-medium">Indeks:</span> {{ $mobilnost->student->br_indexa }}</p>
+                    <p class="text-gray-600"><span class="font-medium">Studijska godina:</span> {{ $mobilnost->studijska_godina ?? '-' }}</p>
                 </div>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-700">Informacije o mobilnosti</h2>

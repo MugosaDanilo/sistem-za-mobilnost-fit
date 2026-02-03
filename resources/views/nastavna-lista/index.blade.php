@@ -8,16 +8,14 @@
             </div>
             @php
                 $backUrl = route('fakulteti.predmeti.index', $predmet->fakultet_id);
+                $backText = 'Nazad na listu predmeta';
                 if (request()->has('mapping_request_id')) {
                     $backUrl = route('mapping-request.show', request()->mapping_request_id);
+                    $backText = 'Nazad na zahtjev';
                 }
             @endphp
-            <a href="{{ $backUrl }}" 
-               class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                Nazad
+            <a href="{{ $backUrl }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                &larr; {{ $backText }}
             </a>
         </div>
 
@@ -117,7 +115,7 @@
                                 <tr>
                                     <th class="px-6 py-3 border-b border-gray-100">Studijska godina</th>
                                     <th class="px-6 py-3 border-b border-gray-100">Tip</th>
-                                    <th class="px-6 py-3 border-b border-gray-100 text-right">Akcije</th>
+                                    <th class="px-6 py-3 border-b border-gray-100 text-center">Akcije</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -142,34 +140,34 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 text-right space-x-2">
-                                            @if($lista->link)
-                                                <a href="{{ $lista->link }}" target="_blank" 
-                                                   class="inline-flex items-center text-indigo-600 hover:text-indigo-900 font-medium transition duration-200" title="Otvori link">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                                    </svg>
-                                                </a>
-                                            @endif
-                                            @if($lista->file_path)
-                                                <a href="{{ route('nastavne-liste.download', $lista->id) }}"
-                                                   class="inline-flex items-center text-emerald-600 hover:text-emerald-900 font-medium transition duration-200" title="Preuzmi fajl">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                                    </svg>
-                                                </a>
-                                            @endif
-                                            @if(auth()->user()->type == 0)
-                                            <form action="{{ route('nastavne-liste.destroy', $lista->id) }}" method="POST" class="inline" onsubmit="return confirm('Jeste li sigurni?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="inline-flex items-center text-red-600 hover:text-red-900 transition duration-200" title="Obriši">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                            @endif
+                                        <td class="px-6 py-4 text-center">
+                                            <div class="flex justify-center items-center space-x-3">
+                                                @if($lista->link)
+                                                    <a href="{{ $lista->link }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 transition-colors" title="Otvori link">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                        </svg>
+                                                    </a>
+                                                @endif
+                                                @if($lista->file_path)
+                                                    <a href="{{ route('nastavna-lista.download', $lista->id) }}" class="text-emerald-600 hover:text-emerald-900 transition-colors" title="Preuzmi fajl">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                                        </svg>
+                                                    </a>
+                                                @endif
+                                                @if(auth()->user()->type == 0)
+                                                <form action="{{ route('nastavna-lista.destroy', $lista->id) }}" method="POST" class="inline" onsubmit="return confirm('Da li ste sigurni?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900 transition-colors" title="Obriši">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty

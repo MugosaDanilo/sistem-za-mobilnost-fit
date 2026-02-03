@@ -6,9 +6,20 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function adminDashboard()
+    public function adminDashboard(Request $request)
     {
-        $mobilnosti = \App\Models\Mobilnost::with(['student', 'fakultet'])->latest()->get();
+        $query = \App\Models\Mobilnost::with(['student', 'fakultet'])->latest();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('student', function($q) use ($search) {
+                $q->where('ime', 'ilike', "%{$search}%")
+                  ->orWhere('prezime', 'ilike', "%{$search}%")
+                  ->orWhere('br_indexa', 'ilike', "%{$search}%");
+            });
+        }
+
+        $mobilnosti = $query->paginate(7)->withQueryString();
         return view('dashboard.admin-dashboard', compact('mobilnosti'));
     }
 

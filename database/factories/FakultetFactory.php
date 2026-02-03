@@ -22,6 +22,7 @@ class FakultetFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'telefon' => $this->faker->phoneNumber(),
             'web' => $this->faker->url(),
+            'drzava' => $this->faker->country(),
             'univerzitet_id' => Univerzitet::factory(),
         ];
     }

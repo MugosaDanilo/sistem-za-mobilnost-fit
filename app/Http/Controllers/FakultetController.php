@@ -9,9 +9,22 @@ use Illuminate\Validation\Rule;
 
 class FakultetController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $fakulteti = Fakultet::with('univerzitet')->get();
+        $query = Fakultet::with('univerzitet');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('naziv', 'ilike', "%{$search}%")
+                  ->orWhere('drzava', 'ilike', "%{$search}%")
+                  ->orWhereHas('univerzitet', function($qu) use ($search) {
+                      $qu->where('naziv', 'ilike', "%{$search}%");
+                  });
+            });
+        }
+
+        $fakulteti = $query->paginate(7)->withQueryString();
         $univerziteti = Univerzitet::all(); // For the dropdown in modal
         return view('fakultet.index', compact('fakulteti', 'univerziteti'));
     }

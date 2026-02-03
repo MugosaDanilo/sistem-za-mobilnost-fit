@@ -8,9 +8,19 @@ use App\Models\Fakultet;
 
 class PredmetController extends Controller
 {
-    public function index(Fakultet $fakultet)
+    public function index(Request $request, Fakultet $fakultet)
     {
-        $predmeti = $fakultet->predmeti()->with('nivoStudija')->get();
+        $query = $fakultet->predmeti()->with('nivoStudija');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('naziv', 'ilike', "%{$search}%")
+                  ->orWhere('sifra_predmeta', 'ilike', "%{$search}%");
+            });
+        }
+
+        $predmeti = $query->paginate(15)->withQueryString();
         $nivoStudija = \App\Models\NivoStudija::all();
         return view('predmet.index', compact('predmeti', 'fakultet', 'nivoStudija'));
     }

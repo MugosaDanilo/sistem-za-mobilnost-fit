@@ -136,7 +136,9 @@ class WordExportService
         $section->addText("Doc. dr Žana Knežević", ['bold' => true], ['alignment' => Jc::RIGHT]);
 
         $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-        $fileName = 'prepis_' . $request->id . '_' . time() . '.docx';
+        $student = $request->student;
+        $fileBase = "predlog_priznavanja_{$student->ime}_{$student->prezime}_{$student->br_indexa}";
+        $fileName = $fileBase . '_' . time() . '.docx';
         $tempPath = storage_path('app/public/' . $fileName);
         $objWriter->save($tempPath);
 
@@ -249,7 +251,9 @@ class WordExportService
         $rightCell->addText("prof. dr Maja Delibašić", ['bold' => true], ['alignment' => Jc::RIGHT]);
 
         $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-        $fileName = 'rjesenje_' . $request->id . '_' . time() . '.docx';
+        $student = $request->student;
+        $fileBase = "rjesenje_o_priznavanju_{$student->ime}_{$student->prezime}_{$student->br_indexa}";
+        $fileName = $fileBase . '_' . time() . '.docx';
         $tempPath = storage_path('app/public/' . $fileName);
         $objWriter->save($tempPath);
 
@@ -294,7 +298,9 @@ class WordExportService
         $p1Run->addText($nivoStudija, ['bold' => true]);
         $p1Run->addText(" studija Fakulteta za informacione tehnologije, br. indeksa ");
         $p1Run->addText($brIndexa, ['bold' => true]);
-        $p1Run->addText(", koji je u toku studijske /.godine studirao na ");
+        $p1Run->addText(", koji je u toku studijske ");
+        $p1Run->addText($mobilnost->studijska_godina ?? '/', ['bold' => true]);
+        $p1Run->addText(". godine studirao na ");
         $p1Run->addText($foreignFacultyName, ['bold' => true]);
         $p1Run->addText(", kao stipendista programa mobilnosti ERASMUS INTERNATIONAL CREDIT MOBILITY – ICM2020, priznaju se položeni sljedeći ispiti:");
         $section->addTextBreak(1);
@@ -383,7 +389,9 @@ class WordExportService
         $obrRun1->addText($nivoStudija);
         $obrRun1->addText(" Fakulteta za informacione tehnologije, br. indeksa ");
         $obrRun1->addText($brIndexa);
-        $obrRun1->addText(", boravio je u toku studijske / godine na ");
+        $obrRun1->addText(", boravio je u toku studijske ");
+        $obrRun1->addText($mobilnost->studijska_godina ?? '/');
+        $obrRun1->addText(" godine na ");
         $obrRun1->addText($foreignFacultyName);
         $obrRun1->addText(", kao stipendista programa mobilnosti ERASMUS+ - Key Action 1: International credit mobility for leraners and staff – ICM2020, saglasno Sporazumu o institucionalnoj saradnji sa ");
         $obrRun1->addText($foreignFacultyName);
@@ -438,7 +446,9 @@ class WordExportService
         $section->addText("prof dr Maja Delibasic", ['bold' => true], ['alignment' => Jc::RIGHT]);
 
         $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-        $fileName = 'odluka_mobilnost_' . $mobilnost->id . '_' . time() . '.docx';
+        $student = $mobilnost->student;
+        $fileBase = "odluka_mobilnost_{$student->ime}_{$student->prezime}_{$student->br_indexa}";
+        $fileName = $fileBase . '_' . time() . '.docx';
         $tempPath = storage_path('app/public/' . $fileName);
         $objWriter->save($tempPath);
 

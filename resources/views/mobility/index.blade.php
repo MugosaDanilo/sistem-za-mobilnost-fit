@@ -6,7 +6,7 @@
     </x-slot> --}}
 
 
-    <div class="min-h-screen bg-gray-50 py-8">
+    <div class="min-h-screen bg-gray-100 pt-8 pb-32">
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -84,14 +84,25 @@
                                 </div>
                             </div>
 
-                            <!-- Mobility Type -->
-                            <div class="mt-6">
-                                <label for="tip_mobilnosti" class="block text-sm font-medium text-gray-700 mb-1">Tip mobilnosti</label>
-                                <select name="tip_mobilnosti" id="tip_mobilnosti" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
-                                    <option value="">-- Izaberi tip mobilnosti --</option>
-                                    <option value="Semestralna mobilnost">Semestralna mobilnost</option>
-                                    <option value="Godišnja mobilnost">Godišnja mobilnost</option>
-                                </select>
+                            <!-- Mobility Type & Academic Year -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <label for="tip_mobilnosti" class="block text-sm font-medium text-gray-700 mb-1">Tip mobilnosti</label>
+                                    <select name="tip_mobilnosti" id="tip_mobilnosti" required class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                        <option value="">-- Izaberi tip mobilnosti --</option>
+                                        <option value="Semestralna mobilnost">Semestralna mobilnost</option>
+                                        <option value="Godišnja mobilnost">Godišnja mobilnost</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="studijska_godina" class="block text-sm font-medium text-gray-700 mb-1">Studijska godina</label>
+                                    <input type="text" name="studijska_godina" id="studijska_godina" list="academic_years" placeholder="npr. 2024/25" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2.5">
+                                    <datalist id="academic_years">
+                                        @foreach($existingAcademicYears as $year)
+                                            <option value="{{ $year }}">
+                                        @endforeach
+                                    </datalist>
+                                </div>
                             </div>
                         </div>
 
@@ -106,7 +117,7 @@
                                 <div class="flex flex-col h-full">
                                     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Nepoloženi
                                         (Iz prethodne godine)</h3>
-                                    <div id="unpassedSubjectsBox" class="flex-1 min-h-[250px] bg-gray-50 rounded-lg border border-gray-200 p-3 overflow-y-auto space-y-2 transition-all hover:border-gray-300">
+                                    <div id="unpassedSubjectsBox" class="flex-1 max-h-[400px] min-h-[250px] bg-gray-50 rounded-lg border border-gray-200 p-3 overflow-y-auto space-y-2 transition-all hover:border-gray-300">
                                         <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
                                             <svg class="w-8 h-8 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
@@ -120,7 +131,7 @@
                                 <!-- Next Year Subjects -->
                                 <div class="flex flex-col h-full">
                                     <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Predmeti iz sledeće godine</h3>
-                                    <div id="nextYearSubjectsBox" class="flex-1 min-h-[250px] bg-gray-50 rounded-lg border border-gray-200 p-3 overflow-y-auto space-y-2 transition-all hover:border-gray-300">
+                                    <div id="nextYearSubjectsBox" class="flex-1 max-h-[400px] min-h-[250px] bg-gray-50 rounded-lg border border-gray-200 p-3 overflow-y-auto space-y-2 transition-all hover:border-gray-300">
                                         <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
                                             <svg class="w-8 h-8 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
@@ -137,14 +148,14 @@
 
                     <!-- Right Column: Available Subjects -->
                     <div class="lg:col-span-1">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-6 h-[calc(100vh-theme('spacing.12'))] flex flex-col">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-6 max-h-[700px] flex flex-col">
                             <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Predmeti fakulteta</h2>
 
                             <div class="mb-4">
                                 <input type="text" id="subjectFilter" placeholder="Pretraži predmete..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3">
                             </div>
 
-                            <div id="available-subjects" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                            <div id="available-subjects" class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                                 <div class="p-4 text-center text-gray-500 text-sm">
                                     Izaberi fakultet
                                 </div>
@@ -376,7 +387,7 @@
                 if (!subjects || subjects.length === 0) {
                     container.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
-                        <span>No subjects found for this category.</span>
+                        <span>Nema predmeta za ovu kategoriju.</span>
                     </div>
                 `;
                     return;

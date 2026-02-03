@@ -21,28 +21,43 @@
     <div class="py-10 max-w-7xl mx-auto px-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Korisnici</h1>
-            <button id="addUserBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+            <button id="addUserBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
                 Dodaj korisnika
             </button>
         </div>
 
         <div class="mb-4">
-            <input 
-                type="text" 
-                id="searchUser" 
-                placeholder="Pretrazi.." 
-                class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
-            >
+            <form action="{{ route('users.index') }}" method="GET" class="w-full max-w-md">
+                <div class="relative">
+                    <input type="text" name="search" id="searchUser" value="{{ request('search') }}"
+                        placeholder="Pretraži korisnike..."
+                        class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 outline-none transition-all">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    @if(request('search'))
+                        <a href="{{ route('users.index') }}" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-800">Lista korisnika</h2>
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ count($users) }} Ukupno</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ $users->total() }} Ukupno</span>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200" id="userTable">
+                <table class="w-full divide-y divide-gray-200" id="userTable">
                     <thead class="bg-gray-50">
                         <tr>
 
@@ -54,7 +69,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="userTableBody">
                         @foreach ($users as $user)
-                            <tr class="user-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($user->id . ' ' . $user->name . ' ' . $user->email . ' ' . (($user->type == 0) ? 'admin' : 'profesor')) }}">
+                            <tr class="user-row hover:bg-gray-50 transition-colors duration-150 ease-in-out">
 
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
@@ -74,10 +89,10 @@
                                     Profesor
                                 @endif
                            </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-2">
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                <div class="flex justify-center space-x-2">
                                     <button
-                                        onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}')"
+                                        onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', '{{ $user->type }}')"
                                         class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
                                         Izmijeni
                                     </button>
@@ -104,8 +119,11 @@
                     @endforeach
                 </tbody>
             </table>
-
-            </div>
+            @if($users->hasPages())
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    {{ $users->links() }}
+                </div>
+            @endif
         </div>
     </div>
 
@@ -145,7 +163,7 @@
 
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium mb-1">Tip korisnika</label>
-                    <select name="type" class="border p-2 w-full">
+                    <select name="type" id="type" class="border p-2 w-full">
                         <option value="0">Admin</option>
                         <option value="1">Profesor</option>
                     </select>
@@ -188,7 +206,7 @@
             modal.classList.remove('flex');
         });
 
-    function openEditModal(id, name, email) {
+    function openEditModal(id, name, email, type) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         title.textContent = 'Izmijeni korisnika';
@@ -207,29 +225,10 @@
         document.getElementById('userId').value = id;
         document.getElementById('name').value = name;
         document.getElementById('email').value = email;
+        document.getElementById('type').value = type;
         document.getElementById('password').required = false;
     }
 
-    </script>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('searchUser');
-        const rows = document.querySelectorAll('.user-row');
-
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            
-            rows.forEach(row => {
-                const searchText = row.getAttribute('data-search');
-                if (searchText.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-    });
     </script>
 
 

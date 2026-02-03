@@ -85,6 +85,21 @@
                             <span class="text-gray-500 italic">Nema dodijeljenih profesora</span>
                         @endif
                     </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Fakultet</h3>
+                        @if($mappingRequest->fakultet)
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                                    {{ substr($mappingRequest->fakultet->naziv, 0, 1) }}
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-lg font-medium text-gray-900">{{ $mappingRequest->fakultet->naziv }}</div>
+                                </div>
+                            </div>
+                        @else
+                            <span class="text-gray-500 italic">Nema povezanog fakulteta</span>
+                        @endif
+                    </div>
                 </div>
             </div>
 

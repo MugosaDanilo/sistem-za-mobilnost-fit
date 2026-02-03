@@ -32,14 +32,31 @@
         </div>
 
         <div class="mb-4">
-            <input type="text" id="searchSubject" placeholder="Pretraži.."
-                class="w-full max-w-md border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2">
+            <form action="{{ route('users.subjects.index', $user->id) }}" method="GET" class="w-full max-w-md">
+                <div class="relative">
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Pretraži predmete po nazivu..."
+                        class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 outline-none transition-all">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    @if(request('search'))
+                        <a href="{{ route('users.subjects.index', $user->id) }}" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-800">Lista Predmeta</h2>
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ $user->predmeti->count() }} Ukupno</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ $assignedSubjects->total() }} Ukupno</span>
             </div>
 
             <div class="overflow-x-auto">
@@ -53,7 +70,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($user->predmeti as $p)
+                        @foreach($assignedSubjects as $p)
                         <tr class="subject-row hover:bg-gray-50 transition-colors duration-150 ease-in-out" data-search="{{ strtolower($p->naziv) }}">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">{{ $p->naziv }}</div>
@@ -75,6 +92,12 @@
                     </tbody>
                 </table>
             </div>
+
+            @if($assignedSubjects->hasPages())
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    {{ $assignedSubjects->links() }}
+                </div>
+            @endif
         </div>
     </div>
 
@@ -135,24 +158,6 @@
             });
         }
 
-
-        const searchInput = document.getElementById('searchSubject');
-        const rows = document.querySelectorAll('.subject-row');
-
-        if(searchInput) {
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase().trim();
-                
-                rows.forEach(row => {
-                    const searchText = row.getAttribute('data-search');
-                    if (searchText.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-        }
 
         const subjectSearchInput = document.getElementById('subjectSearchInput');
         const subjectSearchResults = document.getElementById('subjectSearchResults');
