@@ -59,7 +59,7 @@
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ $assignedSubjects->total() }} Ukupno</span>
             </div>
 
-            <div class="overflow-x-auto">
+            <div>
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
