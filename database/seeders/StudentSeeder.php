@@ -127,14 +127,20 @@ class StudentSeeder extends Seeder
             ],
         ];
 
+        $fit = \App\Models\Fakultet::where('naziv', 'FIT')->first();
+        $etf = \App\Models\Fakultet::where('naziv', 'ETF')->first();
+
         $count = 0;
         foreach ($students as $studentData) {
-            $status = $count < 5 ? 'prepis' : 'mobilnost';
+            $status = $count < 5 ? 'mobilnost' : 'prepis';
             $studentData['status'] = $status;
             
             $student = Student::create($studentData);
-            if ($fit) {
+            
+            if ($count < 5 && $fit) {
                 $student->fakulteti()->attach($fit->id);
+            } elseif ($count >= 5 && $etf) {
+                $student->fakulteti()->attach($etf->id);
             }
             $count++;
         }

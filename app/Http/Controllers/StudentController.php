@@ -17,7 +17,17 @@ class StudentController extends Controller
     $query = Student::with(['nivoStudija', 'fakulteti']);
 
     if ($request->has('status') && in_array($request->status, ['mobilnost', 'prepis'])) {
-        $query->where('status', $request->status);
+        if ($request->status === 'mobilnost') {
+            $query->where('status', 'mobilnost')
+                  ->whereHas('fakulteti', function($q) {
+                      $q->where('naziv', 'FIT');
+                  });
+        } elseif ($request->status === 'prepis') {
+            $query->where('status', 'prepis')
+                  ->whereHas('fakulteti', function($q) {
+                      $q->where('naziv', '!=', 'FIT');
+                  });
+        }
     }
 
     if ($request->filled('search')) {
