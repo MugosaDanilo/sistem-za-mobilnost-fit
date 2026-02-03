@@ -15,8 +15,7 @@
 
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Detalji o mobilnosti</h1>
-            <div class="flex gap-2">
-            
+            <div class="flex items-center gap-2">
                 <button onclick="openDocumentsModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
                     Pregled dokumenata
                 </button>
@@ -284,8 +283,8 @@
             const isLocked = {{ $mobilnost->is_locked ? 'true' : 'false' }};
             listDiv.innerHTML = '<p class="text-gray-500 text-sm">Loading...</p>';
 
-            // Fetch categories first, then docs
-            fetch('{{ route("admin.mobility.categories") }}')
+            // Fetch categories for this mobility, then docs
+            fetch('{{ route("admin.mobility.categories") }}?mobility_id={{ $mobilnost->id }}')
                 .then(res => res.json())
                 .then(cats => {
                     allCategories = cats;
@@ -353,9 +352,20 @@
                 
                 const catHeader = document.createElement('h5');
                 catHeader.className = 'flex items-center gap-3 text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2';
+                
+                let deleteHtml = '';
+                if (cat.name !== 'Default' && docsInCat.length === 0) {
+                    deleteHtml = `
+                        <button onclick="deleteCategory(${cat.id}, '${cat.name.replace(/'/g, "\\'")}')" class="text-gray-400 hover:text-red-600 transition-colors p-1" title="Obriši kategoriju">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    `;
+                }
+
                 catHeader.innerHTML = `
                     <span class="bg-indigo-100 text-indigo-700 py-1 px-2 rounded-md text-[10px] shadow-sm">${cat.name}</span>
                     <span class="flex-1 border-t border-gray-100"></span>
+                    ${deleteHtml}
                 `;
                 catBlock.appendChild(catHeader);
                 
@@ -446,10 +456,13 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ name: name })
+                body: JSON.stringify({ 
+                    name: name,
+                    mobility_id: '{{ $mobilnost->id }}'
+                })
             })
             .then(res => {
-                if (!res.ok) throw new Error('Failed to create category');
+                if (!res.ok) return res.json().then(data => { throw new Error(data.error || data.message || 'Failed to create category'); });
                 return res.json();
             })
             .then(cat => {
@@ -529,6 +542,31 @@
             .catch(err => {
                 console.error(err);
                 alert('Failed to delete document.');
+            });
+        }
+
+        function deleteCategory(id, name) {
+            if (!confirm(`Da li ste sigurni da želite da obrišete kategoriju "${name}"?`)) return;
+
+            fetch(`/admin/mobility/categories/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    allCategories = allCategories.filter(c => c.id !== id);
+                    updateCategorySelects();
+                    loadDocuments();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Greška pri brisanju kategorije.');
             });
         }
 

@@ -39,6 +39,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::get('/mobility/faculty-subjects', [MobilityController::class, 'getFacultySubjects'])->name('admin.mobility.faculty-subjects');
     Route::get('/mobility/categories', [MobilityController::class, 'getCategories'])->name('admin.mobility.categories');
     Route::post('/mobility/categories', [MobilityController::class, 'storeCategory'])->name('admin.mobility.categories.store');
+    Route::delete('/mobility/categories/{id}', [MobilityController::class, 'destroyCategory'])->name('admin.mobility.categories.destroy');
 
     Route::get('/mobility/{id}', [MobilityController::class, 'show'])->name('admin.mobility.show');
     Route::post('/mobility/grade/{id}', [MobilityController::class, 'updateGrade'])->name('admin.mobility.update-grade');

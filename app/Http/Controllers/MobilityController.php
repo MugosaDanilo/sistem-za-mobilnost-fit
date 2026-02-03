@@ -652,16 +652,62 @@ class MobilityController extends Controller
         return response()->json($subjects);
     }
 
-    public function getCategories()
+    public function getCategories(Request $request)
     {
-        return response()->json(MobilityCategory::all());
+        $mobilityId = $request->query('mobility_id');
+        
+        $categories = MobilityCategory::whereNull('mobilnost_id')
+            ->when($mobilityId, function($q) use ($mobilityId) {
+                return $q->orWhere('mobilnost_id', $mobilityId);
+            })
+            ->get();
+
+        return response()->json($categories);
     }
 
     public function storeCategory(Request $request)
     {
-        $request->validate(['name' => 'required|string|unique:mobility_categories,name|max:255']);
-        $category = MobilityCategory::create(['name' => $request->name]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'mobility_id' => 'nullable|exists:mobilnosti,id'
+        ]);
+
+        // Check for duplicate in the same scope
+        $exists = MobilityCategory::where('name', $request->name)
+            ->where(function($q) use ($request) {
+                $q->whereNull('mobilnost_id');
+                if ($request->mobility_id) {
+                    $q->orWhere('mobilnost_id', $request->mobility_id);
+                }
+            })
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['error' => 'Kategorija sa ovim imenom već postoji.'], 422);
+        }
+
+        $category = MobilityCategory::create([
+            'name' => $request->name,
+            'mobilnost_id' => $request->mobility_id
+        ]);
+
         return response()->json($category);
+    }
+
+    public function destroyCategory($id)
+    {
+        $category = MobilityCategory::findOrFail($id);
+
+        if ($category->name === 'Default') {
+            return response()->json(['error' => 'Kategorija "Default" se ne može obrisati.'], 403);
+        }
+
+        if ($category->documents()->count() > 0) {
+            return response()->json(['error' => 'Kategorija nije prazna. Premjestite ili obrišite dokumente prije brisanja kategorije.'], 422);
+        }
+
+        $category->delete();
+        return response()->json(['success' => true]);
     }
 
     public function lock($id)
@@ -804,6 +850,41 @@ class MobilityController extends Controller
                 'category_id' => $defaultCategory->id
             ]
         );
+
+        $odlukaPath = $this->generateOdluka($mobilnost);
+        MobilnostDokument::updateOrCreate(
+            [
+                'mobilnost_id' => $mobilnost->id,
+                'type' => 'mobility_decision'
+            ],
+            [
+                'name' => 'Odluka o priznavaju ispita.docx',
+                'path' => $odlukaPath,
+                'category_id' => $defaultCategory->id
+            ]
+        );
+    }
+
+    private function generateOdluka(Mobilnost $mobilnost)
+    {
+        $service = app(\App\Services\WordExportService::class);
+        $tempPath = $service->generisiOdlukuZaMobilnost($mobilnost);
+        
+        $fileName = 'Odluka_o_priznavaju_ispita.docx';
+        $path = "mobility_docs/{$mobilnost->id}/" . $fileName;
+        $fullPath = Storage::path($path);
+        
+        if (!file_exists(dirname($fullPath))) {
+            mkdir(dirname($fullPath), 0755, true);
+        }
+        
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+        
+        rename($tempPath, $fullPath);
+        
+        return $path;
     }
 
     private function generateLearningAgreement(Mobilnost $mobilnost)
@@ -1011,4 +1092,5 @@ class MobilityController extends Controller
 
         return $path;
     }
+
 }

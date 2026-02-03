@@ -255,4 +255,204 @@ class WordExportService
 
         return $tempPath;
     }
+
+    public function generisiOdlukuZaMobilnost(\App\Models\Mobilnost $mobilnost)
+    {
+        $phpWord = new PhpWord();
+        
+        $phpWord->setDefaultFontName('Cambria');
+        $phpWord->setDefaultFontSize(11);
+
+        $section = $phpWord->addSection();
+
+        // 1. Header (Left aligned)
+        $section->addText("Broj: _________");
+        $section->addText("Podgorica, " . Carbon::now()->format('d.m.Y') . ". godine");
+        $section->addTextBreak(1);
+
+        // 2. Centered Intro Text
+        $studentName = $mobilnost->student->ime . " " . $mobilnost->student->prezime;
+        $introRun = $section->addTextRun(['alignment' => Jc::CENTER]);
+        $introRun->addText("Dekanka Fakulteta za informacione tehnologije, na osnovu člana 84 stav 4 alineja 7 Statuta Univerziteta „Mediteran“ Podgorica, rješavajući po zahtjevu studenta ");
+        $introRun->addText($studentName, ['bold' => true]);
+        $introRun->addText(", za priznavanje ispita, donijela je");
+        $section->addTextBreak(1);
+
+        // 3. Centered Bold ODLUKU
+        $section->addText("ODLUKU", ['bold' => true, 'size' => 12], ['alignment' => Jc::CENTER]);
+        $section->addTextBreak(1);
+
+        // 4. Point 1 preamble
+        $nivoStudija = $mobilnost->student->nivoStudija->naziv ?? '...';
+        $brIndexa = $mobilnost->student->br_indexa;
+        $foreignFacultyName = $mobilnost->fakultet ? $mobilnost->fakultet->naziv : "...";
+        
+        $p1Run = $section->addTextRun(['alignment' => Jc::BOTH]);
+        $p1Run->addText("1. ");
+        $p1Run->addText($studentName, ['bold' => true]);
+        $p1Run->addText(" studentu ");
+        $p1Run->addText($nivoStudija, ['bold' => true]);
+        $p1Run->addText(" studija Fakulteta za informacione tehnologije, br. indeksa ");
+        $p1Run->addText($brIndexa, ['bold' => true]);
+        $p1Run->addText(", koji je u toku studijske /.godine studirao na ");
+        $p1Run->addText($foreignFacultyName, ['bold' => true]);
+        $p1Run->addText(", kao stipendista programa mobilnosti ERASMUS INTERNATIONAL CREDIT MOBILITY – ICM2020, priznaju se položeni sljedeći ispiti:");
+        $section->addTextBreak(1);
+
+        // 5. Table with foreign subjects
+        $styleTable = ['borderSize' => 6, 'borderColor' => '000000', 'cellMargin' => 80];
+        $phpWord->addTableStyle('MobilityTable', $styleTable);
+        $table = $section->addTable('MobilityTable');
+        
+        $table->addRow();
+        $table->addCell(1000)->addText("r. br.", ['bold' => true]);
+        $table->addCell(5000)->addText("Naziv predmeta", ['bold' => true]);
+        $table->addCell(2000)->addText("Broj ECTS kredita", ['bold' => true]);
+        $table->addCell(2000)->addText("Ocjena", ['bold' => true]);
+
+        $counter = 1;
+        $totalEcts = 0;
+        $gradeSum = 0;
+        $gradeCount = 0;
+        $gradeMap = ['A' => 10, 'B' => 9, 'C' => 8, 'D' => 7, 'E' => 6];
+
+        // Filter for unique foreign subjects by name
+        $uniqueAgreements = $mobilnost->learningAgreements
+            ->whereNotNull('strani_predmet_id')
+            ->unique(function ($la) {
+                return trim($la->straniPredmet->naziv);
+            });
+
+        foreach ($uniqueAgreements as $la) {
+            $foreignSubjName = $la->straniPredmet->naziv;
+            $foreignEcts = $la->straniPredmet->ects;
+            $grade = $la->ocjena;
+
+            $table->addRow();
+            $table->addCell(1000)->addText($counter . ".");
+            $table->addCell(5000)->addText($foreignSubjName);
+            $table->addCell(2000)->addText($foreignEcts);
+            $table->addCell(2000)->addText($grade ?? '-');
+
+            $totalEcts += $foreignEcts;
+            
+            if ($grade) {
+                $upperGrade = strtoupper(trim($grade));
+                if (isset($gradeMap[$upperGrade])) {
+                    $gradeSum += $gradeMap[$upperGrade];
+                    $gradeCount++;
+                } elseif (is_numeric($grade)) {
+                    $gradeSum += (float) $grade;
+                    $gradeCount++;
+                }
+            }
+            $counter++;
+        }
+
+        $numericAvg = $gradeCount > 0 ? ($gradeSum / $gradeCount) : null;
+        $letterAvg = $this->mapNumericToLetter($numericAvg);
+
+        $table->addRow();
+        $table->addCell(1000);
+        $table->addCell(5000)->addText("UKUPNO", ['bold' => true]);
+        $table->addCell(2000)->addText($totalEcts, ['bold' => true]);
+        $table->addCell(2000)->addText($letterAvg, ['bold' => true]);
+
+        $section->addTextBreak(1);
+
+        // 6. Point 2
+        $p2Text = "2.	Imenovani student položio je ispite i odbranio jednogodišnji master rad u ukupnom obimu $totalEcts pod nazivom /.";
+        $section->addText($p2Text);
+        $section->addTextBreak(1);
+        $section->addText("Master rad je ekvivalent specijalističkom radom.");
+        $section->addTextBreak(1);
+        
+        $p2SubRun = $section->addTextRun();
+        $p2SubRun->addText("Evidentiranje priznatih ispita, ocjena i ECTS kredita iz tačke 1, u personalnu dokumentaciju studenta ");
+        $p2SubRun->addText($studentName, ['bold' => true]);
+        $p2SubRun->addText(", kao i u Supplement diplome, obaviće se u skladu sa opštim aktima Univerziteta.");
+        $section->addTextBreak(1);
+
+        // 7. Obrazloženje
+        $section->addText("OBRAZLOŽENJE", ['bold' => true], ['alignment' => Jc::CENTER]);
+        $section->addTextBreak(1);
+
+        $obrRun1 = $section->addTextRun(['alignment' => Jc::BOTH]);
+        $obrRun1->addText($studentName, ['bold' => true]);
+        $obrRun1->addText(", student ");
+        $obrRun1->addText($nivoStudija);
+        $obrRun1->addText(" Fakulteta za informacione tehnologije, br. indeksa ");
+        $obrRun1->addText($brIndexa);
+        $obrRun1->addText(", boravio je u toku studijske / godine na ");
+        $obrRun1->addText($foreignFacultyName);
+        $obrRun1->addText(", kao stipendista programa mobilnosti ERASMUS+ - Key Action 1: International credit mobility for leraners and staff – ICM2020, saglasno Sporazumu o institucionalnoj saradnji sa ");
+        $obrRun1->addText($foreignFacultyName);
+        $obrRun1->addText(", br. R-2178-22 od 23.09.2022.godine.");
+        $section->addTextBreak(1);
+
+        $section->addText("Po završetku boravka na $foreignFacultyName, imenovani se obratio Fakultetu za informacione tehnologije sa Zahtjevom za priznavanje ispita iz sljedećih predmeta:");
+        $section->addTextBreak(1);
+
+        // Repeat table
+        $table2 = $section->addTable('MobilityTable');
+        $table2->addRow();
+        $table2->addCell(1000)->addText("r. br.", ['bold' => true]);
+        $table2->addCell(5000)->addText("Naziv predmeta", ['bold' => true]);
+        $table2->addCell(2000)->addText("Broj ECTS kredita", ['bold' => true]);
+        $table2->addCell(2000)->addText("Ocjena", ['bold' => true]);
+
+        $counter = 1;
+        foreach ($uniqueAgreements as $la) {
+            $table2->addRow();
+            $table2->addCell(1000)->addText($counter . ".");
+            $table2->addCell(5000)->addText($la->straniPredmet->naziv);
+            $table2->addCell(2000)->addText($la->straniPredmet->ects);
+            $table2->addCell(2000)->addText($la->ocjena ?? '-');
+            $counter++;
+        }
+        $table2->addRow();
+        $table2->addCell(1000);
+        $table2->addCell(5000)->addText("UKUPNO", ['bold' => true]);
+        $table2->addCell(2000)->addText($totalEcts, ['bold' => true]);
+        $table2->addCell(2000)->addText($letterAvg, ['bold' => true]);
+
+        $section->addTextBreak(1);
+
+        $section->addText("Na osnovu člana 1 stav 2 Pravila studiranja na postdiplomskims tudijama i analognom primjenom člana 20 Pravila studiranja na osnovnim studijama, propisano je da student ima pravo da u toku studija provede određeno vrijeme (semestar ili studijsku godinu) na drugoj ustanovi visokog obrazovanja u zemlji ili inostranstvu, posredstvom međunarodnih programa za razmjenu studenta (SOCRATES, ERASMUS, DAAD i slično) ili na bazi bilateralnih ugovora između univerziteta.", [], ['alignment' => Jc::BOTH]);
+        $section->addTextBreak(1);
+        $section->addText("Članom 2 Uputstva za primjenu pravila mobilnosti studenata u realizaciji Sporazuma o institucionalnoj saradnji sa $foreignFacultyName, propisano je da se studentu  koji po osnovu mobilnosti boravi na $foreignFacultyName, priznaju  i vrednuju svi predmeti, ocjene i krediti koje je stekao na $foreignFacultyName, kao da su stečeni i vrednovani na Fakultetu za informacione tehnologije.", [], ['alignment' => Jc::BOTH]);
+        $section->addTextBreak(1);
+        $section->addText("Na osnovu naprijed izloženog odlučeno je kao u dispozitivu Odluke.", [], ['alignment' => Jc::BOTH]);
+        $section->addTextBreak(1);
+
+        // 8. Footer (Dostaviti & Signature)
+        $section->addPageBreak();
+        $section->addText("Dostaviti:");
+        $section->addText("-Studentskoj službi Fakulteta");
+        $section->addText("-$studentName");
+        $section->addText("-u dosije studenta");
+        $section->addTextBreak(1);
+
+        $section->addText("DEKANKA", ['bold' => true], ['alignment' => Jc::RIGHT]);
+        $section->addText("__________________", [], ['alignment' => Jc::RIGHT]);
+        $section->addText("prof dr Maja Delibasic", ['bold' => true], ['alignment' => Jc::RIGHT]);
+
+        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
+        $fileName = 'odluka_mobilnost_' . $mobilnost->id . '_' . time() . '.docx';
+        $tempPath = storage_path('app/public/' . $fileName);
+        $objWriter->save($tempPath);
+
+        return $tempPath;
+    }
+
+    private function mapNumericToLetter($avg)
+    {
+        if ($avg === null) return '-';
+        if ($avg >= 9.5) return 'A';
+        if ($avg >= 8.5) return 'B';
+        if ($avg >= 7.5) return 'C';
+        if ($avg >= 6.5) return 'D';
+        if ($avg >= 6.0) return 'E';
+        return 'F';
+    }
 }
