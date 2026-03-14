@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UniverzitetController;
-
+use App\Http\Controllers\MobilityImportController;
 
 Route::get('/', function () {
     $user = Auth::user();
@@ -41,12 +41,15 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/mobility/categories', [MobilityController::class, 'storeCategory'])->name('admin.mobility.categories.store');
     Route::delete('/mobility/categories/{id}', [MobilityController::class, 'destroyCategory'])->name('admin.mobility.categories.destroy');
 
+    Route::get('/mobility/import', [MobilityImportController::class, 'index'])->name('admin.mobility.import');
+    Route::match(['get', 'post'], '/mobility/import/preview', [MobilityImportController::class, 'preview'])->name('admin.mobility.import.preview');
+    Route::post('/mobility/import/store', [MobilityImportController::class, 'import'])->name('admin.mobility.import.store');
+
     Route::get('/mobility/{id}', [MobilityController::class, 'show'])->name('admin.mobility.show');
     Route::post('/mobility/grade/{id}', [MobilityController::class, 'updateGrade'])->name('admin.mobility.update-grade');
     Route::post('/mobility/{id}/grades', [MobilityController::class, 'updateGrades'])->name('admin.mobility.update-grades');
     Route::post('/mobility/{id}/export-word', [MobilityController::class, 'exportWord'])->name('admin.mobility.export-word');
     Route::post('/mobility/{id}/lock', [MobilityController::class, 'lock'])->name('admin.mobility.lock');
-    
 
     Route::get('/mobility/{id}/documents', [MobilityController::class, 'documents'])->name('admin.mobility.documents');
     Route::post('/mobility/{id}/documents', [MobilityController::class, 'uploadDocument'])->name('admin.mobility.documents.upload');
@@ -70,14 +73,10 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::post('/students/parse-tor', [App\Http\Controllers\StudentController::class, 'parseTor'])->name('students.parse-tor');
     Route::delete('/students/{id}', [App\Http\Controllers\StudentController::class, 'destroy'])->name('students.destroy');
 
-
-    // Route::get('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'professorMatch'])->name('prepis.professor-match'); // Removed
-    // Route::post('/prepisi/professor-match', [\App\Http\Controllers\PrepisController::class, 'storeProfessorMatch'])->name('prepis.professor-match.store'); // Removed
-    
     Route::get('/prepisi/match', [\App\Http\Controllers\PrepisController::class, 'match'])->name('prepis.match');
     Route::post('/prepisi/match', [\App\Http\Controllers\PrepisController::class, 'storeMatch'])->name('prepis.match.store');
     Route::get('/prepisi/student-subjects/{student}', [\App\Http\Controllers\PrepisController::class, 'getStudentSubjects'])->name('prepis.student-subjects');
-    
+
     Route::get('/prepisi/mapping-request/{id}', [\App\Http\Controllers\PrepisController::class, 'showMappingRequest'])->name('prepis.mapping-request.show');
     Route::post('/prepisi/mapping-request/subject/{id}/update', [\App\Http\Controllers\PrepisController::class, 'updateMappingRequestSubject'])->name('prepis.mapping-request.subject.update');
     Route::delete('/prepisi/mapping-request/subject/{id}/remove', [\App\Http\Controllers\PrepisController::class, 'removeMappingRequestSubject'])->name('prepis.mapping-request.subject.remove');
@@ -99,7 +98,7 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::put('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'update'])->name('fakulteti.update');
     Route::get('/fakulteti/{id}/download', [\App\Http\Controllers\FakultetController::class, 'downloadFile'])->name('fakulteti.download');
     Route::delete('/fakulteti/{id}', [\App\Http\Controllers\FakultetController::class, 'destroy'])->name('fakulteti.destroy');
-    
+
     Route::post('/fakulteti/{fakultet}/predmeti/import', [\App\Http\Controllers\PredmetController::class, 'import'])->name('fakulteti.predmeti.import');
     Route::get('/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'index'])->name('fakulteti.predmeti.index');
     Route::get('/api/fakulteti/{fakultet}/predmeti', [\App\Http\Controllers\PredmetController::class, 'getSubjectsByFaculty'])->name('api.fakulteti.predmeti');
@@ -136,7 +135,5 @@ Route::middleware('profesorAuth')->prefix('profesor')->group(function () {
     Route::get('/mapping-request/{id}', [\App\Http\Controllers\MappingRequestController::class, 'show'])->name('mapping-request.show');
     Route::post('/mapping-request/{id}', [\App\Http\Controllers\MappingRequestController::class, 'update'])->name('mapping-request.update');
 });
-
-
 
 require __DIR__ . '/auth.php';

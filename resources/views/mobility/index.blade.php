@@ -26,6 +26,7 @@
             <!-- Header -->
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Kreiraj mobilnost</h1>
+                
             </div>
 
             <form id="mobilityForm" action="{{ route('admin.mobility.save') }}" method="POST">
