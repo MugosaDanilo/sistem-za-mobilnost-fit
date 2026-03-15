@@ -112,13 +112,18 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                   <div class="flex justify-center space-x-2">
-                    <a href="{{ route('students.edit', $student->id) }}"
-                      class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
-                      Izmijeni
-                    </a>
+    <a href="{{ route('students.edit', $student->id) }}"
+      class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
+      Izmijeni
+    </a>
 
-                    <form action="{{ route('students.destroy', $student->id) }}" method="POST"
-                      onsubmit="return confirm('Jeste li sigurni da želite da obrišete studenta?')">
+    <a href="{{ route('students.documents.index', $student->id) }}"
+      class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition-colors">
+      Dokumenta
+    </a>
+
+    <form action="{{ route('students.destroy', $student->id) }}" method="POST"
+      onsubmit="return confirm('Jeste li sigurni da želite da obrišete studenta?')">
                       @csrf
                       @method('DELETE')
                       <button type="submit"

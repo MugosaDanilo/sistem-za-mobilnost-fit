@@ -40,6 +40,11 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
     Route::get('/mobility/categories', [MobilityController::class, 'getCategories'])->name('admin.mobility.categories');
     Route::post('/mobility/categories', [MobilityController::class, 'storeCategory'])->name('admin.mobility.categories.store');
     Route::delete('/mobility/categories/{id}', [MobilityController::class, 'destroyCategory'])->name('admin.mobility.categories.destroy');
+    
+    Route::get('/students/{id}/documents', [App\Http\Controllers\StudentDocumentController::class, 'index'])->name('students.documents.index');
+    Route::post('/students/{id}/documents', [App\Http\Controllers\StudentDocumentController::class, 'store'])->name('students.documents.store');
+    Route::get('/documents/{id}/download', [App\Http\Controllers\StudentDocumentController::class, 'download'])->name('students.documents.download');
+    Route::delete('/documents/{id}', [App\Http\Controllers\StudentDocumentController::class, 'destroy'])->name('students.documents.destroy');
 
     Route::get('/mobility/import', [MobilityImportController::class, 'index'])->name('admin.mobility.import');
     Route::match(['get', 'post'], '/mobility/import/preview', [MobilityImportController::class, 'preview'])->name('admin.mobility.import.preview');

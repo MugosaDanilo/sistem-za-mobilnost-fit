@@ -52,4 +52,9 @@ class Student extends Model
         return $this->hasMany(MappingRequest::class, 'student_id');
     }
 
+    public function documents()
+{
+    return $this->hasMany(StudentDocument::class, 'student_id');
+}
+
 }
