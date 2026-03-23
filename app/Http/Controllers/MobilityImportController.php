@@ -20,9 +20,11 @@ class MobilityImportController extends Controller
     public function index()
     {
         $fakulteti = Fakultet::orderBy('naziv')->get();
+        $documentCategories = MobilityCategory::orderBy('name')->get();
 
         return view('mobility.import', [
             'fakulteti' => $fakulteti,
+            'documentCategories' => $documentCategories,
             'previewData' => null,
             'excelTmpPath' => null,
             'zipTmpPath' => null,
@@ -45,6 +47,7 @@ class MobilityImportController extends Controller
         ]);
 
         $fakulteti = Fakultet::orderBy('naziv')->get();
+        $documentCategories = MobilityCategory::orderBy('name')->get();
         $selectedFakultet = Fakultet::findOrFail($request->fakultet_id);
 
         $excelTmpPath = $request->input('excel_tmp_path');
@@ -96,6 +99,7 @@ class MobilityImportController extends Controller
         ];
 
         $extractPath = null;
+        $seenIndexes = [];
 
         try {
             if (empty($missingColumns)) {
@@ -109,11 +113,23 @@ class MobilityImportController extends Controller
                         continue;
                     }
 
-                    $errors = $this->validateImportRow($row, $headerMap, $selectedFakultet, $extractPath);
-
                     $brIndeksa = trim((string) $this->getValue($row, $headerMap, 'Br indeksa'));
                     $ime = trim((string) $this->getValue($row, $headerMap, 'Ime'));
                     $prezime = trim((string) $this->getValue($row, $headerMap, 'Prezime'));
+
+                    $duplicateErrors = [];
+                    if ($brIndeksa !== '') {
+                        if (in_array($brIndeksa, $seenIndexes, true)) {
+                            $duplicateErrors[] = 'Broj indeksa se pojavljuje više puta u Excel fajlu.';
+                        } else {
+                            $seenIndexes[] = $brIndeksa;
+                        }
+                    }
+
+                    $errors = array_merge(
+                        $duplicateErrors,
+                        $this->validateImportRow($row, $headerMap, $selectedFakultet, $extractPath)
+                    );
 
                     if (!empty($errors)) {
                         $previewData['invalid_rows']++;
@@ -136,6 +152,7 @@ class MobilityImportController extends Controller
 
         return view('mobility.import', [
             'fakulteti' => $fakulteti,
+            'documentCategories' => $documentCategories,
             'previewData' => $previewData,
             'excelTmpPath' => $excelTmpPath,
             'zipTmpPath' => $zipTmpPath,
@@ -181,6 +198,7 @@ class MobilityImportController extends Controller
         $skippedCount = 0;
         $errorsByRow = [];
         $extractPath = null;
+        $seenIndexes = [];
 
         try {
             $extractPath = $this->extractZipToTemp($zipFullPath);
@@ -192,11 +210,23 @@ class MobilityImportController extends Controller
                     continue;
                 }
 
-                $errors = $this->validateImportRow($row, $headerMap, $selectedFakultet, $extractPath);
-
                 $brIndeksa = trim((string) $this->getValue($row, $headerMap, 'Br indeksa'));
                 $ime = trim((string) $this->getValue($row, $headerMap, 'Ime'));
                 $prezime = trim((string) $this->getValue($row, $headerMap, 'Prezime'));
+
+                $duplicateErrors = [];
+                if ($brIndeksa !== '') {
+                    if (in_array($brIndeksa, $seenIndexes, true)) {
+                        $duplicateErrors[] = 'Broj indeksa se pojavljuje više puta u Excel fajlu.';
+                    } else {
+                        $seenIndexes[] = $brIndeksa;
+                    }
+                }
+
+                $errors = array_merge(
+                    $duplicateErrors,
+                    $this->validateImportRow($row, $headerMap, $selectedFakultet, $extractPath)
+                );
 
                 if (!empty($errors)) {
                     $skippedCount++;
@@ -230,7 +260,7 @@ class MobilityImportController extends Controller
                     continue;
                 }
 
-                $documents = $this->resolveStudentDocuments($extractPath, $brIndeksa, $priznavanje === 'da');
+                $documents = $this->resolveStudentDocumentsFromCategories($extractPath, $brIndeksa);
 
                 try {
                     DB::beginTransaction();
@@ -394,14 +424,33 @@ class MobilityImportController extends Controller
                 }
             }
 
-            $docCheck = $this->resolveStudentDocuments($extractPath, $brIndeksa, $priznavanje === 'da');
+            $docCheck = $this->resolveStudentDocumentsFromCategories($extractPath, $brIndeksa);
 
             foreach ($docCheck['errors'] as $error) {
                 $errors[] = $error;
             }
+
+            $normalizedCategoryNames = collect($docCheck['documents'])
+                ->pluck('category_name')
+                ->map(fn ($name) => $this->normalizeDocumentBaseName($name))
+                ->toArray();
+
+            if (!$this->hasRequiredCategory($normalizedCategoryNames, ['learning_agreement', 'la'])) {
+                $errors[] = 'Nedostaje dokument kategorije Learning Agreement.';
+            }
+
+            if ($priznavanje === 'da') {
+                if (!$this->hasRequiredCategory($normalizedCategoryNames, ['tor', 'transcript', 'transcript_of_records'])) {
+                    $errors[] = 'Nedostaje dokument kategorije ToR.';
+                }
+
+                if (!$this->hasRequiredCategory($normalizedCategoryNames, ['odluka', 'priznavanje', 'odluka_o_priznavanju', 'mobility_decision'])) {
+                    $errors[] = 'Nedostaje dokument kategorije Odluka.';
+                }
+            }
         }
 
-        return $errors;
+        return array_values(array_unique($errors));
     }
 
     private function readExcel(string $excelFullPath): array
@@ -482,47 +531,83 @@ class MobilityImportController extends Controller
         return $normalize($excelValue) === $normalize($selectedFacultyName);
     }
 
-    private function resolveStudentDocuments(string $extractPath, string $brIndeksa, bool $requiresRecognitionDocs): array
+    private function hasRequiredCategory(array $normalizedCategoryNames, array $acceptedNames): bool
+    {
+        foreach ($acceptedNames as $acceptedName) {
+            if (in_array($this->normalizeDocumentBaseName($acceptedName), $normalizedCategoryNames, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function getNormalizedCategories(): array
+    {
+        return MobilityCategory::all()->map(function ($category) {
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'normalized_name' => $this->normalizeDocumentBaseName($category->name),
+            ];
+        })->toArray();
+    }
+
+    private function findCategoryForFile(string $filePath, array $categories): ?array
+    {
+        $baseName = pathinfo($filePath, PATHINFO_FILENAME);
+        $normalizedBaseName = $this->normalizeDocumentBaseName($baseName);
+
+        foreach ($categories as $category) {
+            if ($normalizedBaseName === $category['normalized_name']) {
+                return $category;
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveStudentDocumentsFromCategories(string $extractPath, string $brIndeksa): array
     {
         $errors = [];
-        $documents = [
-            'learning_agreement' => null,
-            'transcript' => null,
-            'mobility_decision' => null,
-        ];
+        $documents = [];
 
         $studentFolder = $this->findStudentFolder($extractPath, $brIndeksa);
 
         if (!$studentFolder) {
             return [
-                'errors' => ['Nedostaje folder dokumentacije za studenta u ZIP fajlu.'],
-                'documents' => $documents,
+                'errors' => [
+                    'Nedostaje folder dokumentacije za studenta. Očekivani naziv foldera je: ' . $this->normalizeIndexForFolder($brIndeksa)
+                ],
+                'documents' => [],
             ];
         }
 
         $files = $this->collectFilesFromDirectory($studentFolder);
+        $categories = $this->getNormalizedCategories();
 
-        $documents['learning_agreement'] = $this->findDocumentByBaseName($files, ['la', 'learning agreement', 'learning_agreement']);
+        foreach ($files as $filePath) {
+            $matchedCategory = $this->findCategoryForFile($filePath, $categories);
 
-        if (!$documents['learning_agreement']) {
-            $errors[] = 'Nedostaje LA dokument.';
+            if (!$matchedCategory) {
+                $errors[] = 'Fajl "' . basename($filePath) . '" nema odgovarajuću vrstu u bazi.';
+                continue;
+            }
+
+            $documents[] = [
+                'source_path' => $filePath,
+                'original_name' => basename($filePath),
+                'category_id' => $matchedCategory['id'],
+                'category_name' => $matchedCategory['name'],
+            ];
         }
 
-        if ($requiresRecognitionDocs) {
-            $documents['transcript'] = $this->findDocumentByBaseName($files, ['tor', 'transcript', 'transcript of records', 'transcript_of_records']);
-            $documents['mobility_decision'] = $this->findDocumentByBaseName($files, ['odluka', 'priznavanje', 'odluka o priznavanju', 'mobility_decision']);
-
-            if (!$documents['transcript']) {
-                $errors[] = 'Nedostaje TOR/Transcript dokument.';
-            }
-
-            if (!$documents['mobility_decision']) {
-                $errors[] = 'Nedostaje ODLUKA/Priznavanje dokument.';
-            }
+        if (empty($documents)) {
+            $errors[] = 'Nijedan dokument nije prepoznat na osnovu naziva fajlova i vrsta iz baze.';
         }
 
         return [
-            'errors' => $errors,
+            'errors' => array_values(array_unique($errors)),
             'documents' => $documents,
         ];
     }
@@ -579,27 +664,6 @@ class MobilityImportController extends Controller
         return $files;
     }
 
-    private function findDocumentByBaseName(array $files, array $acceptedNames): ?array
-    {
-        $normalizedAccepted = array_map(function ($name) {
-            return $this->normalizeDocumentBaseName($name);
-        }, $acceptedNames);
-
-        foreach ($files as $filePath) {
-            $baseName = pathinfo($filePath, PATHINFO_FILENAME);
-            $normalizedBaseName = $this->normalizeDocumentBaseName($baseName);
-
-            if (in_array($normalizedBaseName, $normalizedAccepted, true)) {
-                return [
-                    'source_path' => $filePath,
-                    'original_name' => basename($filePath),
-                ];
-            }
-        }
-
-        return null;
-    }
-
     private function normalizeDocumentBaseName(string $name): string
     {
         $name = mb_strtolower(trim($name));
@@ -612,13 +676,7 @@ class MobilityImportController extends Controller
 
     private function attachDocumentsToMobility(Mobilnost $mobilnost, array $resolvedDocuments): void
     {
-        $defaultCategory = MobilityCategory::firstOrCreate(['name' => 'Default']);
-
-        foreach ($resolvedDocuments['documents'] as $type => $document) {
-            if (!$document) {
-                continue;
-            }
-
+        foreach ($resolvedDocuments['documents'] as $document) {
             $destinationFileName = $document['original_name'];
             $relativePath = "mobility_docs/{$mobilnost->id}/{$destinationFileName}";
 
@@ -631,8 +689,8 @@ class MobilityImportController extends Controller
                 'mobilnost_id' => $mobilnost->id,
                 'name' => $destinationFileName,
                 'path' => $relativePath,
-                'type' => $type,
-                'category_id' => $defaultCategory->id,
+                'type' => $this->normalizeDocumentBaseName(pathinfo($destinationFileName, PATHINFO_FILENAME)),
+                'category_id' => $document['category_id'],
             ]);
         }
     }

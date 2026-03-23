@@ -18,6 +18,15 @@
             box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
         }
 
+        .import-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
         .import-title {
             font-size: 22px;
             font-weight: 700;
@@ -29,6 +38,64 @@
             font-size: 15px;
             color: #64748b;
             margin-bottom: 28px;
+        }
+
+        .help-button {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #0f172a;
+            font-size: 20px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .help-button:hover {
+            background: #eff6ff;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+
+        .help-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 18px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .help-box.active {
+            display: block;
+        }
+
+        .help-box h3 {
+            margin: 0 0 12px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .help-box p {
+            margin: 0 0 10px;
+            color: #475569;
+            font-size: 14px;
+        }
+
+        .help-box ul {
+            margin: 8px 0 16px 18px;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .help-box li {
+            margin-bottom: 6px;
         }
 
         .import-form-grid {
@@ -191,6 +258,26 @@
             color: #0f172a;
         }
 
+        .step-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
+        }
+
+        .step-box-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .step-box-text {
+            font-size: 14px;
+            color: #475569;
+        }
+
         @media (max-width: 768px) {
             .import-card {
                 padding: 24px 18px;
@@ -218,10 +305,62 @@
         <div class="import-wrapper">
             <div class="import-card">
 
-                <div class="import-title">Import mobilnosti</div>
+                <div class="import-header">
+                    <div>
+                        <div class="import-title">Import mobilnosti</div>
+                        <div class="import-subtitle">
+                            Učitaj Excel fajl i ZIP dokumentaciju za automatski unos postojećih mobilnosti za više studenata odjednom.
+                        </div>
+                    </div>
 
-                <div class="import-subtitle">
-                    Učitaj Excel fajl i ZIP dokumentaciju za automatski unos postojećih mobilnosti.
+                    <button type="button" class="help-button" id="toggle-help" title="Prikaži uputstvo">?</button>
+                </div>
+
+                <div class="help-box" id="help-box">
+                    <h3>Uputstvo za import</h3>
+
+                    <p><strong>1. Excel fajl</strong></p>
+                    <p>Svaki red u Excel fajlu predstavlja jednog studenta i jednu mobilnost. Obavezne kolone su:</p>
+                    <ul>
+                        <li>Br indeksa</li>
+                        <li>Ime</li>
+                        <li>Prezime</li>
+                        <li>Host fakultet</li>
+                        <li>Država</li>
+                        <li>Datum početka</li>
+                        <li>Datum završetka</li>
+                        <li>Tip mobilnosti</li>
+                        <li>Studijska godina</li>
+                        <li>Priznavanje završeno</li>
+                    </ul>
+
+                    <p><strong>2. ZIP fajl</strong></p>
+                    <p>ZIP mora sadržati poseban folder za svakog studenta. Naziv foldera mora odgovarati broju indeksa studenta.</p>
+                    <p>Primjer: ako je broj indeksa <strong>21/001</strong>, naziv foldera treba da bude <strong>21_001</strong>.</p>
+
+                    <p><strong>3. Nazivi dokumenata</strong></p>
+                    <p>Naziv svakog fajla mora odgovarati jednoj od vrsta dokumenata iz baze. Dozvoljeni nazivi su:</p>
+                    <ul>
+                        @forelse($documentCategories as $category)
+                            <li>{{ $category->name }}.pdf / .doc / .docx</li>
+                        @empty
+                            <li>Nema definisanih kategorija dokumenata u bazi.</li>
+                        @endforelse
+                    </ul>
+
+                    <p><strong>4. Obavezni dokumenti</strong></p>
+                    <ul>
+                        <li>Za svaki import je obavezan dokument kategorije <strong>Learning Agreement</strong> ili <strong>LA</strong>.</li>
+                        <li>Ako je vrijednost „Priznavanje završeno“ = <strong>da</strong>, obavezni su i dokumenti kategorije <strong>ToR</strong> i <strong>Odluka</strong>.</li>
+                    </ul>
+
+                    <p><strong>Primjer ZIP strukture:</strong></p>
+                    <ul>
+                        <li>21_001 / Learning Agreement.pdf</li>
+                        <li>21_001 / ToR.pdf</li>
+                        <li>21_001 / Odluka.pdf</li>
+                        <li>21_002 / Learning Agreement.pdf</li>
+                    </ul>
                 </div>
 
                 @if(session('success'))
@@ -265,6 +404,96 @@
                     </div>
                 @endif
 
+                <div class="help-box" id="help-box">
+    <h3>Uputstvo za import mobilnosti</h3>
+
+    <p><strong>Excel fajl</strong></p>
+    <p>
+        Excel fajl mora sadržati podatke za više studenata.
+        Svaki red predstavlja jednog studenta i jednu mobilnost.
+        Prvi red mora sadržati nazive kolona.
+    </p>
+
+    <p><strong>Obavezne kolone:</strong></p>
+    <ul>
+        <li>Br indeksa</li>
+        <li>Ime</li>
+        <li>Prezime</li>
+        <li>Host fakultet</li>
+        <li>Država</li>
+        <li>Datum početka</li>
+        <li>Datum završetka</li>
+        <li>Tip mobilnosti (Semestralna ili Godišnja)</li>
+        <li>Studijska godina</li>
+        <li>Priznavanje završeno (DA / NE)</li>
+    </ul>
+
+    <p><strong>Važno:</strong></p>
+    <ul>
+        <li>Prvi red mora biti header (nazivi kolona)</li>
+        <li>Svaki sljedeći red je jedan student</li>
+        <li>Vrijednost "Host fakultet" mora odgovarati izabranom fakultetu</li>
+    </ul>
+
+    <hr>
+
+    <p><strong>ZIP fajl (dokumentacija)</strong></p>
+    <p>
+        ZIP fajl mora sadržati posebne foldere za svakog studenta.
+        Naziv foldera mora odgovarati broju indeksa studenta.
+    </p>
+
+    <p><strong>Primjer:</strong></p>
+    <ul>
+        <li>52-23</li>
+        <li>09-23</li>
+        <li>109-22</li>
+    </ul>
+
+    <p>
+        Ako indeks sadrži znak "/", on se zamjenjuje sa "_"
+    </p>
+
+    <p><strong>Primjer strukture ZIP-a:</strong></p>
+    <ul>
+        <li>52-23 / Learning Agreement.pdf</li>
+        <li>52-23 / ToR.pdf</li>
+        <li>52-23 / Odluka.pdf</li>
+        <li>09-23 / Learning Agreement.pdf</li>
+    </ul>
+
+    <hr>
+
+    <p><strong>Dozvoljeni nazivi fajlova</strong></p>
+    <p>
+        Naziv svakog dokumenta mora odgovarati jednoj od vrsta dokumenata iz baze.
+    </p>
+
+    <ul>
+        @foreach($documentCategories as $category)
+            <li>{{ $category->name }} (npr. {{ $category->name }}.pdf)</li>
+        @endforeach
+    </ul>
+
+    <p><strong>Napomena:</strong></p>
+    <ul>
+        <li>Dozvoljeni formati: PDF, DOC, DOCX</li>
+        <li>Naziv fajla mora odgovarati nazivu kategorije</li>
+    </ul>
+
+    <hr>
+
+    <p><strong>Obavezni dokumenti</strong></p>
+    <ul>
+        <li>Learning Agreement (obavezan)</li>
+        <li>Ako je "Priznavanje završeno" = DA:
+            <ul>
+                <li>ToR</li>
+                <li>Odluka</li>
+            </ul>
+        </li>
+    </ul>
+</div>
                 @if(isset($previewData) && $previewData)
                     <div class="preview-box">
                         <div><strong>Preview uspješan</strong></div>
@@ -447,4 +676,17 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButton = document.getElementById('toggle-help');
+            const helpBox = document.getElementById('help-box');
+
+            if (toggleButton && helpBox) {
+                toggleButton.addEventListener('click', function () {
+                    helpBox.classList.toggle('active');
+                });
+            }
+        });
+    </script>
 </x-app-layout>
