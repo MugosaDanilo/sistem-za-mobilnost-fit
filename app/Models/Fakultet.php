@@ -9,7 +9,7 @@ class Fakultet extends Model
 {
     use HasFactory;
     protected $table = 'fakulteti';
-    protected $fillable = ['naziv', 'drzava', 'email', 'telefon', 'web', 'univerzitet_id'];
+    protected $fillable = ['naziv', 'drzava', 'email', 'telefon', 'web', 'univerzitet_id', 'platforma_fakultet_id'];
 
     public function univerzitet()
     {

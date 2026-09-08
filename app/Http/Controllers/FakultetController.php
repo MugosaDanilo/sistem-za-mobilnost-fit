@@ -16,17 +16,28 @@ class FakultetController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('naziv', 'ilike', "%{$search}%")
-                  ->orWhere('drzava', 'ilike', "%{$search}%")
+                $q->where('naziv', 'like', "%{$search}%")
+                  ->orWhere('drzava', 'like', "%{$search}%")
                   ->orWhereHas('univerzitet', function($qu) use ($search) {
-                      $qu->where('naziv', 'ilike', "%{$search}%");
+                      $qu->where('naziv', 'like', "%{$search}%");
                   });
             });
         }
 
         $fakulteti = $query->paginate(7)->withQueryString();
         $univerziteti = Univerzitet::all(); // For the dropdown in modal
-        return view('fakultet.index', compact('fakulteti', 'univerziteti'));
+
+        // Fakulteti sa studentske platforme za povezivanje (dropdown u formi)
+        $platformaFakulteti = [];
+        if (config('platforma.enabled')) {
+            try {
+                $platformaFakulteti = app(\App\Services\Platforma\PlatformaClient::class)->sifarnici()['fakulteti'] ?? [];
+            } catch (\App\Services\Platforma\PlatformaException $e) {
+                session()->now('error', 'Platforma nije dostupna: ' . $e->getMessage());
+            }
+        }
+
+        return view('fakultet.index', compact('fakulteti', 'univerziteti', 'platformaFakulteti'));
     }
 
     public function store(Request $request)
@@ -39,11 +50,14 @@ class FakultetController extends Controller
         'web' => 'nullable|string|max:255',
 
         'univerzitet_naziv' => 'nullable|string|max:255', // ime univerziteta iz inputa
+        'platforma_fakultet_id' => 'nullable|integer|unique:fakulteti,platforma_fakultet_id',
     ], [
         'email.unique' => 'Fakultet sa ovim emailom već postoji.',
+        'platforma_fakultet_id.unique' => 'Taj fakultet sa platforme je već povezan sa drugim fakultetom.',
     ]);
 
     $fakultet = new Fakultet();
+    $fakultet->platforma_fakultet_id = $validated['platforma_fakultet_id'] ?? null;
     $fakultet->naziv = $validated['naziv'];
     $fakultet->drzava = $validated['drzava'] ?? null;
     $fakultet->email = $validated['email'];
@@ -80,10 +94,13 @@ public function update(Request $request, $id)
 
         'univerzitet_naziv' => 'nullable|string|max:255',
         'file' => 'nullable|file|max:10240', // 10MB max
+        'platforma_fakultet_id' => ['nullable', 'integer', Rule::unique('fakulteti')->ignore($fakultet->id)],
     ], [
         'email.unique' => 'Fakultet sa ovim emailom već postoji.',
+        'platforma_fakultet_id.unique' => 'Taj fakultet sa platforme je već povezan sa drugim fakultetom.',
     ]);
 
+    $fakultet->platforma_fakultet_id = $validated['platforma_fakultet_id'] ?? null;
     $fakultet->naziv = $validated['naziv'];
     $fakultet->drzava = $validated['drzava'] ?? null;
     $fakultet->email = $validated['email'];

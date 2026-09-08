@@ -433,6 +433,8 @@ class MobilityController extends Controller
         $request->validate([
             'grades' => 'required|array',
             'grades.*' => 'nullable|string|max:10',
+            'bodovi' => 'nullable|array',
+            'bodovi.*' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $mobilnost = Mobilnost::findOrFail($id);
@@ -441,10 +443,13 @@ class MobilityController extends Controller
             return response()->json(['message' => 'Mobility is locked. Cannot update grades.'], 403);
         }
 
+        $bodovi = $request->input('bodovi', []);
+
         foreach ($request->grades as $laId => $grade) {
             $la = LearningAgreement::where('mobilnost_id', $mobilnost->id)->where('id', $laId)->first();
             if ($la) {
-                $la->update(['ocjena' => $grade]);
+                $b = $bodovi[$laId] ?? null;
+                $la->update(['ocjena' => $grade, 'bodovi' => ($b === null || $b === '') ? null : (float) $b]);
             }
         }
 
@@ -568,6 +573,15 @@ class MobilityController extends Controller
         $studentId = $request->input('student_id');
         $student = \App\Models\Student::findOrFail($studentId);
 
+        // Student povezan sa platformom: matični i položeni predmeti dolaze sa platforme.
+        if ($student->platforma_student_id && app(\App\Services\Platforma\PlatformaClient::class)->enabled()) {
+            try {
+                return response()->json($this->getStudentSubjectsFromPlatforma($student));
+            } catch (\App\Services\Platforma\PlatformaException $e) {
+                Log::warning('Platforma nedostupna, koristim lokalne predmete: ' . $e->getMessage());
+            }
+        }
+
         $currentYear = $student->godina_studija;
 
         // Fetch Unpassed Subjects from Previous Years
@@ -640,6 +654,56 @@ class MobilityController extends Controller
             'unpassed' => $unpassedSubjects->map(fn($p) => ['id' => $p['id'], 'naziv' => $p['naziv'], 'ects' => \App\Models\Predmet::find($p['id'])->ects]),
             'next_year' => $nextYearSubjects->map(fn($p) => ['id' => $p['id'], 'naziv' => $p['naziv'], 'ects' => \App\Models\Predmet::find($p['id'])->ects])
         ]);
+    }
+
+    /**
+     * Nepoloženi (prethodne godine) i predstojeći (naredna godina) matični predmeti sa platforme.
+     * Katalog: predmeti fakulteta/nivoa/akademske godine iz aktivnog upisa.
+     * Položeni: student_pfs sa platforme (po predmet_id, nezavisno od akademske godine).
+     */
+    private function getStudentSubjectsFromPlatforma(\App\Models\Student $student): array
+    {
+        $client = app(\App\Services\Platforma\PlatformaClient::class);
+        $predmetSync = app(\App\Services\Platforma\PlatformaPredmetSync::class);
+
+        $p = $client->student((int) $student->platforma_student_id);
+        $upis = app(\App\Services\Platforma\PlatformaStudentSync::class)
+            ->izaberiUpis($p, $student->platforma_upis_id ? (int) $student->platforma_upis_id : null);
+        if (!$upis) {
+            throw new \App\Services\Platforma\PlatformaException('Student nema aktivan upis na platformi.');
+        }
+
+        $godina = (int) ($student->godina_studija ?: 1);
+        $polozeni = collect($client->polozeniPredmeti((int) $student->platforma_student_id))
+            ->pluck('predmet_id')->map(fn ($v) => (int) $v)->all();
+
+        $katalog = collect($client->predmetiFakulteta((int) $upis['fakultet_id'], (int) $upis['nivo_studija_id'], (int) $upis['akademska_godina_id'])['predmeti'] ?? [])
+            ->reject(fn ($r) => in_array((int) $r['predmet_id'], $polozeni, true));
+
+        $unpassed = $katalog->filter(fn ($r) => (int) $r['semestar'] <= 2 * $godina);
+        $nextYear = $katalog->filter(fn ($r) => in_array((int) $r['semestar'], [2 * $godina + 1, 2 * $godina + 2], true));
+
+        // Završna godina osnovnih: naredna godina je prva godina mastera (kao u lokalnoj logici).
+        if ($nextYear->isEmpty()) {
+            $sifarnici = $client->sifarnici();
+            $master = collect($sifarnici['nivoi_studija'] ?? [])->first(fn ($n) => mb_strtolower($n['naziv']) === 'master');
+            if ($master && (int) $master['id'] !== (int) $upis['nivo_studija_id']) {
+                $nextYear = collect($client->predmetiFakulteta((int) $upis['fakultet_id'], (int) $master['id'], (int) $upis['akademska_godina_id'])['predmeti'] ?? [])
+                    ->filter(fn ($r) => in_array((int) $r['semestar'], [1, 2], true))
+                    ->reject(fn ($r) => in_array((int) $r['predmet_id'], $polozeni, true));
+            }
+        }
+
+        $mapiraj = fn ($rows) => $rows->map(function ($r) use ($predmetSync) {
+            $lokalni = $predmetSync->lokalniPredmet($r);
+            return ['id' => $lokalni->id, 'naziv' => $lokalni->naziv, 'ects' => $lokalni->ects];
+        })->values();
+
+        return [
+            'unpassed' => $mapiraj($unpassed),
+            'next_year' => $mapiraj($nextYear),
+            'izvor' => 'platforma',
+        ];
     }
 
     public function getFacultySubjects(Request $request)
@@ -717,7 +781,17 @@ class MobilityController extends Controller
     {
         $mobilnost = Mobilnost::findOrFail($id);
         $mobilnost->update(['is_locked' => true]);
-        
+
+        // Priznati ispiti idu u karton studenta na platformi.
+        $writeback = app(\App\Services\Platforma\PlatformaWriteback::class);
+        if ($writeback->enabled() && $mobilnost->student?->platforma_student_id) {
+            if ($writeback->posaljiMobilnost($mobilnost)) {
+                return redirect()->back()->with('success', 'Mobilnost zaključena. Priznati ispiti su poslati u karton studenta na platformi.');
+            }
+
+            return redirect()->back()->with('error', 'Mobilnost je zaključena, ali slanje u platformu nije uspjelo: ' . $mobilnost->fresh()->platforma_greska);
+        }
+
         return redirect()->back()->with('success', 'Mobilnost uspješno zaključena.');
     }
 

@@ -11,7 +11,11 @@
       <form action="{{ route('students.store') }}" method="POST">
         @csrf
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-data="{
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" @platforma-student-selected.window="platformaLinked = true" x-data="{
+            platformaLinked: false,
+            platformaFakulteti: {{ json_encode($fakulteti->map(fn($f) => ['id' => $f->id, 'platforma' => (bool) $f->platforma_fakultet_id])) }},
+            get facultyLinked() { let f = this.platformaFakulteti.find(x => x.id == this.selectedFaculty); return !!(f && f.platforma); },
+            get hideLocalSubjects() { return this.platformaLinked && this.facultyLinked; },
             selectedFaculty: '{{ old('fakultet_id', '') }}',
             faculties: {{ json_encode($fakulteti->map(fn($f) => ['id' => $f->id, 'naziv' => $f->naziv])) }},
             studyYear: '{{ old('godina_studija') }}',
@@ -45,23 +49,29 @@
                 }
             }
           }">
+          <div class="md:col-span-2">
+            <x-platforma-student-search />
+            <p x-show="platformaLinked" x-cloak class="md:col-span-2 -mt-2 mb-2 text-xs text-gray-500">Osnovni podaci se povlače sa studentske platforme i ovdje se ne mijenjaju. Za osvježavanje koristi dugme "Osvježi" na listi studenata.</p>
+
+          </div>
+
           <div class="mb-4">
             <label for="ime" class="block text-gray-700 font-medium mb-1">Ime</label>
-            <input type="text" id="ime" name="ime" value="{{ old('ime') }}"
+            <input type="text" id="ime" name="ime" :readonly="platformaLinked" :class="platformaLinked ? \'bg-gray-100 text-gray-600\' : \'\'" value="{{ old('ime') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('ime') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
             <label for="prezime" class="block text-gray-700 font-medium mb-1">Prezime</label>
-            <input type="text" id="prezime" name="prezime" value="{{ old('prezime') }}"
+            <input type="text" id="prezime" name="prezime" :readonly="platformaLinked" :class="platformaLinked ? \'bg-gray-100 text-gray-600\' : \'\'" value="{{ old('prezime') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('prezime') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
             <label for="br_indexa" class="block text-gray-700 font-medium mb-1">Broj indeksa</label>
-            <input type="text" id="br_indexa" name="br_indexa" value="{{ old('br_indexa') }}"
+            <input type="text" id="br_indexa" name="br_indexa" :readonly="platformaLinked" :class="platformaLinked ? \'bg-gray-100 text-gray-600\' : \'\'" value="{{ old('br_indexa') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('br_indexa') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
@@ -69,34 +79,34 @@
           <div class="mb-4">
             <label for="datum_rodjenja" class="block text-gray-700 font-medium mb-1">Datum rodjenja</label>
             <input type="date" id="datum_rodjenja" name="datum_rodjenja" value="{{ old('datum_rodjenja') }}"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
             @error('datum_rodjenja') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
             <label for="telefon" class="block text-gray-700 font-medium mb-1">Broj telefona</label>
-            <input type="text" id="telefon" name="telefon" value="{{ old('telefon') }}"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            <input type="text" id="telefon" name="telefon" :readonly="platformaLinked" :class="platformaLinked ? \'bg-gray-100 text-gray-600\' : \'\'" value="{{ old('telefon') }}"
+              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
             @error('telefon') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
             <label for="email" class="block text-gray-700 font-medium mb-1">Email</label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}"
-              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+            <input type="email" id="email" name="email" :readonly="platformaLinked" :class="platformaLinked ? \'bg-gray-100 text-gray-600\' : \'\'" value="{{ old('email') }}"
+              class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
             @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
             <label for="godina_studija" class="block text-gray-700 font-medium mb-1">Godina studija</label>
-            <input type="number" id="godina_studija" name="godina_studija" x-model="studyYear" @input="checkYear()" min="0" value="{{ old('godina_studija') }}"
+            <input type="number" id="godina_studija" name="godina_studija" :readonly="platformaLinked" :class="platformaLinked ? \'bg-gray-100 text-gray-600\' : \'\'" x-model="studyYear" @input="checkYear()" min="0" value="{{ old('godina_studija') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('godina_studija') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
 
           <div class="mb-4">
             <label for="jmbg" class="block text-gray-700 font-medium mb-1">JMBG</label>
-            <input type="text" id="jmbg" name="jmbg" value="{{ old('jmbg') }}"
+            <input type="text" id="jmbg" name="jmbg" :readonly="platformaLinked" :class="platformaLinked ? \'bg-gray-100 text-gray-600\' : \'\'" value="{{ old('jmbg') }}"
               class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
             @error('jmbg') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
@@ -180,6 +190,10 @@
                   }
               }
           @endphp
+            <div x-show="hideLocalSubjects" x-cloak class="mb-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+              Položeni predmeti ovog studenta se čitaju sa studentske platforme, lokalni unos predmeta nije potreban.
+            </div>
+            <div x-show="!hideLocalSubjects">
             <x-subject-selector :subjects="$predmeti" :selected="$selectedSubjects">
                 <div x-data="{ visible: false }" @faculty-changed.window="visible = ($event.detail === 'FIT')" x-show="visible" style="display: none;">
                     <button type="button" @click="$dispatch('open-tor-modal')"
@@ -188,6 +202,7 @@
                     </button>
                 </div>
             </x-subject-selector>
+            </div>
             @error('predmeti') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
           </div>
         </div>

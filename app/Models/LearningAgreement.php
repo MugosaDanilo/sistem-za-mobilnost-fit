@@ -13,7 +13,8 @@ class LearningAgreement extends Model
         'fit_predmet_id',
         'strani_predmet_id',
         'napomena',
-        'ocjena'
+        'ocjena',
+        'bodovi'
     ];
 
     public function mobilnost()

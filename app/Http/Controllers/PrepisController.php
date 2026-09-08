@@ -19,13 +19,13 @@ class PrepisController extends Controller
             $query->where(function($q) use ($search) {
                 // Search student
                 $q->whereHas('student', function($qs) use ($search) {
-                    $qs->where('ime', 'ilike', "%{$search}%")
-                      ->orWhere('prezime', 'ilike', "%{$search}%")
-                      ->orWhere('br_indexa', 'ilike', "%{$search}%");
+                    $qs->where('ime', 'like', "%{$search}%")
+                      ->orWhere('prezime', 'like', "%{$search}%")
+                      ->orWhere('br_indexa', 'like', "%{$search}%");
                 })
                 // Search faculty
                 ->orWhereHas('fakultet', function($qf) use ($search) {
-                    $qf->where('naziv', 'ilike', "%{$search}%");
+                    $qf->where('naziv', 'like', "%{$search}%");
                 });
             });
         }
@@ -387,6 +387,16 @@ class PrepisController extends Controller
             'status' => 'accepted',
             'datum_finalizacije' => now(),
         ]);
+
+        // Priznati ispiti idu u karton studenta na platformi.
+        $writeback = app(\App\Services\Platforma\PlatformaWriteback::class);
+        if ($writeback->enabled() && $student->platforma_student_id) {
+            if ($writeback->posaljiPrepis($mappingRequest)) {
+                return redirect()->back()->with('success', 'Zahtjev za prepis je prihvaćen. Priznati ispiti su poslati u karton studenta na platformi.');
+            }
+
+            return redirect()->back()->with('error', 'Zahtjev je prihvaćen, ali slanje u platformu nije uspjelo: ' . $mappingRequest->fresh()->platforma_greska);
+        }
 
         return redirect()->back()->with('success', 'Zahtjev za prepis je prihvaćen i ocjene su prenesene.');
     }

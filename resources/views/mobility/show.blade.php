@@ -32,6 +32,7 @@
                     <p class="mt-2 text-gray-600"><span class="font-medium">Ime:</span> {{ $mobilnost->student->ime }} {{ $mobilnost->student->prezime }}</p>
                     <p class="text-gray-600"><span class="font-medium">Indeks:</span> {{ $mobilnost->student->br_indexa }}</p>
                     <p class="text-gray-600"><span class="font-medium">Studijska godina:</span> {{ $mobilnost->studijska_godina ?? '-' }}</p>
+                    @include('partials.platforma-status', ['zapis' => $mobilnost, 'student' => $mobilnost->student, 'posaljiRoute' => route('platforma.mobilnost.posalji', $mobilnost->id), 'moze' => $mobilnost->is_locked])
                 </div>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-700">Informacije o mobilnosti</h2>
@@ -64,6 +65,7 @@
                                         </a>
                                     @endif
                                 </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bodovi <span class="normal-case font-normal">(opciono)</span></th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -88,6 +90,11 @@
                                                 </option>
                                             @endforeach
                                         </select>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <input type="number" name="bodovi[{{ $la->id }}]" value="{{ $la->bodovi !== null ? rtrim(rtrim(number_format($la->bodovi, 2, '.', ''), '0'), '.') : '' }}"
+                                               min="0" max="100" step="0.5" placeholder="0-100" {{ $mobilnost->is_locked ? 'disabled' : '' }}
+                                               class="w-24 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm {{ $mobilnost->is_locked ? 'bg-gray-100 cursor-not-allowed' : '' }}">
                                     </td>
                                 </tr>
                             @endforeach
@@ -579,10 +586,15 @@
             
             // Convert formData to nested object structure for 'grades' array
             const grades = {};
+            const bodovi = {};
             for (let [key, value] of formData.entries()) {
                 const match = key.match(/grades\[(\d+)\]/);
                 if (match) {
                     grades[match[1]] = value;
+                }
+                const matchB = key.match(/bodovi\[(\d+)\]/);
+                if (matchB) {
+                    bodovi[matchB[1]] = value === '' ? null : value;
                 }
             }
 
@@ -595,7 +607,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ grades: grades })
+                body: JSON.stringify({ grades: grades, bodovi: bodovi })
             })
             .then(res => res.json())
             .then(data => {

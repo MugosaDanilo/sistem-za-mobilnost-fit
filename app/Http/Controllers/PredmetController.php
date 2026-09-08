@@ -15,8 +15,8 @@ class PredmetController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('naziv', 'ilike', "%{$search}%")
-                  ->orWhere('sifra_predmeta', 'ilike', "%{$search}%");
+                $q->where('naziv', 'like', "%{$search}%")
+                  ->orWhere('sifra_predmeta', 'like', "%{$search}%");
             });
         }
 

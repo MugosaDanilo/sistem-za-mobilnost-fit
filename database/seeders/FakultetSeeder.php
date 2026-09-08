@@ -33,6 +33,7 @@ class FakultetSeeder extends Seeder
             'email' => 'fit@unimed.cg',
             'telefon' => '1111111',
             'web' => 'fit.unimed.cg',
+            'platforma_fakultet_id' => config('platforma.maticni_fakultet_id'),
 
             'univerzitet_id' => $unimed->id ?? null,
             'drzava' => 'Crna Gora',

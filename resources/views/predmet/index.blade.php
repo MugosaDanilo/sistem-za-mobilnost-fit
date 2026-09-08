@@ -34,6 +34,15 @@
                     </svg>
                     Dodaj predmet
                 </button>
+                @if(config('platforma.enabled') && $fakultet->platforma_fakultet_id)
+                <form action="{{ route('platforma.sync-predmeti') }}" method="POST" class="inline">
+                    @csrf
+                    <input type="hidden" name="fakultet_id" value="{{ $fakultet->id }}">
+                    <button type="submit" title="Preuzmi matične predmete sa studentske platforme" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
+                        Sinhronizuj sa platformom
+                    </button>
+                </form>
+                @endif
                 <button id="importSubjectBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg transform transition hover:scale-105">
                     Uvezi predmete
                 </button>
@@ -106,6 +115,7 @@
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-800">Lista Predmeta</h2>
+                @include('partials.platforma-legenda')
                 <span
                     class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ $predmeti->total() }}
                     Ukupno</span>
@@ -134,6 +144,9 @@
                             <tr class="subject-row hover:bg-gray-50 transition-colors duration-150 ease-in-out">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">{{ $p->sifra_predmeta }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ $p->naziv }}
+                                    @if($p->platforma_pfs_id)
+                                        <span title="Povezan sa studentskom platformom (pfs {{ $p->platforma_pfs_id }})" class="ml-1 inline-block w-2 h-2 rounded-full bg-green-500 align-middle"></span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->ects }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $p->semestar }}</td>
