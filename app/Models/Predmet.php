@@ -19,6 +19,8 @@ class Predmet extends Model
         'profesor_id',
         'nivo_studija_id',
         'naziv_engleski',
+        'platforma_pfs_id',
+        'platforma_predmet_id',
     ];
 
     public function fakultet()

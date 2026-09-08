@@ -458,6 +458,8 @@
             </script>
             @endif
 
+            @include('partials.platforma-status', ['zapis' => $mappingRequest, 'student' => $mappingRequest->student, 'posaljiRoute' => route('platforma.prepis.posalji', $mappingRequest->id), 'moze' => $mappingRequest->status === 'accepted'])
+
             <!-- Global Actions -->
             <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
                 @if($mappingRequest->status === 'accepted')

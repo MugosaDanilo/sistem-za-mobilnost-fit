@@ -13,9 +13,9 @@ class DashboardController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('student', function($q) use ($search) {
-                $q->where('ime', 'ilike', "%{$search}%")
-                  ->orWhere('prezime', 'ilike', "%{$search}%")
-                  ->orWhere('br_indexa', 'ilike', "%{$search}%");
+                $q->where('ime', 'like', "%{$search}%")
+                  ->orWhere('prezime', 'like', "%{$search}%")
+                  ->orWhere('br_indexa', 'like', "%{$search}%");
             });
         }
 

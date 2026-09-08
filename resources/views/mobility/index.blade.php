@@ -111,6 +111,7 @@
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                             <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2 flex items-center justify-between">
                                 <span>Predmeti studenata</span>
+                                <span id="subjectsSourceLabel" class="hidden ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded"></span>
                             </h2>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -290,6 +291,9 @@
             const subjectFilterInput = document.getElementById('subjectFilter');
 
             // --- 1. Student Search Logic ---
+            const platformaEnabled = @json((bool) config('platforma.enabled'));
+            let platformaTimer = null;
+
             studentSearch.addEventListener('input', function() {
                 const query = this.value.toLowerCase();
                 if (query.length < 1) {
@@ -304,7 +308,38 @@
                 );
 
                 renderResults(filtered);
+
+                // Studenti sa platforme (koji još nisu u lokalnoj bazi)
+                if (platformaEnabled && query.trim().length >= 2) {
+                    clearTimeout(platformaTimer);
+                    platformaTimer = setTimeout(() => searchPlatforma(query.trim(), filtered), 300);
+                }
             });
+
+            async function searchPlatforma(query, localFiltered) {
+                try {
+                    const res = await fetch(`{{ route('platforma.studenti') }}?q=${encodeURIComponent(query)}`, { headers: { 'Accept': 'application/json' } });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (studentSearch.value.trim().toLowerCase() !== query.toLowerCase()) return; // zastario odgovor
+                    const localKeys = new Set(localStudents.filter(s => s.platforma_student_id).map(s => `${s.platforma_student_id}-${s.platforma_upis_id ?? 'x'}`));
+                    const fresh = data.filter(r => !localKeys.has(r.kljuc) && !r.lokalni_id);
+                    renderResults(localFiltered, fresh);
+                } catch (e) {
+                    console.warn('Platforma pretraga:', e);
+                }
+            }
+
+            async function linkPlatformaStudent(r) {
+                const res = await fetch(`{{ url('/admin/platforma/studenti') }}/${r.platforma_student_id}/povezi`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                    body: JSON.stringify({ status: 'mobilnost', upis_id: r.platforma_upis_id })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Povezivanje nije uspjelo.');
+                return data;
+            }
 
             // Show all on focus if empty
             studentSearch.addEventListener('focus', function() {
@@ -315,9 +350,9 @@
                 }
             });
 
-            function renderResults(list) {
+            function renderResults(list, platformaList = []) {
                 studentResults.innerHTML = '';
-                if (list.length === 0) {
+                if (list.length === 0 && platformaList.length === 0) {
                     const noRes = document.createElement('div');
                     noRes.className = 'p-3 text-sm text-gray-500 italic';
                     noRes.textContent = 'No students found.';
@@ -338,6 +373,36 @@
                         studentIdInput.value = student.id;
                         studentResults.classList.add('hidden');
                         fetchStudentSubjects(student.id); // Trigger fetch
+                    });
+                    studentResults.appendChild(div);
+                });
+
+                if (platformaList.length > 0) {
+                    const head = document.createElement('div');
+                    head.className = 'px-2 py-1 text-[10px] uppercase tracking-wide text-indigo-500 bg-indigo-50 border-b border-indigo-100';
+                    head.textContent = 'Studentska platforma';
+                    studentResults.appendChild(head);
+                }
+                platformaList.forEach(r => {
+                    const div = document.createElement('div');
+                    div.className = 'cursor-pointer hover:bg-indigo-50 p-2 border-b last:border-0 border-gray-100 transition-colors';
+                    div.innerHTML = `
+                    <div class="font-medium text-gray-800 text-sm">${r.ime} ${r.prezime} <span title="Sa studentske platforme" class="ml-1 inline-block w-2 h-2 rounded-full bg-indigo-500 align-middle"></span></div>
+                    <div class="text-xs text-gray-500">${r.br_indexa || 'bez indeksa'} · ${r.platforma_fakultet || ''} · ${r.nivo_studija_naziv || ''} · ${r.godina_studija ? r.godina_studija + '. godina' : ''} · ${r.platforma_akademska_godina || ''}</div>
+                `;
+                    div.addEventListener('click', async () => {
+                        div.innerHTML = '<div class="text-xs text-indigo-500 animate-pulse">Povezivanje sa platformom...</div>';
+                        try {
+                            const student = await linkPlatformaStudent(r);
+                            localStudents.push(student);
+                            studentSearch.value = `${student.ime} ${student.prezime}`;
+                            studentIdInput.value = student.id;
+                            studentResults.classList.add('hidden');
+                            fetchStudentSubjects(student.id);
+                        } catch (e) {
+                            alert(e.message);
+                            studentResults.classList.add('hidden');
+                        }
                     });
                     studentResults.appendChild(div);
                 });
@@ -374,6 +439,13 @@
 
                     renderSubjectBox(unpassedBox, data.unpassed, 'unpassed');
                     renderSubjectBox(nextYearBox, data.next_year, 'nextYear');
+
+                    const srcLabel = document.getElementById('subjectsSourceLabel');
+                    if (srcLabel) {
+                        const fromPlatforma = data.izvor === 'platforma';
+                        srcLabel.textContent = fromPlatforma ? 'IZVOR: STUDENTSKA PLATFORMA' : 'IZVOR: LOKALNI UNOS';
+                        srcLabel.className = 'ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded ' + (fromPlatforma ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600');
+                    }
 
                 } catch (err) {
                     console.error(err);

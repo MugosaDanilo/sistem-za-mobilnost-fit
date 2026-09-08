@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class MappingRequest extends Model
 {
+    protected $casts = ['platforma_poslato_at' => 'datetime'];
+
     use HasFactory;
 
     protected $fillable = [

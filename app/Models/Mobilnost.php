@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Mobilnost extends Model
 {
+    protected $casts = ['platforma_poslato_at' => 'datetime'];
+
     use HasFactory;
     protected $table = 'mobilnosti';
     protected $fillable = ['datum_pocetka', 'datum_kraja', 'student_id', 'fakultet_id', 'is_locked', 'tip_mobilnosti', 'studijska_godina'];

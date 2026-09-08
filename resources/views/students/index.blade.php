@@ -68,6 +68,7 @@
     <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
       <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
         <h2 class="text-lg font-semibold text-gray-800">Lista studenata</h2>
+        @include('partials.platforma-legenda')
         <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ $students->total() }}
           Ukupno</span>
       </div>
@@ -98,7 +99,11 @@
                       {{ substr($student->ime, 0, 1) }}{{ substr($student->prezime, 0, 1) }}
                     </div>
                     <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">{{ $student->ime }} {{ $student->prezime }}</div>
+                      <div class="text-sm font-medium text-gray-900">{{ $student->ime }} {{ $student->prezime }}
+                        @if($student->platforma_student_id)
+                          <span title="Povezan sa studentskom platformom (ID {{ $student->platforma_student_id }})" class="ml-1 inline-block w-2 h-2 rounded-full bg-green-500 align-middle"></span>
+                        @endif
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -116,6 +121,16 @@
       class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors">
       Izmijeni
     </a>
+
+    @if($student->platforma_student_id && config('platforma.enabled'))
+    <form action="{{ route('platforma.studenti.osvjezi', $student->id) }}" method="POST">
+      @csrf
+      <button type="submit" title="Osvježi podatke sa studentske platforme"
+        class="text-green-700 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md transition-colors">
+        Osvježi
+      </button>
+    </form>
+    @endif
 
     <a href="{{ route('students.documents.index', $student->id) }}"
       class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition-colors">

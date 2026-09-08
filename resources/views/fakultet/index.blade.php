@@ -51,6 +51,7 @@
         <div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-800">Lista fakulteta</h2>
+                @include('partials.platforma-legenda')
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ $fakulteti->total() }} Ukupno</span>
             </div>
 
@@ -70,7 +71,11 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($fakulteti as $f)
                         <tr class="faculty-row hover:bg-gray-50 transition-colors duration-150 ease-in-out">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $f->naziv }}</td>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $f->naziv }}
+                                @if($f->platforma_fakultet_id)
+                                    <span title="Povezan sa studentskom platformom (fakultet id {{ $f->platforma_fakultet_id }})" class="ml-1 inline-block w-2 h-2 rounded-full bg-green-500 align-middle"></span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-sm text-gray-500 hidden md:table-cell">{{ $f->email }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500 hidden sm:table-cell">{{ $f->drzava }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500 hidden lg:table-cell">{{ $f->telefon }}</td>
@@ -92,6 +97,7 @@
                                         data-web="{{ $f->web }}"
 
                                         data-univerzitet="{{ $f->univerzitet_id }}"
+                                        data-platforma="{{ $f->platforma_fakultet_id }}"
                                         data-file-path="{{ $f->file_path ? route('fakulteti.download', $f->id) : '' }}">
                                         Izmijeni
                                     </button>
@@ -153,6 +159,19 @@
                     <label for="addWeb" class="block text-gray-700 font-medium mb-1">Web</label>
                     <input type="text" id="addWeb" name="web" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
+
+@if(config('platforma.enabled'))
+<div class="mb-4">
+    <label for="addPlatformaFakultet" class="block text-gray-700 font-medium mb-1">Fakultet na studentskoj platformi</label>
+    <select id="addPlatformaFakultet" name="platforma_fakultet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        <option value="">-- nije povezan (strani fakultet) --</option>
+        @foreach($platformaFakulteti as $pf)
+            <option value="{{ $pf['id'] }}">{{ $pf['naziv'] }} ({{ $pf['skracen_naziv'] }})</option>
+        @endforeach
+    </select>
+    <p class="text-xs text-gray-500 mt-1">Povezan fakultet je matični: predmeti i studenti se povlače sa platforme.</p>
+</div>
+@endif
 
 <div class="mb-4">
     <label class="block text-gray-700 font-medium mb-1">Univerzitet (opciono)</label>
@@ -221,6 +240,19 @@
                     <label for="editWeb" class="block text-gray-700 font-medium mb-1">Web sajt</label>
                     <input type="text" id="editWeb" name="web" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
+
+@if(config('platforma.enabled'))
+<div class="mb-4">
+    <label for="editPlatformaFakultet" class="block text-gray-700 font-medium mb-1">Fakultet na studentskoj platformi</label>
+    <select id="editPlatformaFakultet" name="platforma_fakultet_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500">
+        <option value="">-- nije povezan (strani fakultet) --</option>
+        @foreach($platformaFakulteti as $pf)
+            <option value="{{ $pf['id'] }}">{{ $pf['naziv'] }} ({{ $pf['skracen_naziv'] }})</option>
+        @endforeach
+    </select>
+    <p class="text-xs text-gray-500 mt-1">Povezan fakultet je matični: predmeti i studenti se povlače sa platforme.</p>
+</div>
+@endif
 
                 <div class="mb-4">
                     <label class="block text-gray-700 font-medium mb-1">Univerzitet (opciono)</label>
@@ -297,6 +329,8 @@ document.querySelectorAll('.openEditModal').forEach(button => {
         document.getElementById('editWeb').value = button.getAttribute('data-web');
 
         document.getElementById('editUniversity').value = button.getAttribute('data-univerzitet');
+        const editPlatforma = document.getElementById('editPlatformaFakultet');
+        if (editPlatforma) editPlatforma.value = button.getAttribute('data-platforma') || '';
 
         const filePath = button.getAttribute('data-file-path');
         const fileContainer = document.getElementById('currentFileContainer');

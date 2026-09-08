@@ -21,11 +21,20 @@ class Student extends Model
         'jmbg',
         'nivo_studija_id',
         'pol',
-        'status'
+        'status',
+        'platforma_student_id',
+        'platforma_upis_id',
+        'platforma_synced_at',
     ];
 
     protected $casts = [
+        'platforma_synced_at' => 'datetime',
     ];
+
+    public function povezanSaPlatformom(): bool
+    {
+        return (bool) $this->platforma_student_id;
+    }
 
     public function nivoStudija()
     {

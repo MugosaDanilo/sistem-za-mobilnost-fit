@@ -8,6 +8,7 @@ use App\Models\Predmet;
 use Illuminate\Database\Seeder;
 
 use App\Services\SubjectImportService;
+use Illuminate\Support\Facades\Artisan;
 
 class PredmetiSeeder extends Seeder
 {
@@ -17,7 +18,31 @@ class PredmetiSeeder extends Seeder
     public function run(): void
     {
         $importer = new SubjectImportService();
+        $basic = NivoStudija::where('naziv', 'Osnovne')->first();
+        $master = NivoStudija::where('naziv', 'Master')->first();
+
+        // Matični (FIT) predmeti: ako je platforma konfigurisana, povlače se sa nje.
+        // Excel iz storage/app/predmeti služi samo kad platforma nije dostupna.
+        if (config('platforma.enabled')) {
+            $this->command?->info('Matični predmeti se sinhronizuju sa studentske platforme...');
+            $exit = Artisan::call('platforma:sync-predmeti');
+            $this->command?->line(trim(Artisan::output()));
+            if ($exit !== 0) {
+                $this->command?->warn('Sinhronizacija nije uspjela, FIT predmeti nisu ubačeni. Pokreni kasnije: php artisan platforma:sync-predmeti');
+            }
+        } else {
+            $this->seedFitIzExcela($importer, $basic, $master);
+        }
+
+        $this->seedStraneFakultete($importer, $basic);
+    }
+
+    private function seedFitIzExcela(SubjectImportService $importer, ?NivoStudija $basic, ?NivoStudija $master): void
+    {
         $fitPath = storage_path('app/predmeti/FIT_Nastavni_planovi_1.xlsx');
+        if (!file_exists($fitPath)) {
+            return;
+        }
 
         $coursesFitBasic = $importer->loadCoursesFit($fitPath, 'basic');
         $coursesFitMaster = $importer->loadCoursesFit($fitPath, 'master');
@@ -25,9 +50,6 @@ class PredmetiSeeder extends Seeder
         $unimed = Fakultet::where('naziv', 'LIKE', '%FIT%')
                         ->orWhere('naziv', 'LIKE', '%Fakultet za informacione tehnologije%')
                         ->first();
-        
-        $basic = NivoStudija::where('naziv', 'Osnovne')->first();
-        $master = NivoStudija::where('naziv', 'Master')->first();
 
         foreach ($coursesFitBasic as $c) {
             Predmet::create([
@@ -52,7 +74,10 @@ class PredmetiSeeder extends Seeder
                 'nivo_studija_id' => $master->id ?? null,
             ]);
         }
+    }
 
+    private function seedStraneFakultete(SubjectImportService $importer, ?NivoStudija $basic): void
+    {
         $etfPath = storage_path('app/predmeti/etf_predmeti.xlsx');
         if (file_exists($etfPath)) {
             $coursesEtf = $importer->loadCoursesGeneric($etfPath);

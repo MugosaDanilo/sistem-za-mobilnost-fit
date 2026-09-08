@@ -64,6 +64,15 @@ Route::middleware('adminAuth')->prefix('admin')->group(function () {
 
     Route::delete('/mobilnost/{id}', [MobilityController::class, 'destroy'])->name('admin.mobility.destroy');
 
+    // Integracija sa studentskom platformom
+    Route::get('/platforma/status', [\App\Http\Controllers\PlatformaController::class, 'status'])->name('platforma.status');
+    Route::get('/platforma/studenti', [\App\Http\Controllers\PlatformaController::class, 'pretraga'])->name('platforma.studenti');
+    Route::post('/platforma/studenti/{platformaId}/povezi', [\App\Http\Controllers\PlatformaController::class, 'povezi'])->name('platforma.studenti.povezi');
+    Route::post('/platforma/studenti/{id}/osvjezi', [\App\Http\Controllers\PlatformaController::class, 'osvjezi'])->name('platforma.studenti.osvjezi');
+    Route::post('/platforma/sync-predmeti', [\App\Http\Controllers\PlatformaController::class, 'syncPredmeti'])->name('platforma.sync-predmeti');
+    Route::post('/platforma/mobilnost/{id}/posalji', [\App\Http\Controllers\PlatformaController::class, 'posaljiMobilnost'])->name('platforma.mobilnost.posalji');
+    Route::post('/platforma/prepis/{id}/posalji', [\App\Http\Controllers\PlatformaController::class, 'posaljiPrepis'])->name('platforma.prepis.posalji');
+
     Route::get('/users/', [UserController::class, 'index'])->name('users.index');
     Route::post('/users/', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');

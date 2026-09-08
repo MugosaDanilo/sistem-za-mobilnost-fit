@@ -33,10 +33,10 @@ class StudentController extends Controller
     if ($request->filled('search')) {
         $search = $request->search;
         $query->where(function($q) use ($search) {
-            $q->where('ime', 'ilike', "%{$search}%")
-              ->orWhere('prezime', 'ilike', "%{$search}%")
-              ->orWhere('br_indexa', 'ilike', "%{$search}%")
-              ->orWhere('email', 'ilike', "%{$search}%");
+            $q->where('ime', 'like', "%{$search}%")
+              ->orWhere('prezime', 'like', "%{$search}%")
+              ->orWhere('br_indexa', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%");
         });
     }
 
@@ -61,11 +61,13 @@ class StudentController extends Controller
       'ime' => 'required|string|max:255',
       'prezime' => 'required|string|max:255',
       'br_indexa' => 'required|string|max:20|unique:studenti',
-      'datum_rodjenja' => 'required|date',
-      'telefon' => 'required|string|max:255',
-      'email' => 'required|email|max:255|unique:studenti,email',
+      'datum_rodjenja' => 'nullable|date',
+      'telefon' => 'nullable|string|max:255',
+      'email' => 'nullable|email|max:255|unique:studenti,email',
+      'platforma_student_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::unique('studenti')->where(fn ($q) => $q->where('platforma_upis_id', $request->input('platforma_upis_id')))],
+      'platforma_upis_id' => 'nullable|integer',
       'godina_studija' => 'required|integer',
-      'jmbg' => 'required|string|size:13|unique:studenti,jmbg',
+      'jmbg' => 'required|string|min:13|max:20|unique:studenti,jmbg',
       'nivo_studija_id' => [
           'required',
           'exists:nivo_studija,id',
@@ -86,6 +88,9 @@ class StudentController extends Controller
       'status' => 'required|in:mobilnost,prepis',
     ]);
 
+    if (!empty($validated['platforma_student_id'])) {
+      $validated['platforma_synced_at'] = now();
+    }
     $student = Student::create($validated);
 
     if ($request->has('predmeti')) {
@@ -120,7 +125,20 @@ class StudentController extends Controller
     }
     
     $fakulteti = Fakultet::all();
-    return view('students.edit', compact('student', 'nivoStudija', 'predmeti', 'fakulteti'));
+
+    // Položeni ispiti sa studentske platforme (samo prikaz, ne čuvaju se lokalno)
+    $platformaPolozeni = null;
+    $platformaGreska = null;
+    if ($student->platforma_student_id && config('platforma.enabled')) {
+        try {
+            $platformaPolozeni = app(\App\Services\Platforma\PlatformaClient::class)
+                ->polozeniPredmeti((int) $student->platforma_student_id);
+        } catch (\App\Services\Platforma\PlatformaException $e) {
+            $platformaGreska = $e->getMessage();
+        }
+    }
+
+    return view('students.edit', compact('student', 'nivoStudija', 'predmeti', 'fakulteti', 'platformaPolozeni', 'platformaGreska'));
   }
 
   public function update(Request $request, $id)
@@ -131,11 +149,13 @@ class StudentController extends Controller
       'ime' => 'required|string|max:255',
       'prezime' => 'required|string|max:255',
       'br_indexa' => 'required|string|max:20|unique:studenti,br_indexa,' . $id,
-      'datum_rodjenja' => 'required|date',
-      'telefon' => 'required|string|max:255',
-      'email' => 'required|email|max:255|unique:studenti,email,' . $id,
+      'datum_rodjenja' => 'nullable|date',
+      'telefon' => 'nullable|string|max:255',
+      'email' => 'nullable|email|max:255|unique:studenti,email,' . $id,
+      'platforma_student_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::unique('studenti')->where(fn ($q) => $q->where('platforma_upis_id', $request->input('platforma_upis_id')))->ignore($id)],
+      'platforma_upis_id' => 'nullable|integer',
       'godina_studija' => 'required|integer',
-      'jmbg' => 'required|string|size:13|unique:studenti,jmbg,' . $id,
+      'jmbg' => 'required|string|min:13|max:20|unique:studenti,jmbg,' . $id,
       'nivo_studija_id' => [
         'required',
         'exists:nivo_studija,id',
@@ -156,6 +176,9 @@ class StudentController extends Controller
       'status' => 'required|in:mobilnost,prepis',
     ]);
 
+    if (!empty($validated['platforma_student_id']) && $validated['platforma_student_id'] != $student->platforma_student_id) {
+      $validated['platforma_synced_at'] = now();
+    }
     $student->update($validated);
 
     if ($request->has('predmeti')) {
